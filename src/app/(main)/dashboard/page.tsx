@@ -1,10 +1,141 @@
-export default function DashboardPage() {
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { CreativoView } from '@/features/dashboard/components/creativo-view'
+import { InvestigadorView } from '@/features/dashboard/components/investigador-view'
+import { FinancieroView } from '@/features/dashboard/components/financiero-view'
+import { AdminView } from '@/features/dashboard/components/admin-view'
+import { PaymentConfirmationPanel } from '@/features/orders/components/payment-confirmation-panel'
+import { getFinancialMetrics } from '@/features/dashboard/services/get-financial-metrics'
+import type { Competitor } from '@/types/database'
+
+export default async function DashboardPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('profiles').select('role').eq('id', user.id).single()
+
+  const role = profile?.role ?? null
+  const admin = createAdminClient()
+
+  // --- Fetch por rol ---
+
+  // Letras pendientes (creativo + admin)
+  const needsLyrics = role === 'creativo' || role === 'administrador'
+  const { data: lyricsRaw } = needsLyrics
+    ? await admin.from('orders').select(`
+        id, story_text, musical_style, created_at,
+        leads!inner(phone),
+        songs(lyrics_text)
+      `).eq('status', 'letra_generada').order('created_at', { ascending: true })
+    : { data: [] }
+
+  const lyricsOrders = (lyricsRaw ?? []).map((o: Record<string, unknown>) => {
+    const leads = o.leads as { phone: string } | { phone: string }[]
+    const songs = o.songs as { lyrics_text: string }[] | null
+    return {
+      id: o.id as string,
+      lead_phone: (Array.isArray(leads) ? leads[0]?.phone : leads?.phone) ?? '',
+      story_text: o.story_text as string | null,
+      musical_style: o.musical_style as string | null,
+      lyrics_text: songs?.[0]?.lyrics_text ?? null,
+      created_at: o.created_at as string,
+    }
+  })
+
+  // Competidores (investigador + admin)
+  const needsCompetitors = role === 'agente_investigador' || role === 'administrador'
+  const { data: competitorsRaw } = needsCompetitors
+    ? await admin.from('competitors').select('*').order('created_at', { ascending: true })
+    : { data: [] }
+  const competitors = (competitorsRaw ?? []) as Competitor[]
+
+  // Métricas financieras (admin_pagos + admin)
+  const needsMetrics = role === 'admin_pagos' || role === 'administrador'
+  const metrics = needsMetrics ? await getFinancialMetrics() : null
+
+  // Pagos pendientes (admin_pagos + admin)
+  const needsPayments = role === 'admin_pagos' || role === 'administrador'
+  const { data: paymentsRaw } = needsPayments
+    ? await admin.from('orders').select(`
+        id, story_text, musical_style, payment_proof_url, created_at,
+        leads!inner(phone),
+        songs(lyrics_text)
+      `).eq('status', 'pago_pendiente').order('created_at', { ascending: true })
+    : { data: [] }
+
+  const pendingPayments = (paymentsRaw ?? []).map((o: Record<string, unknown>) => {
+    const leads = o.leads as { phone: string } | { phone: string }[]
+    const songs = o.songs as { lyrics_text: string }[] | null
+    return {
+      id: o.id as string,
+      lead_phone: (Array.isArray(leads) ? leads[0]?.phone : leads?.phone) ?? '',
+      story_text: o.story_text as string | null,
+      musical_style: o.musical_style as string | null,
+      payment_proof_url: o.payment_proof_url as string | null,
+      created_at: o.created_at as string,
+      lyrics_text: songs?.[0]?.lyrics_text ?? null,
+    }
+  })
+
+  // Pagos de video pendientes (admin_pagos + admin)
+  const { data: videoPaymentsRaw } = needsPayments
+    ? await admin.from('orders').select(`
+        id, musical_style, created_at,
+        leads!inner(phone),
+        videos(payment_proof_url, price)
+      `).eq('status', 'video_pago_enviado').order('created_at', { ascending: true })
+    : { data: [] }
+
+  const pendingVideoPayments = (videoPaymentsRaw ?? []).map((o: Record<string, unknown>) => {
+    const leads = o.leads as { phone: string } | { phone: string }[]
+    const videos = o.videos as { payment_proof_url: string | null; price: number | null }[] | null
+    return {
+      id: o.id as string,
+      lead_phone: (Array.isArray(leads) ? leads[0]?.phone : leads?.phone) ?? '',
+      musical_style: o.musical_style as string | null,
+      payment_proof_url: videos?.[0]?.payment_proof_url ?? null,
+      video_price: videos?.[0]?.price ?? null,
+      created_at: o.created_at as string,
+    }
+  })
+
   return (
-    <div className="min-h-screen p-8">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <p className="mt-4 text-gray-600">
-        Implementa componentes desde features/dashboard/components/
-      </p>
+    <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
+      <div className="mx-auto max-w-5xl">
+        {role === 'creativo' && (
+          <CreativoView orders={lyricsOrders} />
+        )}
+
+        {role === 'agente_investigador' && (
+          <InvestigadorView initial={competitors} />
+        )}
+
+        {role === 'admin_pagos' && metrics && (
+          <div className="space-y-8">
+            <FinancieroView metrics={metrics} />
+            <PaymentConfirmationPanel orders={pendingPayments} />
+          </div>
+        )}
+
+        {role === 'administrador' && metrics && (
+          <AdminView
+            lyricsOrders={lyricsOrders}
+            competitors={competitors}
+            metrics={metrics}
+            pendingPayments={pendingPayments}
+            pendingVideoPayments={pendingVideoPayments}
+          />
+        )}
+
+        {!role && (
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-gray-400">
+            Sin rol asignado. Contacta al administrador.
+          </div>
+        )}
+      </div>
     </div>
   )
 }
