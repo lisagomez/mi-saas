@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getGlobalRoas } from '@/features/facebook-ads/services/get-campaigns-with-metrics'
 import type { FinancialMetrics } from '@/types/database'
 
 // Precio por canción en MXN (configurable via env)
@@ -50,6 +51,9 @@ export async function getFinancialMetrics(): Promise<FinancialMetrics> {
     ? totalRevenueMxn / ordersDelivered
     : null
 
+  // ROAS global desde Facebook Ads
+  const roas = await getGlobalRoas()
+
   // Flujo de caja mensual (últimos 6 meses)
   const monthlyCashFlow = buildMonthlyCashFlow(delivered ?? [], PRICE_PER_SONG_MXN)
 
@@ -62,7 +66,7 @@ export async function getFinancialMetrics(): Promise<FinancialMetrics> {
     cac,
     ltv,
     roi,
-    roas: null, // Requiere datos de Facebook Ads (futura feature)
+    roas,
     aiSpendUsd,
     monthlyCashFlow,
   }

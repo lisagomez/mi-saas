@@ -4,8 +4,8 @@ import PWARegister from '@/components/PWARegister'
 import { PushNotificationPrompt } from '@/features/notifications/components/PushNotificationPrompt'
 
 export const metadata: Metadata = {
-  title: 'SaaS Factory App',
-  description: 'Built with SaaS Factory',
+  title: 'CancioBot — Corridos Personalizados por WhatsApp',
+  description: 'Tu historia merece un corrido. Letra, música y video personalizados entregados por WhatsApp en horas. Para migrantes que triunfan en el gabacho.',
 }
 
 export default function RootLayout({

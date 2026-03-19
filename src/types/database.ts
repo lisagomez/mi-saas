@@ -147,6 +147,155 @@ export interface AiUsage {
   created_at: string
 }
 
+export type BudgetCategory = 'ai_tokens' | 'marketing' | 'suscripciones' | 'operacion'
+export type ExpenseCategory = 'marketing' | 'suscripciones' | 'operacion'
+export type DomainCategory = 'rentabilidad' | 'experiencia' | 'operacion'
+
+export interface PromotionsCatalog {
+  id: string
+  name: string
+  occasion: string
+  description: string | null
+  discount_percent: number | null
+  discount_fixed_mxn: number | null
+  valid_from: string
+  valid_to: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface PreferencesCatalog {
+  id: string
+  regions: string[]
+  styles: string[]
+  directives: string
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Budget {
+  id: string
+  category: BudgetCategory
+  period_month: string
+  limit_usd: number | null
+  limit_mxn: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Expense {
+  id: string
+  category: ExpenseCategory
+  description: string
+  amount_mxn: number
+  expense_date: string
+  created_by: string | null
+  created_at: string
+}
+
+export interface BusinessDomain {
+  id: string
+  name: string
+  formula: string
+  description: string | null
+  category: DomainCategory
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type AgentType = 'investigator' | 'financial' | 'promotions'
+
+export interface AgentReport {
+  id: string
+  agent_type: AgentType
+  report_json: Record<string, unknown>
+  generated_at: string
+  ai_usage_id: string | null
+}
+
+export interface Rebuy {
+  id: string
+  lead_id: string
+  promotion_id: string | null
+  sent_at: string
+  status: 'sent' | 'failed'
+}
+
+export interface FacebookCampaign {
+  id: string
+  name: string
+  campaign_id_meta: string | null
+  source_key: string
+  start_date: string
+  end_date: string | null
+  budget_usd: number | null
+  notes: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CampaignSpend {
+  id: string
+  campaign_id: string
+  spend_date: string
+  amount_usd: number
+  notes: string | null
+  created_by: string | null
+  created_at: string
+}
+
+/** Campaña con métricas calculadas (leads, ingresos, ROAS) */
+export interface CampaignWithMetrics extends FacebookCampaign {
+  totalSpendUsd: number
+  leadsTotal: number
+  leadsQualified: number
+  ordersDelivered: number
+  revenueUsd: number
+  roas: number | null
+}
+
+export interface StorageConfig {
+  id: string
+  bucket_name: string
+  limit_mb: number
+  cleanup_after_days: number
+  created_at: string
+  updated_at: string
+}
+
+export interface StorageCleanupLog {
+  id: string
+  ran_at: string
+  deleted_files: number
+  freed_mb: number | null
+  triggered_by: string
+  details: Record<string, unknown>[] | null
+}
+
+/** Métricas financieras enriquecidas por el Agente Financiero */
+export interface EnrichedFinancialMetrics {
+  totalRevenueMxn: number
+  totalExpensesMxn: number
+  totalAiCostUsd: number
+  ordersDelivered: number
+  leadsTotal: number
+  leadsQualified: number
+  roi: number | null
+  roas: number | null // null cuando no hay datos de campañas Facebook Ads
+  cac: number | null
+  ltv: number | null
+  puntoEquilibrio: number | null
+  flujoCaja: number | null
+  monthlyCashFlow: { month: string; revenue: number }[]
+  insufficientData: string[] // métricas sin datos suficientes
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -199,6 +348,61 @@ export interface Database {
         Row: OrderPhoto
         Insert: Omit<OrderPhoto, 'id' | 'created_at'>
         Update: Partial<Omit<OrderPhoto, 'id' | 'created_at' | 'order_id'>>
+      }
+      promotions_catalog: {
+        Row: PromotionsCatalog
+        Insert: Omit<PromotionsCatalog, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<PromotionsCatalog, 'id' | 'created_at'>>
+      }
+      preferences_catalog: {
+        Row: PreferencesCatalog
+        Insert: Omit<PreferencesCatalog, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<PreferencesCatalog, 'id' | 'created_at'>>
+      }
+      budgets: {
+        Row: Budget
+        Insert: Omit<Budget, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Budget, 'id' | 'created_at'>>
+      }
+      expenses: {
+        Row: Expense
+        Insert: Omit<Expense, 'id' | 'created_at'>
+        Update: Partial<Omit<Expense, 'id' | 'created_at'>>
+      }
+      business_domain: {
+        Row: BusinessDomain
+        Insert: Omit<BusinessDomain, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<BusinessDomain, 'id' | 'created_at'>>
+      }
+      agent_reports: {
+        Row: AgentReport
+        Insert: Omit<AgentReport, 'id' | 'generated_at'>
+        Update: never
+      }
+      rebuys: {
+        Row: Rebuy
+        Insert: Omit<Rebuy, 'id' | 'sent_at'>
+        Update: Partial<Omit<Rebuy, 'id' | 'sent_at' | 'lead_id'>>
+      }
+      facebook_campaigns: {
+        Row: FacebookCampaign
+        Insert: Omit<FacebookCampaign, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<FacebookCampaign, 'id' | 'created_at'>>
+      }
+      campaign_spend: {
+        Row: CampaignSpend
+        Insert: Omit<CampaignSpend, 'id' | 'created_at'>
+        Update: Partial<Omit<CampaignSpend, 'id' | 'created_at' | 'campaign_id'>>
+      }
+      storage_config: {
+        Row: StorageConfig
+        Insert: Omit<StorageConfig, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<StorageConfig, 'id' | 'created_at' | 'bucket_name'>>
+      }
+      storage_cleanup_log: {
+        Row: StorageCleanupLog
+        Insert: Omit<StorageCleanupLog, 'id' | 'ran_at'>
+        Update: never
       }
     }
     Views: Record<string, never>

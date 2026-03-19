@@ -1,12 +1,23 @@
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { DashboardShell } from '@/components/DashboardShell'
+
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const role = (profile?.role ?? null) as 'creativo' | 'agente_investigador' | 'admin_pagos' | 'administrador' | null
+
   return (
-    <div className="min-h-screen">
-      {/* Nav, Sidebar, etc. */}
-      <main>{children}</main>
-    </div>
+    <DashboardShell email={user.email ?? ''} role={role}>
+      {children}
+    </DashboardShell>
   )
 }

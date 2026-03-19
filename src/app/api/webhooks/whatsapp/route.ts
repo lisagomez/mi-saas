@@ -37,7 +37,10 @@ import { createVideoRecord } from '@/features/video-generation/services/create-v
 import { storePhoto } from '@/features/video-generation/services/store-photo'
 import { generateAndDeliverVideo } from '@/features/video-generation/services/generate-and-deliver-video'
 import { extractAndSaveLocation } from '@/features/whatsapp-bot/conversation/services/extract-location'
-import { buildMusicPrompt } from '@/features/orders/prompts/music-prompt'
+import { buildMusicPromptDb } from '@/features/catalogs/services/build-music-prompt-db'
+import { detectOccasion } from '@/features/catalogs/services/detect-occasion'
+import { getActivePromotion, formatPromotionMessage } from '@/features/catalogs/services/get-active-promotion'
+import { guardedAiCall, BudgetLimitError } from '@/features/catalogs/services/guarded-ai-call'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MODELS } from '@/lib/ai/openrouter'
 import type { OrderStatus } from '@/types/database'
@@ -80,7 +83,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  const { from: phone, text, imageMediaId, imageMimeType, messageId } = message
+  const { from: phone, text, imageMediaId, imageMimeType, messageId, campaignSource } = message
 
   // Ignorar mensajes sin texto ni imagen
   if (!text?.trim() && !imageMediaId) {
@@ -90,7 +93,7 @@ export async function POST(request: NextRequest) {
   try {
     const { lead, isNew: isNewLead } = await getOrCreateLead({
       phone,
-      source: 'facebook',
+      source: campaignSource ?? 'facebook',
     })
 
     await storeMessage({
@@ -156,6 +159,17 @@ export async function POST(request: NextRequest) {
     })
 
     if (result.qualified) {
+      // Detectar ocasión especial y ofrecer promoción vigente si existe
+      const occasion = await detectOccasion(conversationText)
+      if (occasion && occasion !== 'otro') {
+        const promo = await getActivePromotion(occasion)
+        if (promo) {
+          const promoMsg = formatPromotionMessage(promo)
+          await sendWhatsAppText(phone, promoMsg)
+          await storeMessage({ leadId: lead.id, role: 'assistant', contentText: promoMsg })
+        }
+      }
+
       await sendWhatsAppText(phone, NEXT_STEP_QUALIFIED_MESSAGE)
       await storeMessage({
         leadId: lead.id,
@@ -228,10 +242,11 @@ async function handleQualifiedLead(params: {
       .single()
 
     const musicalStyle = text.trim()
-    const musicPrompt = buildMusicPrompt(
+    const leadMeta = leadData as { origin: string | null; residence: string | null } | null
+    const musicPrompt = await buildMusicPromptDb(
       musicalStyle,
-      (leadData as { origin: string | null; residence: string | null } | null)?.origin ?? null,
-      (leadData as { origin: string | null; residence: string | null } | null)?.residence ?? null
+      leadMeta?.origin ?? null,
+      leadMeta?.residence ?? null
     )
 
     await supabase
@@ -246,13 +261,22 @@ async function handleQualifiedLead(params: {
     await sendAndStore(phone, leadId, GENERATING_LYRICS_MESSAGE)
 
     const storyText = order.story_text ?? text
-    const { lyricsText, songId } = await generateLyrics({
-      orderId: order.id,
-      leadId,
-      storyText,
-      musicalStyle,
-      musicPrompt,
-    })
+    let lyricsText: string
+    let songId: string
+
+    try {
+      const result = await guardedAiCall(order.id, () =>
+        generateLyrics({ orderId: order.id, leadId, storyText, musicalStyle, musicPrompt })
+      )
+      lyricsText = result.lyricsText
+      songId = result.songId
+    } catch (err) {
+      if (err instanceof BudgetLimitError) {
+        await sendAndStore(phone, leadId, '⏳ Tu canción está en proceso. Te la enviamos pronto, compa.')
+        return
+      }
+      throw err
+    }
 
     // Persistir musicPrompt en la canción
     await supabase
@@ -447,14 +471,29 @@ async function sendAndStore(phone: string, leadId: string, message: string): Pro
   }
 }
 
+function extractCampaignSource(msg: { referral?: { source_url?: string } }): string | undefined {
+  const sourceUrl = msg.referral?.source_url
+  if (!sourceUrl) return undefined
+  try {
+    const url = new URL(sourceUrl)
+    const utmCampaign = url.searchParams.get('utm_campaign')
+    if (utmCampaign) return `fb_${utmCampaign}`
+  } catch {
+    // URL inválida — ignorar
+  }
+  return undefined
+}
+
 function extractIncomingMessage(
   payload: WhatsAppWebhookPayload
-): { from: string; text: string | null; imageMediaId: string | null; imageMimeType: string | null; messageId: string } | null {
+): { from: string; text: string | null; imageMediaId: string | null; imageMimeType: string | null; messageId: string; campaignSource?: string } | null {
   const entry = payload.entry?.[0]
   const change = entry?.changes?.[0]
   const value = change?.value
   const msg = value?.messages?.[0]
   if (!msg || change?.field !== 'messages') return null
+
+  const campaignSource = extractCampaignSource(msg)
 
   if (msg.type === 'text' && msg.text?.body) {
     return {
@@ -463,6 +502,7 @@ function extractIncomingMessage(
       imageMediaId: null,
       imageMimeType: null,
       messageId: msg.id,
+      campaignSource,
     }
   }
 
@@ -473,6 +513,7 @@ function extractIncomingMessage(
       imageMediaId: msg.image.id,
       imageMimeType: msg.image.mime_type ?? null,
       messageId: msg.id,
+      campaignSource,
     }
   }
 
@@ -511,6 +552,7 @@ interface WhatsAppWebhookPayload {
           type: string
           text?: { body: string }
           image?: { id: string; mime_type?: string }
+          referral?: { source_url?: string; source_id?: string; headline?: string }
         }>
       }
     }>

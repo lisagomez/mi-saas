@@ -7,7 +7,12 @@ import { FinancieroView } from '@/features/dashboard/components/financiero-view'
 import { AdminView } from '@/features/dashboard/components/admin-view'
 import { PaymentConfirmationPanel } from '@/features/orders/components/payment-confirmation-panel'
 import { getFinancialMetrics } from '@/features/dashboard/services/get-financial-metrics'
-import type { Competitor } from '@/types/database'
+import { getLatestInvestigatorReport } from '@/features/agents/investigator/services/run-investigator-agent'
+import { getCampaignsWithMetrics } from '@/features/facebook-ads/services/get-campaigns-with-metrics'
+import { getStorageStats } from '@/features/storage-management/services/get-storage-stats'
+import { getStorageConfig } from '@/features/storage-management/services/get-storage-config'
+import { getCleanupLog } from '@/features/storage-management/services/get-cleanup-log'
+import type { Competitor, PromotionsCatalog } from '@/types/database'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -56,6 +61,23 @@ export default async function DashboardPage() {
   const needsMetrics = role === 'admin_pagos' || role === 'administrador'
   const metrics = needsMetrics ? await getFinancialMetrics() : null
 
+  // Datos para agentes (solo admin)
+  const isAdmin = role === 'administrador'
+  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog] = isAdmin
+    ? await Promise.all([
+        getLatestInvestigatorReport(),
+        admin.from('promotions_catalog').select('*').eq('is_active', true)
+          .lte('valid_from', new Date().toISOString().split('T')[0])
+          .gte('valid_to', new Date().toISOString().split('T')[0])
+          .order('created_at', { ascending: false }),
+        getCampaignsWithMetrics(),
+        getStorageStats(),
+        getStorageConfig(),
+        getCleanupLog(),
+      ])
+    : [null, { data: [] }, [], [], [], []]
+  const activePromotions = (activePromotionsRaw.data ?? []) as PromotionsCatalog[]
+
   // Pagos pendientes (admin_pagos + admin)
   const needsPayments = role === 'admin_pagos' || role === 'administrador'
   const { data: paymentsRaw } = needsPayments
@@ -103,8 +125,7 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl">
         {role === 'creativo' && (
           <CreativoView orders={lyricsOrders} />
         )}
@@ -127,6 +148,12 @@ export default async function DashboardPage() {
             metrics={metrics}
             pendingPayments={pendingPayments}
             pendingVideoPayments={pendingVideoPayments}
+            latestInvestigatorReport={latestInvestigatorReport}
+            activePromotions={activePromotions}
+            facebookCampaigns={facebookCampaigns}
+            storageStats={storageStats}
+            storageConfigs={storageConfigs}
+            storageCleanupLog={storageCleanupLog}
           />
         )}
 
@@ -135,7 +162,6 @@ export default async function DashboardPage() {
             Sin rol asignado. Contacta al administrador.
           </div>
         )}
-      </div>
     </div>
   )
 }
