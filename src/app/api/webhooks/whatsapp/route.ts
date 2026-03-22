@@ -37,6 +37,7 @@ import { createVideoRecord } from '@/features/video-generation/services/create-v
 import { storePhoto } from '@/features/video-generation/services/store-photo'
 import { generateAndDeliverVideo } from '@/features/video-generation/services/generate-and-deliver-video'
 import { extractAndSaveLocation } from '@/features/whatsapp-bot/conversation/services/extract-location'
+import { transcribeWhatsAppAudio } from '@/features/whatsapp-bot/conversation/services/transcribe-whatsapp-audio'
 import { buildMusicPromptDb } from '@/features/catalogs/services/build-music-prompt-db'
 import { detectOccasion } from '@/features/catalogs/services/detect-occasion'
 import { getActivePromotion, formatPromotionMessage } from '@/features/catalogs/services/get-active-promotion'
@@ -83,7 +84,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  const { from: phone, text, imageMediaId, imageMimeType, messageId, campaignSource } = message
+  let { from: phone, text, imageMediaId, imageMimeType, messageId, campaignSource } = message
+  const { audioMediaId } = message
+
+  // Transcribir audio a texto antes de entrar al flujo principal
+  if (audioMediaId && !imageMediaId) {
+    try {
+      const transcription = await transcribeWhatsAppAudio(audioMediaId)
+      if (transcription) {
+        text = transcription
+      }
+    } catch (err) {
+      console.error('[webhook whatsapp] transcribeWhatsAppAudio failed', err)
+      // No bloqueamos el webhook; continuamos sin texto
+    }
+  }
 
   // Ignorar mensajes sin texto ni imagen
   if (!text?.trim() && !imageMediaId) {
@@ -489,7 +504,7 @@ function extractCampaignSource(msg: { referral?: { source_url?: string } }): str
 
 function extractIncomingMessage(
   payload: WhatsAppWebhookPayload
-): { from: string; text: string | null; imageMediaId: string | null; imageMimeType: string | null; messageId: string; campaignSource?: string } | null {
+): { from: string; text: string | null; imageMediaId: string | null; imageMimeType: string | null; audioMediaId: string | null; messageId: string; campaignSource?: string } | null {
   const entry = payload.entry?.[0]
   const change = entry?.changes?.[0]
   const value = change?.value
@@ -504,6 +519,7 @@ function extractIncomingMessage(
       text: msg.text.body,
       imageMediaId: null,
       imageMimeType: null,
+      audioMediaId: null,
       messageId: msg.id,
       campaignSource,
     }
@@ -515,6 +531,19 @@ function extractIncomingMessage(
       text: null,
       imageMediaId: msg.image.id,
       imageMimeType: msg.image.mime_type ?? null,
+      audioMediaId: null,
+      messageId: msg.id,
+      campaignSource,
+    }
+  }
+
+  if (msg.type === 'audio' && msg.audio?.id) {
+    return {
+      from: String(msg.from),
+      text: null,
+      imageMediaId: null,
+      imageMimeType: null,
+      audioMediaId: msg.audio.id,
       messageId: msg.id,
       campaignSource,
     }
@@ -555,6 +584,7 @@ interface WhatsAppWebhookPayload {
           type: string
           text?: { body: string }
           image?: { id: string; mime_type?: string }
+          audio?: { id: string; mime_type?: string }
           referral?: { source_url?: string; source_id?: string; headline?: string }
         }>
       }
