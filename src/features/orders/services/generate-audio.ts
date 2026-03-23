@@ -1,66 +1,72 @@
-import type { SunoGenerateParams, SunoClip } from '../types/suno'
+const MUSICAPI_BASE = 'https://api.musicapi.ai/api/v1'
+const MUSICAPI_MODEL = 'sonic-v4-5'
 
-const SUNO_BASE_URL = 'https://api.suno.ai'
-const SUNO_TIMEOUT_MS = 120_000 // 2 minutos máximo
+const MAX_POLL_ATTEMPTS = 40  // 40 × 15s = 10 minutos máximo
+const POLL_INTERVAL_MS = 15_000
 
 /**
- * Genera audio de una canción usando Suno AI.
- *
- * Requiere SUNO_COOKIE en variables de entorno (sesión de Suno).
- * Si no está configurado, lanza error descriptivo para fallback graceful.
- *
- * Interfaz diseñada para swap por Freebeat u otro proveedor sin cambiar la orquestación.
+ * Genera una canción completa con voz usando MusicAPI (Suno v4.5 por debajo).
+ * Acepta la letra personalizada generada por el calificador y el estilo musical del cliente.
  */
 export async function generateAudio(params: {
   musicPrompt: string
   lyricsText: string
   title?: string
 }): Promise<{ audioUrl: string; sunoId: string }> {
-  const cookie = process.env.SUNO_COOKIE
-  if (!cookie) {
-    throw new Error('SUNO_COOKIE no configurado — generación de audio no disponible')
+  const apiKey = process.env.MUSICAPI_KEY
+  if (!apiKey) {
+    throw new Error('MUSICAPI_KEY no configurado — generación de audio no disponible')
   }
 
-  const body: SunoGenerateParams = {
-    prompt: params.musicPrompt,
-    lyrics: params.lyricsText,
-    title: params.title ?? 'Mi Canción Personalizada',
-    make_instrumental: false,
-    wait_audio: true,
+  // 1. Crear la canción
+  const createRes = await fetch(`${MUSICAPI_BASE}/sonic/create`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      custom_mode: true,
+      mv: MUSICAPI_MODEL,
+      title: params.title ?? 'Mi Canción Personalizada',
+      tags: params.musicPrompt,
+      prompt: params.lyricsText,
+      style_weight: 0.8,
+    }),
+  })
+
+  if (!createRes.ok) {
+    throw new Error(`MusicAPI create failed ${createRes.status}: ${await createRes.text()}`)
   }
 
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), SUNO_TIMEOUT_MS)
+  const { task_id } = await createRes.json() as { task_id: string }
 
-  let res: Response
-  try {
-    res = await fetch(`${SUNO_BASE_URL}/api/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: cookie,
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
+  // 2. Polling hasta que la canción esté lista
+  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS))
+
+    const pollRes = await fetch(`${MUSICAPI_BASE}/sonic/task/${task_id}`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
     })
-  } finally {
-    clearTimeout(timer)
+
+    if (!pollRes.ok) continue
+
+    const poll = await pollRes.json() as {
+      data?: Array<{ clip_id: string; state: string; audio_url?: string }>
+    }
+
+    const clip = poll.data?.[0]
+    if (!clip) continue
+
+    if (clip.state === 'succeeded') {
+      if (!clip.audio_url) throw new Error('MusicAPI succeeded pero audio_url está vacío')
+      return { audioUrl: clip.audio_url, sunoId: clip.clip_id }
+    }
+
+    if (clip.state === 'failed') {
+      throw new Error(`MusicAPI generation failed para task ${task_id}`)
+    }
   }
 
-  if (!res.ok) {
-    const errText = await res.text()
-    throw new Error(`Suno API error ${res.status}: ${errText}`)
-  }
-
-  const data = await res.json() as SunoClip[] | { clips: SunoClip[] }
-
-  // Suno puede retornar array directo o { clips: [...] }
-  const clips = Array.isArray(data) ? data : (data as { clips: SunoClip[] }).clips
-  const clip = clips?.[0]
-
-  if (!clip?.audio_url) {
-    throw new Error('Suno no retornó audio_url en la respuesta')
-  }
-
-  return { audioUrl: clip.audio_url, sunoId: clip.id }
+  throw new Error(`MusicAPI polling timeout después de ${MAX_POLL_ATTEMPTS} intentos`)
 }

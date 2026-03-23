@@ -221,6 +221,9 @@ async function handleQualifiedLead(params: {
 
   if (status === 'recopilando_historia') {
     if (detectStoryDone(text)) {
+      // Guardar el chunk aunque venga junto al keyword de cierre
+      await appendStoryChunk(order.id, text)
+      void extractAndSaveLocation({ leadId, storyText: text })
       await updateOrderStatus(order.id, 'recopilando_estilo')
       await sendAndStore(phone, leadId, STORY_RECEIVED_ASK_STYLE_MESSAGE)
     } else {
