@@ -7,13 +7,12 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || 'mailto:noreply@example.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
-
 export async function POST(request: NextRequest) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT || 'mailto:noreply@example.com',
+    (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? '').replace(/=/g, ''),
+    (process.env.VAPID_PRIVATE_KEY ?? '').replace(/=/g, ''),
+  );
   // Auth: solo service role puede enviar
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`) {
