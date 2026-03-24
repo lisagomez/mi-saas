@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   experimental: {
     mcpServer: true,
   },
+  // Paquetes Node.js que no deben ser bundleados por webpack
+  serverExternalPackages: ['web-push'],
 }
 
 export default nextConfig
