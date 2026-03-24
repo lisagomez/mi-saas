@@ -19,13 +19,11 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile, error: profileError } = await supabase
+  const admin = createAdminClient()
+  const { data: profileData } = await admin
     .from('profiles').select('role').eq('id', user.id).single()
 
-  console.log('[dashboard] user.id:', user.id, '| profile:', profile, '| error:', profileError)
-
-  const role = profile?.role ?? null
-  const admin = createAdminClient()
+  const role = (profileData as { role: string } | null)?.role ?? null
 
   // --- Fetch por rol ---
 
