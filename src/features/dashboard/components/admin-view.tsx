@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { CreativoView } from './creativo-view'
 import { InvestigadorView } from './investigador-view'
 import { FinancieroView } from './financiero-view'
@@ -94,6 +95,12 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
             )}
           </button>
         ))}
+        <Link
+          href="/dashboard/catalogs"
+          className="flex-shrink-0 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-gray-500 hover:text-gray-700"
+        >
+          📋 Catálogos
+        </Link>
       </div>
 
       {tab === 'letras' && <CreativoView orders={lyricsOrders} />}
