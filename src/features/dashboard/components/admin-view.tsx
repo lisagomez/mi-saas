@@ -12,9 +12,11 @@ import { FinancialAgentPanel } from '@/features/agents/financial/components/Fina
 import { PromotionsAgentPanel } from '@/features/agents/promotions/components/PromotionsAgentPanel'
 import { FacebookAdsPanel } from '@/features/facebook-ads/components/FacebookAdsPanel'
 import { StorageMonitorPanel } from '@/features/storage-management/components/StorageMonitorPanel'
+import { LeadsView } from '@/features/leads/components/LeadsView'
 import type { Competitor, FinancialMetrics, PromotionsCatalog, CampaignWithMetrics, StorageConfig, StorageCleanupLog } from '@/types/database'
 import type { InvestigatorReport } from '@/features/agents/investigator/services/run-investigator-agent'
 import type { BucketStats } from '@/features/storage-management/services/get-storage-stats'
+import type { ConvertedLead } from '@/features/leads/services/get-converted-leads'
 
 interface LyricsOrder {
   id: string; lead_phone: string; story_text: string | null
@@ -43,6 +45,8 @@ interface Props {
   storageStats?: BucketStats[]
   storageConfigs?: StorageConfig[]
   storageCleanupLog?: StorageCleanupLog[]
+  convertedLeads?: ConvertedLead[]
+  allPromotions?: PromotionsCatalog[]
 }
 
 const TABS = [
@@ -51,6 +55,7 @@ const TABS = [
   { key: 'financiero', label: '📊 Financiero' },
   { key: 'pagos', label: '💳 Pagos' },
   { key: 'videos', label: '🎬 Videos' },
+  { key: 'leads', label: '👥 Leads' },
   { key: 'facebook-ads', label: '📣 Facebook Ads' },
   { key: 'storage', label: '💾 Storage' },
   { key: 'agentes', label: '🤖 Agentes' },
@@ -58,7 +63,7 @@ const TABS = [
 
 type TabKey = typeof TABS[number]['key']
 
-export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments, pendingVideoPayments, latestInvestigatorReport, activePromotions, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog }: Props) {
+export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments, pendingVideoPayments, latestInvestigatorReport, activePromotions, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads = [], allPromotions = [] }: Props) {
   const [tab, setTab] = useState<TabKey>('letras')
 
   return (
@@ -118,6 +123,7 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
       )}
       {tab === 'pagos' && <PaymentConfirmationPanel orders={pendingPayments} />}
       {tab === 'videos' && <VideoPaymentConfirmationPanel orders={pendingVideoPayments} />}
+      {tab === 'leads' && <LeadsView leads={convertedLeads} promotions={allPromotions} />}
       {tab === 'facebook-ads' && (
         <FacebookAdsPanel initialCampaigns={facebookCampaigns ?? []} />
       )}

@@ -1,0 +1,200 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+import { sendCampaignToSelected } from '../services/send-campaign-to-selected'
+import type { ConvertedLead } from '../services/get-converted-leads'
+import type { PromotionsCatalog } from '@/types/database'
+
+interface Props {
+  leads: ConvertedLead[]
+  promotions: PromotionsCatalog[]
+}
+
+interface Result {
+  total: number
+  sent: number
+  failed: number
+  promotionName: string
+}
+
+export function LeadsView({ leads, promotions }: Props) {
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [promotionId, setPromotionId] = useState(promotions[0]?.id ?? '')
+  const [result, setResult] = useState<Result | null>(null)
+  const [error, setError] = useState('')
+  const [isPending, startTransition] = useTransition()
+
+  const allSelected = leads.length > 0 && selected.size === leads.length
+
+  function toggleAll() {
+    if (allSelected) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(leads.map((l) => l.leadId)))
+    }
+  }
+
+  function toggle(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function handleSend() {
+    if (selected.size === 0) { setError('Selecciona al menos un cliente'); return }
+    if (!promotionId) { setError('Selecciona una promoción'); return }
+    if (!confirm(`¿Enviar campaña a ${selected.size} cliente${selected.size !== 1 ? 's' : ''}? Esta acción no se puede deshacer.`)) return
+    setError('')
+    startTransition(async () => {
+      try {
+        const res = await sendCampaignToSelected(Array.from(selected), promotionId)
+        setResult(res)
+        setSelected(new Set())
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error desconocido')
+      }
+    })
+  }
+
+  if (result) {
+    return (
+      <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+        <p className="text-4xl mb-3">🎉</p>
+        <p className="font-semibold text-gray-900 text-lg">Campaña enviada: {result.promotionName}</p>
+        <div className="grid grid-cols-3 gap-6 mt-6 max-w-xs mx-auto">
+          <div>
+            <p className="text-2xl font-bold text-gray-900">{result.total}</p>
+            <p className="text-xs text-gray-400">Total</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-green-600">{result.sent}</p>
+            <p className="text-xs text-gray-400">Enviados</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-red-500">{result.failed}</p>
+            <p className="text-xs text-gray-400">Fallidos</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setResult(null)}
+          className="mt-6 text-sm text-purple-600 hover:underline"
+        >
+          ← Volver a leads
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Leads Convertidos</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Clientes que han comprado al menos una canción.</p>
+        </div>
+        <span className="text-sm text-gray-400">{leads.length} cliente{leads.length !== 1 ? 's' : ''}</span>
+      </div>
+
+      {/* Barra de acción */}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <div className="flex-1 min-w-48">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Promoción a enviar</label>
+          {promotions.length === 0 ? (
+            <p className="text-xs text-yellow-700">No hay promociones activas. Créalas en Catálogos.</p>
+          ) : (
+            <select
+              value={promotionId}
+              onChange={(e) => setPromotionId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+            >
+              {promotions.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}{p.discount_percent ? ` (${p.discount_percent}% off)` : p.discount_fixed_mxn ? ` ($${p.discount_fixed_mxn} off)` : ''}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        <div className="flex items-end gap-2">
+          {selected.size > 0 && (
+            <span className="text-sm text-gray-500">{selected.size} seleccionado{selected.size !== 1 ? 's' : ''}</span>
+          )}
+          <button
+            onClick={handleSend}
+            disabled={isPending || selected.size === 0 || !promotionId}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50"
+          >
+            {isPending ? '⏳ Enviando...' : '📤 Enviar campaña'}
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>
+      )}
+
+      {/* Tabla */}
+      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+        {leads.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <p className="text-4xl mb-3">👥</p>
+            <p>Aún no hay clientes convertidos.</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-4 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    className="rounded"
+                  />
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Teléfono</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Origen</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Residencia</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Pedidos</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Último pedido</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {leads.map((lead) => (
+                <tr
+                  key={lead.leadId}
+                  onClick={() => toggle(lead.leadId)}
+                  className={`cursor-pointer transition-colors ${selected.has(lead.leadId) ? 'bg-purple-50' : 'hover:bg-gray-50'}`}
+                >
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(lead.leadId)}
+                      onChange={() => toggle(lead.leadId)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded"
+                    />
+                  </td>
+                  <td className="px-4 py-3 font-mono text-gray-800">{lead.phone}</td>
+                  <td className="px-4 py-3 text-gray-500">{lead.origin ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">{lead.residence ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                      ✓ {lead.ordersDelivered}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-400 text-xs">
+                    {new Date(lead.lastOrderAt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  )
+}

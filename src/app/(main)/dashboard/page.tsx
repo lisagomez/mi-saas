@@ -12,6 +12,7 @@ import { getCampaignsWithMetrics } from '@/features/facebook-ads/services/get-ca
 import { getStorageStats } from '@/features/storage-management/services/get-storage-stats'
 import { getStorageConfig } from '@/features/storage-management/services/get-storage-config'
 import { getCleanupLog } from '@/features/storage-management/services/get-cleanup-log'
+import { getConvertedLeads } from '@/features/leads/services/get-converted-leads'
 import type { Competitor, PromotionsCatalog } from '@/types/database'
 
 export default async function DashboardPage() {
@@ -63,7 +64,7 @@ export default async function DashboardPage() {
 
   // Datos para agentes (solo admin)
   const isAdmin = role === 'administrador'
-  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog] = isAdmin
+  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads, allPromotions] = isAdmin
     ? await Promise.all([
         getLatestInvestigatorReport(),
         admin.from('promotions_catalog').select('*').eq('is_active', true)
@@ -74,9 +75,12 @@ export default async function DashboardPage() {
         getStorageStats(),
         getStorageConfig(),
         getCleanupLog(),
+        getConvertedLeads(),
+        admin.from('promotions_catalog').select('*').order('created_at', { ascending: false }),
       ])
-    : [null, { data: [] }, [], [], [], []]
+    : [null, { data: [] }, [], [], [], [], [], { data: [] }]
   const activePromotions = (activePromotionsRaw.data ?? []) as PromotionsCatalog[]
+  const allPromotionsList = ((allPromotions as { data: unknown[] }).data ?? []) as PromotionsCatalog[]
 
   // Pagos pendientes (admin_pagos + admin)
   const needsPayments = role === 'admin_pagos' || role === 'administrador'
@@ -154,6 +158,8 @@ export default async function DashboardPage() {
             storageStats={storageStats}
             storageConfigs={storageConfigs}
             storageCleanupLog={storageCleanupLog}
+            convertedLeads={convertedLeads as import('@/features/leads/services/get-converted-leads').ConvertedLead[]}
+            allPromotions={allPromotionsList}
           />
         )}
 
