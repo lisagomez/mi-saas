@@ -11,10 +11,9 @@ export default async function BudgetPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if ((profile as { role: string } | null)?.role !== 'administrador') redirect('/dashboard')
-
   const admin = createAdminClient()
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
+  if ((profile as { role: string } | null)?.role !== 'administrador') redirect('/dashboard')
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
 

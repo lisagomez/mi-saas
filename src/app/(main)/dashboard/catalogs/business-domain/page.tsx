@@ -10,10 +10,9 @@ export default async function BusinessDomainPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if ((profile as { role: string } | null)?.role !== 'administrador') redirect('/dashboard')
-
   const admin = createAdminClient()
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
+  if ((profile as { role: string } | null)?.role !== 'administrador') redirect('/dashboard')
   const { data: entries } = await admin
     .from('business_domain')
     .select('*')

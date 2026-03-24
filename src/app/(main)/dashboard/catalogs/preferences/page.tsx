@@ -10,10 +10,9 @@ export default async function PreferencesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if ((profile as { role: string } | null)?.role !== 'administrador') redirect('/dashboard')
-
   const admin = createAdminClient()
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
+  if ((profile as { role: string } | null)?.role !== 'administrador') redirect('/dashboard')
   const { data: preferences } = await admin
     .from('preferences_catalog')
     .select('*')
