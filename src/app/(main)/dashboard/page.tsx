@@ -19,8 +19,10 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles').select('role').eq('id', user.id).single()
+
+  console.log('[dashboard] user.id:', user.id, '| profile:', profile, '| error:', profileError)
 
   const role = profile?.role ?? null
   const admin = createAdminClient()
