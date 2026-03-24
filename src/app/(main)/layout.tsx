@@ -8,14 +8,18 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const admin = createAdminClient()
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  const role = ((profile as { role: string } | null)?.role ?? null) as 'creativo' | 'agente_investigador' | 'admin_pagos' | 'administrador' | null
+  let role: 'creativo' | 'agente_investigador' | 'admin_pagos' | 'administrador' | null = null
+  try {
+    const admin = createAdminClient()
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    role = ((profile as { role: string } | null)?.role ?? null) as typeof role
+  } catch {
+    // Si falla, el layout renderiza sin rol (sidebar vacío)
+  }
 
   return (
     <DashboardShell email={user.email ?? ''} role={role}>
