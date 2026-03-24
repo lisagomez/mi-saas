@@ -55,9 +55,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: result.error }, { status: 500 })
   }
 
+  const now = new Date().toISOString()
   await supabase
     .from('orders')
-    .update({ status: 'pago_confirmado', updated_at: new Date().toISOString() } as never)
+    .update({
+      status: 'pago_confirmado',
+      payment_confirmed_at: now,
+      song_delivered_at: now,
+      updated_at: now,
+    } as never)
     .eq('id', orderId)
 
   await storeMessage({
