@@ -41,7 +41,7 @@ export function formatPromotionMessage(promo: PromotionsCatalog): string {
   if (promo.discount_percent) {
     parts.push(`🏷️ ${promo.discount_percent}% de descuento`)
   } else if (promo.discount_fixed_mxn) {
-    parts.push(`🏷️ $${promo.discount_fixed_mxn} MXN de descuento`)
+    parts.push(`🏷️ $${promo.discount_fixed_mxn} USD de descuento`)
   }
 
   return parts.join('\n')
