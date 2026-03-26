@@ -21,17 +21,19 @@ export async function getOrCreateLead(
   const supabase = createAdminClient()
   const source = params.source ?? 'facebook'
 
+  const phone = params.phone.startsWith('+') ? params.phone : `+${params.phone}`
+
   const { data: existing } = await supabase
     .from('leads')
     .select('*')
-    .eq('phone', params.phone)
+    .eq('phone', phone)
     .single()
 
   if (existing) return { lead: existing as Lead, isNew: false }
 
   const { data: created, error } = await supabase
     .from('leads')
-    .insert({ phone: params.phone, source } as never)
+    .insert({ phone, source } as never)
     .select()
     .single()
 

@@ -2,7 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { sendWhatsAppText } from '@/features/whatsapp-bot/services/send-whatsapp-message'
+import { sendWhatsAppText, sendWhatsAppTemplate } from '@/features/whatsapp-bot/services/send-whatsapp-message'
 import { formatPromotionMessage } from '@/features/catalogs/services/get-active-promotion'
 import type { PromotionsCatalog } from '@/types/database'
 
@@ -31,7 +31,8 @@ function applyVars(template: string, pedidos: number, lastOrderAt: string): stri
 export async function sendCampaignToSelected(
   leadIds: string[],
   promotionId: string,
-  messageTemplate?: string
+  messageTemplate?: string,
+  whatsappTemplateName?: string
 ): Promise<SelectiveCampaignResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -75,7 +76,7 @@ export async function sendCampaignToSelected(
   }
 
   const promoMessage = formatPromotionMessage(promotion)
-  const defaultText = `¡Hola! 👋 Te escribimos de CancioBot. Tenemos algo especial para ti:\n\n${promoMessage}\n\n¿Te interesa? Escríbenos y te ayudamos a crear algo único. 🎵`
+  const defaultText = `¡Hola! 👋 Tenemos algo especial para ti:\n\n${promoMessage}\n\n¿Te interesa? Escríbenos y te ayudamos a crear algo único. 🎵`
 
   let sent = 0
   let failed = 0
@@ -87,7 +88,9 @@ export async function sendCampaignToSelected(
       text = applyVars(messageTemplate, data?.count ?? 0, data?.lastOrderAt ?? new Date().toISOString())
     }
 
-    const result = await sendWhatsAppText(lead.phone, text)
+    const result = whatsappTemplateName
+      ? await sendWhatsAppTemplate(lead.phone, whatsappTemplateName)
+      : await sendWhatsAppText(lead.phone, text)
     const status = result.success ? 'sent' : 'failed'
 
     await admin.from('rebuys').insert({
