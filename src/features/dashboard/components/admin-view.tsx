@@ -13,6 +13,7 @@ import { PromotionsAgentPanel } from '@/features/agents/promotions/components/Pr
 import { FacebookAdsPanel } from '@/features/facebook-ads/components/FacebookAdsPanel'
 import { StorageMonitorPanel } from '@/features/storage-management/components/StorageMonitorPanel'
 import { LeadsView } from '@/features/leads/components/LeadsView'
+import { LeadsImporter } from '@/features/leads/components/LeadsImporter'
 import type { Competitor, FinancialMetrics, PromotionsCatalog, CampaignWithMetrics, StorageConfig, StorageCleanupLog } from '@/types/database'
 import type { InvestigatorReport } from '@/features/agents/investigator/services/run-investigator-agent'
 import type { BucketStats } from '@/features/storage-management/services/get-storage-stats'
@@ -58,6 +59,7 @@ const TABS = [
   { key: 'pagos', label: '💳 Pagos' },
   { key: 'videos', label: '🎬 Videos' },
   { key: 'leads', label: '👥 Leads' },
+  { key: 'importar', label: '📥 Importar' },
   { key: 'facebook-ads', label: '📣 Facebook Ads' },
   { key: 'storage', label: '💾 Storage' },
   { key: 'agentes', label: '🤖 Agentes' },
@@ -126,6 +128,7 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
       {tab === 'pagos' && <PaymentConfirmationPanel orders={pendingPayments} />}
       {tab === 'videos' && <VideoPaymentConfirmationPanel orders={pendingVideoPayments} />}
       {tab === 'leads' && <LeadsView leads={convertedLeads} promotions={allPromotions} campaignHistory={campaignHistory} />}
+      {tab === 'importar' && <LeadsImporter />}
       {tab === 'facebook-ads' && (
         <FacebookAdsPanel initialCampaigns={facebookCampaigns ?? []} />
       )}
