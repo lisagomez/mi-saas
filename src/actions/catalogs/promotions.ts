@@ -20,7 +20,8 @@ async function assertAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const admin = createAdminClient()
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
   if ((profile as { role: string } | null)?.role !== 'administrador') throw new Error('Sin permiso')
 }
 
@@ -36,8 +37,9 @@ export async function createPromotion(input: z.infer<typeof PromotionSchema>) {
 
 export async function updatePromotion(id: string, input: Partial<z.infer<typeof PromotionSchema>>) {
   await assertAdmin()
+  const data = PromotionSchema.partial().parse(input)
   const admin = createAdminClient()
-  const { error } = await admin.from('promotions_catalog').update({ ...input, updated_at: new Date().toISOString() } as never).eq('id', id)
+  const { error } = await admin.from('promotions_catalog').update({ ...data, updated_at: new Date().toISOString() } as never).eq('id', id)
   if (error) return { error: error.message }
   revalidatePath('/dashboard/catalogs/promotions')
   return { success: true }
