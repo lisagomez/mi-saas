@@ -13,6 +13,7 @@ import { getStorageStats } from '@/features/storage-management/services/get-stor
 import { getStorageConfig } from '@/features/storage-management/services/get-storage-config'
 import { getCleanupLog } from '@/features/storage-management/services/get-cleanup-log'
 import { getConvertedLeads } from '@/features/leads/services/get-converted-leads'
+import { getCampaignHistory } from '@/features/leads/services/get-campaign-history'
 import type { Competitor, PromotionsCatalog } from '@/types/database'
 
 export default async function DashboardPage() {
@@ -64,7 +65,7 @@ export default async function DashboardPage() {
 
   // Datos para agentes (solo admin)
   const isAdmin = role === 'administrador'
-  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads, allPromotions] = isAdmin
+  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads, allPromotions, campaignHistory] = isAdmin
     ? await Promise.all([
         getLatestInvestigatorReport(),
         admin.from('promotions_catalog').select('*').eq('is_active', true)
@@ -77,8 +78,9 @@ export default async function DashboardPage() {
         getCleanupLog(),
         getConvertedLeads(),
         admin.from('promotions_catalog').select('*').order('created_at', { ascending: false }),
+        getCampaignHistory(),
       ])
-    : [null, { data: [] }, [], [], [], [], [], { data: [] }]
+    : [null, { data: [] }, [], [], [], [], [], { data: [] }, []]
   const activePromotions = (activePromotionsRaw.data ?? []) as PromotionsCatalog[]
   const allPromotionsList = ((allPromotions as { data: unknown[] }).data ?? []) as PromotionsCatalog[]
 
@@ -160,6 +162,7 @@ export default async function DashboardPage() {
             storageCleanupLog={storageCleanupLog}
             convertedLeads={convertedLeads as import('@/features/leads/services/get-converted-leads').ConvertedLead[]}
             allPromotions={allPromotionsList}
+            campaignHistory={campaignHistory as import('@/features/leads/types/leads').CampaignHistory[]}
           />
         )}
 

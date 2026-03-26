@@ -17,6 +17,7 @@ import type { Competitor, FinancialMetrics, PromotionsCatalog, CampaignWithMetri
 import type { InvestigatorReport } from '@/features/agents/investigator/services/run-investigator-agent'
 import type { BucketStats } from '@/features/storage-management/services/get-storage-stats'
 import type { ConvertedLead } from '@/features/leads/services/get-converted-leads'
+import type { CampaignHistory } from '@/features/leads/types/leads'
 
 interface LyricsOrder {
   id: string; lead_phone: string; story_text: string | null
@@ -47,6 +48,7 @@ interface Props {
   storageCleanupLog?: StorageCleanupLog[]
   convertedLeads?: ConvertedLead[]
   allPromotions?: PromotionsCatalog[]
+  campaignHistory?: CampaignHistory[]
 }
 
 const TABS = [
@@ -63,7 +65,7 @@ const TABS = [
 
 type TabKey = typeof TABS[number]['key']
 
-export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments, pendingVideoPayments, latestInvestigatorReport, activePromotions, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads = [], allPromotions = [] }: Props) {
+export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments, pendingVideoPayments, latestInvestigatorReport, activePromotions, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads = [], allPromotions = [], campaignHistory = [] }: Props) {
   const [tab, setTab] = useState<TabKey>('letras')
 
   return (
@@ -123,7 +125,7 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
       )}
       {tab === 'pagos' && <PaymentConfirmationPanel orders={pendingPayments} />}
       {tab === 'videos' && <VideoPaymentConfirmationPanel orders={pendingVideoPayments} />}
-      {tab === 'leads' && <LeadsView leads={convertedLeads} promotions={allPromotions} />}
+      {tab === 'leads' && <LeadsView leads={convertedLeads} promotions={allPromotions} campaignHistory={campaignHistory} />}
       {tab === 'facebook-ads' && (
         <FacebookAdsPanel initialCampaigns={facebookCampaigns ?? []} />
       )}

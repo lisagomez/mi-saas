@@ -13,9 +13,25 @@ export interface SelectiveCampaignResult {
   promotionName: string
 }
 
+const TEMPLATE_VARS = ['{{pedidos}}', '{{fecha_ultimo_pedido}}'] as const
+
+function hasTemplateVars(template: string): boolean {
+  return TEMPLATE_VARS.some((v) => template.includes(v))
+}
+
+function applyVars(template: string, pedidos: number, lastOrderAt: string): string {
+  const fecha = new Date(lastOrderAt).toLocaleDateString('es-MX', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  })
+  return template
+    .replace(/\{\{pedidos\}\}/g, String(pedidos))
+    .replace(/\{\{fecha_ultimo_pedido\}\}/g, fecha)
+}
+
 export async function sendCampaignToSelected(
   leadIds: string[],
-  promotionId: string
+  promotionId: string,
+  messageTemplate?: string
 ): Promise<SelectiveCampaignResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -37,13 +53,40 @@ export async function sendCampaignToSelected(
     .in('id', leadIds)
   const leads = (leadsRaw ?? []) as { id: string; phone: string }[]
 
+  // Query orders data only if template uses variables
+  let ordersByLead: Map<string, { count: number; lastOrderAt: string }> | null = null
+  if (messageTemplate && hasTemplateVars(messageTemplate)) {
+    const { data: ordersRaw } = await admin
+      .from('orders')
+      .select('lead_id, created_at')
+      .in('lead_id', leadIds)
+      .in('status', ['entregado', 'pago_confirmado', 'video_pago_confirmado'])
+
+    ordersByLead = new Map()
+    for (const order of (ordersRaw ?? []) as Array<{ lead_id: string; created_at: string }>) {
+      const existing = ordersByLead.get(order.lead_id)
+      if (!existing) {
+        ordersByLead.set(order.lead_id, { count: 1, lastOrderAt: order.created_at })
+      } else {
+        existing.count++
+        if (order.created_at > existing.lastOrderAt) existing.lastOrderAt = order.created_at
+      }
+    }
+  }
+
   const promoMessage = formatPromotionMessage(promotion)
-  const text = `¡Hola! 👋 Te escribimos de CancioBot. Tenemos algo especial para ti:\n\n${promoMessage}\n\n¿Te interesa? Escríbenos y te ayudamos a crear algo único. 🎵`
+  const defaultText = `¡Hola! 👋 Te escribimos de CancioBot. Tenemos algo especial para ti:\n\n${promoMessage}\n\n¿Te interesa? Escríbenos y te ayudamos a crear algo único. 🎵`
 
   let sent = 0
   let failed = 0
 
   for (const lead of leads) {
+    let text = defaultText
+    if (messageTemplate) {
+      const data = ordersByLead?.get(lead.id)
+      text = applyVars(messageTemplate, data?.count ?? 0, data?.lastOrderAt ?? new Date().toISOString())
+    }
+
     const result = await sendWhatsAppText(lead.phone, text)
     const status = result.success ? 'sent' : 'failed'
 
