@@ -1,0 +1,114 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: 🎸
+        - generic [ref=e6]: CancioBot
+      - navigation [ref=e7]:
+        - paragraph [ref=e8]: Secciones
+        - link "🎵 Letras" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e10]: 🎵
+          - text: Letras
+        - link "🔍 Competencia" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e12]: 🔍
+          - text: Competencia
+        - link "📊 Financiero" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e14]: 📊
+          - text: Financiero
+        - link "💳 Pagos" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e16]: 💳
+          - text: Pagos
+        - link "🎬 Videos" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e18]: 🎬
+          - text: Videos
+        - link "📣 Facebook Ads" [ref=e19] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e20]: 📣
+          - text: Facebook Ads
+        - link "💾 Storage" [ref=e21] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e22]: 💾
+          - text: Storage
+        - link "🤖 Agentes" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e24]: 🤖
+          - text: Agentes
+      - generic [ref=e25]:
+        - generic [ref=e26]: Administrador
+        - paragraph [ref=e27]: atencion@digifixapp.com
+        - button "Cerrar sesión" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+          - text: Cerrar sesión
+    - generic [ref=e31]:
+      - banner [ref=e32]:
+        - generic [ref=e33]:
+          - button "Abrir menú" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - generic [ref=e37]:
+            - generic [ref=e38]: 🎸
+            - text: CancioBot
+        - generic [ref=e39]:
+          - generic [ref=e40]: Administrador
+          - generic [ref=e41]: atencion@digifixapp.com
+          - button "Salir" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - generic [ref=e45]: Salir
+      - main [ref=e46]:
+        - generic [ref=e48]:
+          - link "← Catálogos" [ref=e49] [cursor=pointer]:
+            - /url: /dashboard/catalogs
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - heading "🎉 Promociones" [level=1] [ref=e53]
+                - paragraph [ref=e54]: El bot las menciona automáticamente post-calificación.
+              - button "+ Nueva promoción" [ref=e55] [cursor=pointer]
+            - table [ref=e57]:
+              - rowgroup [ref=e58]:
+                - row "Nombre Ocasión Vigencia Descuento Template Meta Estado" [ref=e59]:
+                  - columnheader "Nombre" [ref=e60]
+                  - columnheader "Ocasión" [ref=e61]
+                  - columnheader "Vigencia" [ref=e62]
+                  - columnheader "Descuento" [ref=e63]
+                  - columnheader "Template Meta" [ref=e64]
+                  - columnheader "Estado" [ref=e65]
+                  - columnheader [ref=e66]
+              - rowgroup [ref=e67]:
+                - row "Día de las Madres 2026 dia_madres 2026-04-25 → 2026-05-10 20% — Activa Editar Eliminar" [ref=e68]:
+                  - cell "Día de las Madres 2026" [ref=e69]
+                  - cell "dia_madres" [ref=e70]
+                  - cell "2026-04-25 → 2026-05-10" [ref=e71]
+                  - cell "20%" [ref=e72]
+                  - cell "—" [ref=e73]
+                  - cell "Activa" [ref=e74]
+                  - cell "Editar Eliminar" [ref=e75]:
+                    - button "Editar" [ref=e76] [cursor=pointer]
+                    - button "Eliminar" [ref=e77] [cursor=pointer]
+                - row "Promoción del mes otro 2026-03-25 → 2026-04-30 — — Activa Editar Eliminar" [ref=e78]:
+                  - cell "Promoción del mes" [ref=e79]
+                  - cell "otro" [ref=e80]
+                  - cell "2026-03-25 → 2026-04-30" [ref=e81]
+                  - cell "—" [ref=e82]
+                  - cell "—" [ref=e83]
+                  - cell "Activa" [ref=e84]
+                  - cell "Editar Eliminar" [ref=e85]:
+                    - button "Editar" [ref=e86] [cursor=pointer]
+                    - button "Eliminar" [ref=e87] [cursor=pointer]
+                - row "Cumpleaños de Mayo cumpleanos 2026-03-24 → 2026-04-23 15% — Activa Editar Eliminar" [ref=e88]:
+                  - cell "Cumpleaños de Mayo" [ref=e89]
+                  - cell "cumpleanos" [ref=e90]
+                  - cell "2026-03-24 → 2026-04-23" [ref=e91]
+                  - cell "15%" [ref=e92]
+                  - cell "—" [ref=e93]
+                  - cell "Activa" [ref=e94]
+                  - cell "Editar Eliminar" [ref=e95]:
+                    - button "Editar" [ref=e96] [cursor=pointer]
+                    - button "Eliminar" [ref=e97] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e103] [cursor=pointer]:
+    - img [ref=e104]
+  - alert [ref=e107]

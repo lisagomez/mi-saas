@@ -1,0 +1,91 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e38] [cursor=pointer]:
+    - img [ref=e39]
+  - alert [ref=e42]
+  - generic [ref=e49]:
+    - complementary [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e52]: 🎸
+        - generic [ref=e53]: CancioBot
+      - navigation [ref=e54]:
+        - paragraph [ref=e55]: Secciones
+        - link "🎵 Letras" [ref=e56] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e57]: 🎵
+          - text: Letras
+        - link "🔍 Competencia" [ref=e58] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e59]: 🔍
+          - text: Competencia
+        - link "📊 Financiero" [ref=e60] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e61]: 📊
+          - text: Financiero
+        - link "💳 Pagos" [ref=e62] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e63]: 💳
+          - text: Pagos
+        - link "🎬 Videos" [ref=e64] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e65]: 🎬
+          - text: Videos
+        - link "📣 Facebook Ads" [ref=e66] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e67]: 📣
+          - text: Facebook Ads
+        - link "💾 Storage" [ref=e68] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e69]: 💾
+          - text: Storage
+        - link "🤖 Agentes" [ref=e70] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e71]: 🤖
+          - text: Agentes
+      - generic [ref=e72]:
+        - generic [ref=e73]: Administrador
+        - paragraph [ref=e74]: atencion@digifixapp.com
+        - button "Cerrar sesión" [ref=e75] [cursor=pointer]:
+          - img [ref=e76]
+          - text: Cerrar sesión
+    - generic [ref=e78]:
+      - banner [ref=e79]:
+        - generic [ref=e80]:
+          - button "Abrir menú" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+          - generic [ref=e84]:
+            - generic [ref=e85]: 🎸
+            - text: CancioBot
+        - generic [ref=e86]:
+          - generic [ref=e87]: Administrador
+          - generic [ref=e88]: atencion@digifixapp.com
+          - button "Salir" [ref=e89] [cursor=pointer]:
+            - img [ref=e90]
+            - generic [ref=e92]: Salir
+      - main [ref=e93]:
+        - generic [ref=e95]:
+          - heading "Panel Administrador" [level=2] [ref=e96]
+          - generic [ref=e97]:
+            - button "🎵 Letras" [ref=e98] [cursor=pointer]
+            - button "🔍 Competencia" [ref=e99] [cursor=pointer]
+            - button "📊 Financiero" [ref=e100] [cursor=pointer]
+            - button "💳 Pagos2" [ref=e101] [cursor=pointer]
+            - button "🎬 Videos" [ref=e102] [cursor=pointer]
+            - button "👥 Leads" [ref=e103] [cursor=pointer]
+            - button "📥 Importar" [ref=e104] [cursor=pointer]
+            - button "📣 Facebook Ads" [ref=e105] [cursor=pointer]
+            - button "💾 Storage" [ref=e106] [cursor=pointer]
+            - button "🤖 Agentes" [ref=e107] [cursor=pointer]
+            - link "📋 Catálogos" [ref=e108] [cursor=pointer]:
+              - /url: /dashboard/catalogs
+          - generic [ref=e109]:
+            - heading "Letras Pendientes de Revisión" [level=2] [ref=e111]
+            - generic [ref=e112]:
+              - paragraph [ref=e113]: 🎶
+              - paragraph [ref=e114]: Todo al día
+              - paragraph [ref=e115]: No hay letras pendientes de revisión.
+  - generic [ref=e43]:
+    - paragraph [ref=e44]: Activar notificaciones?
+    - paragraph [ref=e45]: Recibe avisos importantes incluso cuando no tengas la app abierta.
+    - generic [ref=e46]:
+      - button "Activar" [ref=e47] [cursor=pointer]
+      - button "Ahora no" [ref=e48] [cursor=pointer]

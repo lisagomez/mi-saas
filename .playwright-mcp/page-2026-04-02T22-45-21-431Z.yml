@@ -1,0 +1,128 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: 🎸
+        - generic [ref=e6]: CancioBot
+      - navigation [ref=e7]:
+        - paragraph [ref=e8]: Secciones
+        - link "🎵 Letras" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e10]: 🎵
+          - text: Letras
+        - link "🔍 Competencia" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e12]: 🔍
+          - text: Competencia
+        - link "📊 Financiero" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e14]: 📊
+          - text: Financiero
+        - link "💳 Pagos" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e16]: 💳
+          - text: Pagos
+        - link "🎬 Videos" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e18]: 🎬
+          - text: Videos
+        - link "📣 Facebook Ads" [ref=e19] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e20]: 📣
+          - text: Facebook Ads
+        - link "💾 Storage" [ref=e21] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e22]: 💾
+          - text: Storage
+        - link "🤖 Agentes" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e24]: 🤖
+          - text: Agentes
+      - generic [ref=e25]:
+        - generic [ref=e26]: Administrador
+        - paragraph [ref=e27]: atencion@digifixapp.com
+        - button "Cerrar sesión" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+          - text: Cerrar sesión
+    - generic [ref=e31]:
+      - banner [ref=e32]:
+        - generic [ref=e33]:
+          - button "Abrir menú" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - generic [ref=e37]:
+            - generic [ref=e38]: 🎸
+            - text: CancioBot
+        - generic [ref=e39]:
+          - generic [ref=e40]: Administrador
+          - generic [ref=e41]: atencion@digifixapp.com
+          - button "Salir" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - generic [ref=e45]: Salir
+      - main [ref=e46]:
+        - generic [ref=e48]:
+          - heading "Panel Administrador" [level=2] [ref=e49]
+          - generic [ref=e50]:
+            - button "🎵 Letras" [ref=e51] [cursor=pointer]
+            - button "🔍 Competencia" [ref=e52] [cursor=pointer]
+            - button "📊 Financiero" [ref=e53] [cursor=pointer]
+            - button "💳 Pagos2" [ref=e54] [cursor=pointer]
+            - button "🎬 Videos" [ref=e55] [cursor=pointer]
+            - button "👥 Leads" [ref=e56] [cursor=pointer]
+            - button "📥 Importar" [ref=e57] [cursor=pointer]
+            - button "📣 Facebook Ads" [ref=e58] [cursor=pointer]
+            - button "💾 Storage" [active] [ref=e59] [cursor=pointer]
+            - button "🤖 Agentes" [ref=e60] [cursor=pointer]
+            - link "📋 Catálogos" [ref=e61] [cursor=pointer]:
+              - /url: /dashboard/catalogs
+          - generic [ref=e285]:
+            - generic [ref=e286]:
+              - generic [ref=e287]:
+                - heading "💾 Storage" [level=3] [ref=e288]
+                - paragraph [ref=e289]: 0 archivos · 0.0 MB total
+              - button "🗑 Limpiar ahora" [ref=e291] [cursor=pointer]
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - generic [ref=e295]:
+                  - paragraph [ref=e296]: 🎵 Songs (Audio)
+                  - paragraph [ref=e297]: 0 archivos
+                - generic [ref=e298]:
+                  - generic [ref=e299]: 0.0 MB usados
+                  - generic [ref=e300]: "límite: 500 MB"
+                - generic [ref=e302]:
+                  - paragraph [ref=e303]: "Limpieza: 30 días post-entrega"
+                  - button "Editar" [ref=e304] [cursor=pointer]
+              - generic [ref=e305]:
+                - generic [ref=e307]:
+                  - paragraph [ref=e308]: 📷 Fotos de pedidos
+                  - paragraph [ref=e309]: 0 archivos
+                - generic [ref=e310]:
+                  - generic [ref=e311]: 0.0 MB usados
+                  - generic [ref=e312]: "límite: 300 MB"
+                - generic [ref=e314]:
+                  - paragraph [ref=e315]: "Limpieza: 30 días post-entrega"
+                  - button "Editar" [ref=e316] [cursor=pointer]
+              - generic [ref=e317]:
+                - generic [ref=e319]:
+                  - paragraph [ref=e320]: 🎬 Videos
+                  - paragraph [ref=e321]: 0 archivos
+                - generic [ref=e322]:
+                  - generic [ref=e323]: 0.0 MB usados
+                  - generic [ref=e324]: "límite: 2000 MB"
+                - generic [ref=e326]:
+                  - paragraph [ref=e327]: "Limpieza: 60 días post-entrega"
+                  - button "Editar" [ref=e328] [cursor=pointer]
+              - generic [ref=e329]:
+                - generic [ref=e331]:
+                  - paragraph [ref=e332]: 🧾 Comprobantes de pago
+                  - paragraph [ref=e333]: 0 archivos
+                - generic [ref=e334]:
+                  - generic [ref=e335]: 0.0 MB usados
+                  - generic [ref=e336]: "límite: 200 MB"
+                - generic [ref=e338]:
+                  - paragraph [ref=e339]: "Limpieza: 90 días post-entrega"
+                  - button "Editar" [ref=e340] [cursor=pointer]
+            - paragraph [ref=e341]: Sin limpiezas registradas. El cron se ejecuta diariamente a las 3:00 AM UTC.
+  - button "Open Next.js Dev Tools" [ref=e74] [cursor=pointer]:
+    - img [ref=e75]
+  - alert [ref=e78]
+  - generic [ref=e187]: $0

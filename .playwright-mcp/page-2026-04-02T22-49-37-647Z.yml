@@ -1,0 +1,167 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: 🎸
+        - generic [ref=e6]: CancioBot
+      - navigation [ref=e7]:
+        - paragraph [ref=e8]: Secciones
+        - link "🎵 Letras" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e10]: 🎵
+          - text: Letras
+        - link "🔍 Competencia" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e12]: 🔍
+          - text: Competencia
+        - link "📊 Financiero" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e14]: 📊
+          - text: Financiero
+        - link "💳 Pagos" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e16]: 💳
+          - text: Pagos
+        - link "🎬 Videos" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e18]: 🎬
+          - text: Videos
+        - link "📣 Facebook Ads" [ref=e19] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e20]: 📣
+          - text: Facebook Ads
+        - link "💾 Storage" [ref=e21] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e22]: 💾
+          - text: Storage
+        - link "🤖 Agentes" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e24]: 🤖
+          - text: Agentes
+      - generic [ref=e25]:
+        - generic [ref=e26]: Administrador
+        - paragraph [ref=e27]: atencion@digifixapp.com
+        - button "Cerrar sesión" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+          - text: Cerrar sesión
+    - generic [ref=e31]:
+      - banner [ref=e32]:
+        - generic [ref=e33]:
+          - button "Abrir menú" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - generic [ref=e37]:
+            - generic [ref=e38]: 🎸
+            - text: CancioBot
+        - generic [ref=e39]:
+          - generic [ref=e40]: Administrador
+          - generic [ref=e41]: atencion@digifixapp.com
+          - button "Salir" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - generic [ref=e45]: Salir
+      - main [ref=e46]:
+        - generic [ref=e48]:
+          - link "← Catálogos" [ref=e49] [cursor=pointer]:
+            - /url: /dashboard/catalogs
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - heading "📊 Dominio de Negocio" [level=1] [ref=e53]
+                - paragraph [ref=e54]: Fórmulas y benchmarks usados por el Agente Financiero.
+              - button "+ Nueva fórmula" [ref=e55] [cursor=pointer]
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - heading "📈 Rentabilidad" [level=3] [ref=e59]
+                - table [ref=e60]:
+                  - rowgroup [ref=e61]:
+                    - row "Nombre Fórmula Estado" [ref=e62]:
+                      - columnheader "Nombre" [ref=e63]
+                      - columnheader "Fórmula" [ref=e64]
+                      - columnheader "Estado" [ref=e65]
+                      - columnheader [ref=e66]
+                  - rowgroup [ref=e67]:
+                    - row "CAC Gasto total en adquisición / Nuevos clientes adquiridos Activa Editar Eliminar" [ref=e68]:
+                      - cell "CAC" [ref=e69]
+                      - cell "Gasto total en adquisición / Nuevos clientes adquiridos" [ref=e70]
+                      - cell "Activa" [ref=e71]
+                      - cell "Editar Eliminar" [ref=e72]:
+                        - button "Editar" [ref=e73] [cursor=pointer]
+                        - button "Eliminar" [ref=e74] [cursor=pointer]
+                    - row "Flujo de caja Efectivo disponible + Ingresos esperados - Gastos comprometidos Activa Editar Eliminar" [ref=e75]:
+                      - cell "Flujo de caja" [ref=e76]
+                      - cell "Efectivo disponible + Ingresos esperados - Gastos comprometidos" [ref=e77]
+                      - cell "Activa" [ref=e78]
+                      - cell "Editar Eliminar" [ref=e79]:
+                        - button "Editar" [ref=e80] [cursor=pointer]
+                        - button "Eliminar" [ref=e81] [cursor=pointer]
+                    - row "LTV Ticket promedio × Frecuencia × Tiempo de retención × Margen Activa Editar Eliminar" [ref=e82]:
+                      - cell "LTV" [ref=e83]
+                      - cell "Ticket promedio × Frecuencia × Tiempo de retención × Margen" [ref=e84]
+                      - cell "Activa" [ref=e85]
+                      - cell "Editar Eliminar" [ref=e86]:
+                        - button "Editar" [ref=e87] [cursor=pointer]
+                        - button "Eliminar" [ref=e88] [cursor=pointer]
+                    - row "Margen neto (Ingresos - Todos los gastos) / Ingresos × 100 Activa Editar Eliminar" [ref=e89]:
+                      - cell "Margen neto" [ref=e90]
+                      - cell "(Ingresos - Todos los gastos) / Ingresos × 100" [ref=e91]
+                      - cell "Activa" [ref=e92]
+                      - cell "Editar Eliminar" [ref=e93]:
+                        - button "Editar" [ref=e94] [cursor=pointer]
+                        - button "Eliminar" [ref=e95] [cursor=pointer]
+                    - row "Punto de equilibrio Gastos fijos / Margen de contribución promedio Activa Editar Eliminar" [ref=e96]:
+                      - cell "Punto de equilibrio" [ref=e97]
+                      - cell "Gastos fijos / Margen de contribución promedio" [ref=e98]
+                      - cell "Activa" [ref=e99]
+                      - cell "Editar Eliminar" [ref=e100]:
+                        - button "Editar" [ref=e101] [cursor=pointer]
+                        - button "Eliminar" [ref=e102] [cursor=pointer]
+                    - row "Ratio LTV/CAC LTV / CAC Activa Editar Eliminar" [ref=e103]:
+                      - cell "Ratio LTV/CAC" [ref=e104]
+                      - cell "LTV / CAC" [ref=e105]
+                      - cell "Activa" [ref=e106]
+                      - cell "Editar Eliminar" [ref=e107]:
+                        - button "Editar" [ref=e108] [cursor=pointer]
+                        - button "Eliminar" [ref=e109] [cursor=pointer]
+                    - row "ROAS Ingresos atribuidos a campaña / Gasto en campaña Activa Editar Eliminar" [ref=e110]:
+                      - cell "ROAS" [ref=e111]
+                      - cell "Ingresos atribuidos a campaña / Gasto en campaña" [ref=e112]
+                      - cell "Activa" [ref=e113]
+                      - cell "Editar Eliminar" [ref=e114]:
+                        - button "Editar" [ref=e115] [cursor=pointer]
+                        - button "Eliminar" [ref=e116] [cursor=pointer]
+                    - row "ROI (Ganancia neta / Inversión total) × 100 Activa Editar Eliminar" [ref=e117]:
+                      - cell "ROI" [ref=e118]
+                      - cell "(Ganancia neta / Inversión total) × 100" [ref=e119]
+                      - cell "Activa" [ref=e120]
+                      - cell "Editar Eliminar" [ref=e121]:
+                        - button "Editar" [ref=e122] [cursor=pointer]
+                        - button "Eliminar" [ref=e123] [cursor=pointer]
+              - generic [ref=e124]:
+                - heading "⭐ Experiencia" [level=3] [ref=e126]
+                - table [ref=e127]:
+                  - rowgroup [ref=e128]:
+                    - row "Nombre Fórmula Estado" [ref=e129]:
+                      - columnheader "Nombre" [ref=e130]
+                      - columnheader "Fórmula" [ref=e131]
+                      - columnheader "Estado" [ref=e132]
+                      - columnheader [ref=e133]
+                  - rowgroup [ref=e134]:
+                    - row "NPS % Promotores (score 9-10) - % Detractores (score 0-6) Activa Editar Eliminar" [ref=e135]:
+                      - cell "NPS" [ref=e136]
+                      - cell "% Promotores (score 9-10) - % Detractores (score 0-6)" [ref=e137]
+                      - cell "Activa" [ref=e138]
+                      - cell "Editar Eliminar" [ref=e139]:
+                        - button "Editar" [ref=e140] [cursor=pointer]
+                        - button "Eliminar" [ref=e141] [cursor=pointer]
+                    - row "Retención de clientes (Clientes que regresan / Total clientes únicos) × 100 Activa Editar Eliminar" [ref=e142]:
+                      - cell "Retención de clientes" [ref=e143]
+                      - cell "(Clientes que regresan / Total clientes únicos) × 100" [ref=e144]
+                      - cell "Activa" [ref=e145]
+                      - cell "Editar Eliminar" [ref=e146]:
+                        - button "Editar" [ref=e147] [cursor=pointer]
+                        - button "Eliminar" [ref=e148] [cursor=pointer]
+              - generic [ref=e149]:
+                - heading "⚙️ Operación" [level=3] [ref=e151]
+                - generic [ref=e152]: Sin fórmulas en esta categoría.
+  - button "Open Next.js Dev Tools" [ref=e158] [cursor=pointer]:
+    - img [ref=e159]
+  - alert [ref=e162]

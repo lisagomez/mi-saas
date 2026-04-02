@@ -1,0 +1,173 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: 🎸
+        - generic [ref=e6]: CancioBot
+      - navigation [ref=e7]:
+        - paragraph [ref=e8]: Secciones
+        - link "🎵 Letras" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e10]: 🎵
+          - text: Letras
+        - link "🔍 Competencia" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e12]: 🔍
+          - text: Competencia
+        - link "📊 Financiero" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e14]: 📊
+          - text: Financiero
+        - link "💳 Pagos" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e16]: 💳
+          - text: Pagos
+        - link "🎬 Videos" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e18]: 🎬
+          - text: Videos
+        - link "📣 Facebook Ads" [ref=e19] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e20]: 📣
+          - text: Facebook Ads
+        - link "💾 Storage" [ref=e21] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e22]: 💾
+          - text: Storage
+        - link "🤖 Agentes" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e24]: 🤖
+          - text: Agentes
+      - generic [ref=e25]:
+        - generic [ref=e26]: Administrador
+        - paragraph [ref=e27]: atencion@digifixapp.com
+        - button "Cerrar sesión" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+          - text: Cerrar sesión
+    - generic [ref=e31]:
+      - banner [ref=e32]:
+        - generic [ref=e33]:
+          - button "Abrir menú" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - generic [ref=e37]:
+            - generic [ref=e38]: 🎸
+            - text: CancioBot
+        - generic [ref=e39]:
+          - generic [ref=e40]: Administrador
+          - generic [ref=e41]: atencion@digifixapp.com
+          - button "Salir" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - generic [ref=e45]: Salir
+      - main [ref=e46]:
+        - generic [ref=e48]:
+          - link "← Catálogos" [ref=e49] [cursor=pointer]:
+            - /url: /dashboard/catalogs
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - heading "🎵 Preferencias Musicales" [level=1] [ref=e53]
+                - paragraph [ref=e54]: Estilos por región usados para generar las directivas musicales.
+              - button "+ Nueva preferencia" [ref=e55] [cursor=pointer]
+            - table [ref=e57]:
+              - rowgroup [ref=e58]:
+                - row "Orden Estilos Regiones Directivas Estado" [ref=e59]:
+                  - columnheader "Orden" [ref=e60]
+                  - columnheader "Estilos" [ref=e61]
+                  - columnheader "Regiones" [ref=e62]
+                  - columnheader "Directivas" [ref=e63]
+                  - columnheader "Estado" [ref=e64]
+                  - columnheader [ref=e65]
+              - rowgroup [ref=e66]:
+                - row "10 banda, grupero, sinaloense sinaloa, culiacán, culiacan... banda sinaloense, tuba prominente, clarinete, tambora, tempo 130-145 BPM, feel de fiesta norteña Activa Editar Eliminar" [ref=e67]:
+                  - cell "10" [ref=e68]
+                  - cell "banda, grupero, sinaloense" [ref=e69]
+                  - cell "sinaloa, culiacán, culiacan..." [ref=e70]
+                  - cell "banda sinaloense, tuba prominente, clarinete, tambora, tempo 130-145 BPM, feel de fiesta norteña" [ref=e71]
+                  - cell "Activa" [ref=e72]
+                  - cell "Editar Eliminar" [ref=e73]:
+                    - button "Editar" [ref=e74] [cursor=pointer]
+                    - button "Eliminar" [ref=e75] [cursor=pointer]
+                - row "20 banda, grupero jalisco, guadalajara, zapopan... banda jalisciense, metales brillantes, trombón, tambora jaliscience, tempo 125-135 BPM Activa Editar Eliminar" [ref=e76]:
+                  - cell "20" [ref=e77]
+                  - cell "banda, grupero" [ref=e78]
+                  - cell "jalisco, guadalajara, zapopan..." [ref=e79]
+                  - cell "banda jalisciense, metales brillantes, trombón, tambora jaliscience, tempo 125-135 BPM" [ref=e80]
+                  - cell "Activa" [ref=e81]
+                  - cell "Editar Eliminar" [ref=e82]:
+                    - button "Editar" [ref=e83] [cursor=pointer]
+                    - button "Eliminar" [ref=e84] [cursor=pointer]
+                - row "30 mariachi, ranchera, ranchero, corrido jalisco, guadalajara, zapopan... mariachi tradicional mexicano, trompetas brillantes, guitarrón, vihuela, guitarra de golpe, compás 3/4 o 2/4, emotivo y romántico Activa Editar Eliminar" [ref=e85]:
+                  - cell "30" [ref=e86]
+                  - cell "mariachi, ranchera, ranchero, corrido" [ref=e87]
+                  - cell "jalisco, guadalajara, zapopan..." [ref=e88]
+                  - cell "mariachi tradicional mexicano, trompetas brillantes, guitarrón, vihuela, guitarra de golpe, compás 3/4 o 2/4, emotivo y romántico" [ref=e89]
+                  - cell "Activa" [ref=e90]
+                  - cell "Editar Eliminar" [ref=e91]:
+                    - button "Editar" [ref=e92] [cursor=pointer]
+                    - button "Eliminar" [ref=e93] [cursor=pointer]
+                - row "40 norteño, norteno, corrido, grupero, banda nuevo león, nuevo leon, monterrey... norteño regiomontano, bajo sexto, acordeón diatónico, polka rhythm, tempo 110-130 BPM, estilo fronterizo Activa Editar Eliminar" [ref=e94]:
+                  - cell "40" [ref=e95]
+                  - cell "norteño, norteno, corrido, grupero, banda" [ref=e96]
+                  - cell "nuevo león, nuevo leon, monterrey..." [ref=e97]
+                  - cell "norteño regiomontano, bajo sexto, acordeón diatónico, polka rhythm, tempo 110-130 BPM, estilo fronterizo" [ref=e98]
+                  - cell "Activa" [ref=e99]
+                  - cell "Editar Eliminar" [ref=e100]:
+                    - button "Editar" [ref=e101] [cursor=pointer]
+                    - button "Eliminar" [ref=e102] [cursor=pointer]
+                - row "50 corrido tumbado, corridos tumbados, regional mexicano, sierreño, sierreno Todas corrido tumbado moderno, guitarras eléctricas con distorsión leve, bajo profundo, acordeón, trap 808 sutil, tempo 75-85 BPM, mood oscuro y épico Activa Editar Eliminar" [ref=e103]:
+                  - cell "50" [ref=e104]
+                  - cell "corrido tumbado, corridos tumbados, regional mexicano, sierreño, sierreno" [ref=e105]
+                  - cell "Todas" [ref=e106]
+                  - cell "corrido tumbado moderno, guitarras eléctricas con distorsión leve, bajo profundo, acordeón, trap 808 sutil, tempo 75-85 BPM, mood oscuro y épico" [ref=e107]
+                  - cell "Activa" [ref=e108]
+                  - cell "Editar Eliminar" [ref=e109]:
+                    - button "Editar" [ref=e110] [cursor=pointer]
+                    - button "Eliminar" [ref=e111] [cursor=pointer]
+                - row "60 pop, balada, pop balada, romántico, romantico, romántica, romantica Todas pop balada en español, piano emocional, cuerdas suaves, producción limpia, tempo 70-90 BPM, emotivo y cinematográfico Activa Editar Eliminar" [ref=e112]:
+                  - cell "60" [ref=e113]
+                  - cell "pop, balada, pop balada, romántico, romantico, romántica, romantica" [ref=e114]
+                  - cell "Todas" [ref=e115]
+                  - cell "pop balada en español, piano emocional, cuerdas suaves, producción limpia, tempo 70-90 BPM, emotivo y cinematográfico" [ref=e116]
+                  - cell "Activa" [ref=e117]
+                  - cell "Editar Eliminar" [ref=e118]:
+                    - button "Editar" [ref=e119] [cursor=pointer]
+                    - button "Eliminar" [ref=e120] [cursor=pointer]
+                - row "70 reggaeton, urbano, trap, perreo Todas reggaeton moderno, dembow beat, sintetizadores, 808 bass, hi-hats en loop, tempo 90-95 BPM Activa Editar Eliminar" [ref=e121]:
+                  - cell "70" [ref=e122]
+                  - cell "reggaeton, urbano, trap, perreo" [ref=e123]
+                  - cell "Todas" [ref=e124]
+                  - cell "reggaeton moderno, dembow beat, sintetizadores, 808 bass, hi-hats en loop, tempo 90-95 BPM" [ref=e125]
+                  - cell "Activa" [ref=e126]
+                  - cell "Editar Eliminar" [ref=e127]:
+                    - button "Editar" [ref=e128] [cursor=pointer]
+                    - button "Eliminar" [ref=e129] [cursor=pointer]
+                - row "80 cumbia, tropical, salsa veracruz, tabasco, villahermosa... cumbia tropical mexicana, marimba, percusiones latinas, bajo eléctrico, tempo 110-120 BPM, festivo y bailable Activa Editar Eliminar" [ref=e130]:
+                  - cell "80" [ref=e131]
+                  - cell "cumbia, tropical, salsa" [ref=e132]
+                  - cell "veracruz, tabasco, villahermosa..." [ref=e133]
+                  - cell "cumbia tropical mexicana, marimba, percusiones latinas, bajo eléctrico, tempo 110-120 BPM, festivo y bailable" [ref=e134]
+                  - cell "Activa" [ref=e135]
+                  - cell "Editar Eliminar" [ref=e136]:
+                    - button "Editar" [ref=e137] [cursor=pointer]
+                    - button "Eliminar" [ref=e138] [cursor=pointer]
+                - row "90 cumbia, tropical Todas cumbia pop, acordeón, percusiones, bajo eléctrico, tempo 110-120 BPM Activa Editar Eliminar" [ref=e139]:
+                  - cell "90" [ref=e140]
+                  - cell "cumbia, tropical" [ref=e141]
+                  - cell "Todas" [ref=e142]
+                  - cell "cumbia pop, acordeón, percusiones, bajo eléctrico, tempo 110-120 BPM" [ref=e143]
+                  - cell "Activa" [ref=e144]
+                  - cell "Editar Eliminar" [ref=e145]:
+                    - button "Editar" [ref=e146] [cursor=pointer]
+                    - button "Eliminar" [ref=e147] [cursor=pointer]
+                - row "100 rock, alternativo, rock alternativo, metal, punk Todas rock en español, guitarras eléctricas, batería en vivo, bajo, tempo 120-160 BPM según intensidad Activa Editar Eliminar" [ref=e148]:
+                  - cell "100" [ref=e149]
+                  - cell "rock, alternativo, rock alternativo, metal, punk" [ref=e150]
+                  - cell "Todas" [ref=e151]
+                  - cell "rock en español, guitarras eléctricas, batería en vivo, bajo, tempo 120-160 BPM según intensidad" [ref=e152]
+                  - cell "Activa" [ref=e153]
+                  - cell "Editar Eliminar" [ref=e154]:
+                    - button "Editar" [ref=e155] [cursor=pointer]
+                    - button "Eliminar" [ref=e156] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e162] [cursor=pointer]:
+    - img [ref=e163]
+  - alert [ref=e166]

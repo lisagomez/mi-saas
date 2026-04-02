@@ -1,0 +1,123 @@
+- main [ref=e2]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: 🎸
+        - text: CancioBot
+      - link "Pedir mi corrido" [ref=e8] [cursor=pointer]:
+        - /url: https://wa.me/522291689563
+  - generic [ref=e9]:
+    - generic [ref=e10]: 🎸 Corridos auténticos · Hecho para ti
+    - heading "Tu historia merece un corrido" [level=1] [ref=e11]:
+      - text: Tu historia merece
+      - text: un corrido
+    - paragraph [ref=e12]:
+      - text: Cada migrante carga una historia de sacrificio, orgullo y amor. La tuya merece ser cantada — con tu nombre, tu gente, tu tierra.
+      - text: Todo por WhatsApp. Entregado en horas.
+    - generic [ref=e13]:
+      - link "Quiero mi corrido →" [ref=e14] [cursor=pointer]:
+        - /url: https://wa.me/522291689563
+        - img [ref=e15]
+        - text: Quiero mi corrido
+        - generic [ref=e17]: →
+      - paragraph [ref=e18]: Es gratis preguntar · Sin compromiso
+    - generic [ref=e19]:
+      - generic [ref=e20]: Descubre cómo
+      - img [ref=e21]
+  - generic [ref=e24]:
+    - paragraph [ref=e25]: El proceso
+    - heading "Así de fácil" [level=2] [ref=e26]
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: "01"
+        - generic [ref=e30]: 💬
+        - heading "Cuéntanos tu historia" [level=3] [ref=e31]
+        - paragraph [ref=e32]: Por WhatsApp — en texto o audio. Tu nombre, tu gente, tu trayecto. Sin formularios complicados.
+      - generic [ref=e33]:
+        - generic [ref=e34]: "02"
+        - generic [ref=e35]: 🎵
+        - heading "Creamos tu corrido" [level=3] [ref=e36]
+        - paragraph [ref=e37]: Letra única con tu historia real. Canción generada con IA auténtica al estilo norteño-banda. En horas, no días.
+      - generic [ref=e38]:
+        - generic [ref=e39]: "03"
+        - generic [ref=e40]: 🎉
+        - heading "Te lo mandamos" [level=3] [ref=e41]
+        - paragraph [ref=e42]: Tu corrido llega al WhatsApp. Letra, audio y video con tus fotos. Listo para compartir con quien más quieres.
+  - generic [ref=e44]:
+    - paragraph [ref=e45]: Lo que recibes
+    - heading "Un corrido completo" [level=2] [ref=e46]
+    - paragraph [ref=e47]: No es una canción genérica. Es tu historia, cantada con tu nombre, tu gente y tu orgullo.
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]: 📝
+        - heading "Letra personalizada" [level=3] [ref=e51]
+        - paragraph [ref=e52]: Cada verso habla de ti. Tu sacrificio, tus logros, tus seres queridos. Escrita por IA y revisada por humanos.
+      - generic [ref=e53]:
+        - generic [ref=e54]: 🎤
+        - heading "Canción con banda" [level=3] [ref=e55]
+        - paragraph [ref=e56]: Audio generado al estilo norteño-banda con voz. Auténtico. Listo para escuchar y compartir.
+      - generic [ref=e57]:
+        - generic [ref=e58]: 🎬
+        - heading "Video con tus fotos" [level=3] [ref=e59]
+        - paragraph [ref=e60]: Sube tus fotos y las combinamos con tu canción en un video para compartir en redes o enviar en WhatsApp.
+  - generic [ref=e62]:
+    - paragraph [ref=e63]: Para cada momento
+    - heading "¿Cuándo es tu fecha especial?" [level=2] [ref=e64]
+    - paragraph [ref=e65]: No dejes pasar la ocasión. Los cupos son limitados por semana.
+    - generic [ref=e66]:
+      - generic [ref=e67]: 🌹 Día de las Madres
+      - generic [ref=e68]: 🎂 Cumpleaños
+      - generic [ref=e69]: 💕 Día del Amor
+      - generic [ref=e70]: 🇲🇽 Orgullo Mexicano
+      - generic [ref=e71]: 🇬🇹 Orgullo Guatemalteco
+      - generic [ref=e72]: 🇭🇳 Orgullo Hondureño
+      - generic [ref=e73]: 🎊 XV Años / Quinceañera
+      - generic [ref=e74]: 💍 Bodas y Aniversarios
+      - generic [ref=e75]: 🏔️ Historia de Migración
+      - generic [ref=e76]: 🎓 Graduaciones
+      - generic [ref=e77]: ⭐ Logros y Triunfos
+      - generic [ref=e78]: 👨‍👩‍👧 Reencuentros Familiares
+    - paragraph [ref=e79]: ⚡ Cupos limitados por semana — no dejes pasar la fecha
+  - generic [ref=e81]:
+    - generic [ref=e82]:
+      - paragraph [ref=e83]:
+        - generic [ref=e84]: 0+
+      - paragraph [ref=e85]: Corridos entregados
+    - generic [ref=e86]:
+      - paragraph [ref=e87]:
+        - generic [ref=e88]: 0h
+      - paragraph [ref=e89]: Tiempo de entrega
+    - generic [ref=e90]:
+      - paragraph [ref=e91]:
+        - generic [ref=e92]: 0%
+      - paragraph [ref=e93]: Personalizado
+    - generic [ref=e94]:
+      - paragraph [ref=e95]:
+        - generic [ref=e96]: $0 USD
+      - paragraph [ref=e97]: Precio por corrido
+  - generic [ref=e99]:
+    - generic [ref=e100]: 🦅
+    - heading "Siempre superando obstáculos. Orgulloso de tus raíces. Triunfando en el gabacho." [level=2] [ref=e101]:
+      - text: Siempre superando obstáculos.
+      - text: Orgulloso de tus raíces.
+      - text: Triunfando en el gabacho.
+    - paragraph [ref=e102]: Saliste de tu tierra con un sueño. Cruzaste fronteras, enfrentaste lo que fuera. Y aquí estás — triunfando. Esa historia merece ser inmortalizada en un corrido que tus hijos y nietos van a escuchar con orgullo.
+  - generic [ref=e104]:
+    - paragraph [ref=e105]: Actúa ahora
+    - heading "¿Cuándo vas a contar tu historia?" [level=2] [ref=e106]:
+      - text: ¿Cuándo vas a contar
+      - text: tu historia?
+    - paragraph [ref=e107]: No dejes pasar la fecha especial. Los cupos son limitados por semana y se agotan rápido.
+    - paragraph [ref=e108]: ⚡ Cupos limitados · Entrega en 24 horas · Es gratis preguntar
+    - link "Pedir mi corrido ahora" [ref=e109] [cursor=pointer]:
+      - /url: https://wa.me/522291689563
+      - img [ref=e110]
+      - text: Pedir mi corrido ahora
+    - paragraph [ref=e112]: Sin compromiso · Sin datos personales · Solo por WhatsApp
+  - generic [ref=e114]:
+    - generic [ref=e115]:
+      - generic [ref=e116]: 🎸
+      - text: CancioBot
+    - paragraph [ref=e117]: Corridos personalizados para latinos que triunfan en el gabacho 🦅
+    - link "Contacto por WhatsApp →" [ref=e118] [cursor=pointer]:
+      - /url: https://wa.me/522291689563

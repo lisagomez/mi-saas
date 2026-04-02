@@ -1,0 +1,132 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: 🎸
+        - generic [ref=e6]: CancioBot
+      - navigation [ref=e7]:
+        - paragraph [ref=e8]: Secciones
+        - link "🎵 Letras" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e10]: 🎵
+          - text: Letras
+        - link "🔍 Competencia" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e12]: 🔍
+          - text: Competencia
+        - link "📊 Financiero" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e14]: 📊
+          - text: Financiero
+        - link "💳 Pagos" [ref=e15] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e16]: 💳
+          - text: Pagos
+        - link "🎬 Videos" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e18]: 🎬
+          - text: Videos
+        - link "📣 Facebook Ads" [ref=e19] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e20]: 📣
+          - text: Facebook Ads
+        - link "💾 Storage" [ref=e21] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e22]: 💾
+          - text: Storage
+        - link "🤖 Agentes" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e24]: 🤖
+          - text: Agentes
+      - generic [ref=e25]:
+        - generic [ref=e26]: Administrador
+        - paragraph [ref=e27]: atencion@digifixapp.com
+        - button "Cerrar sesión" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+          - text: Cerrar sesión
+    - generic [ref=e31]:
+      - banner [ref=e32]:
+        - generic [ref=e33]:
+          - button "Abrir menú" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - generic [ref=e37]:
+            - generic [ref=e38]: 🎸
+            - text: CancioBot
+        - generic [ref=e39]:
+          - generic [ref=e40]: Administrador
+          - generic [ref=e41]: atencion@digifixapp.com
+          - button "Salir" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - generic [ref=e45]: Salir
+      - main [ref=e46]:
+        - generic [ref=e48]:
+          - heading "Panel Administrador" [level=2] [ref=e49]
+          - generic [ref=e50]:
+            - button "🎵 Letras" [ref=e51] [cursor=pointer]
+            - button "🔍 Competencia" [ref=e52] [cursor=pointer]
+            - button "📊 Financiero" [active] [ref=e53] [cursor=pointer]
+            - button "💳 Pagos2" [ref=e54] [cursor=pointer]
+            - button "🎬 Videos" [ref=e55] [cursor=pointer]
+            - button "👥 Leads" [ref=e56] [cursor=pointer]
+            - button "📥 Importar" [ref=e57] [cursor=pointer]
+            - button "📣 Facebook Ads" [ref=e58] [cursor=pointer]
+            - button "💾 Storage" [ref=e59] [cursor=pointer]
+            - button "🤖 Agentes" [ref=e60] [cursor=pointer]
+            - link "📋 Catálogos" [ref=e61] [cursor=pointer]:
+              - /url: /dashboard/catalogs
+          - generic [ref=e109]:
+            - heading "Panel Financiero" [level=2] [ref=e110]
+            - generic [ref=e111]:
+              - generic [ref=e112]:
+                - paragraph [ref=e113]: Ingresos totales
+                - paragraph [ref=e114]: $0 MXN
+                - paragraph [ref=e115]: 0 pedidos entregados
+              - generic [ref=e116]:
+                - paragraph [ref=e117]: ROI
+                - paragraph [ref=e118]: "-100.0%"
+                - paragraph [ref=e119]: (Ingr. - Costos) / Costos
+              - generic [ref=e120]:
+                - paragraph [ref=e121]: CAC
+                - paragraph [ref=e122]: $0.14 MXN
+                - paragraph [ref=e123]: Costo de adquisición
+              - generic [ref=e124]:
+                - paragraph [ref=e125]: LTV
+                - paragraph [ref=e126]: Sin datos
+                - paragraph [ref=e127]: Valor por cliente
+            - generic [ref=e128]:
+              - paragraph [ref=e129]: Flujo de Caja Mensual (MXN)
+              - application [ref=e132]:
+                - generic [ref=e144]:
+                  - generic [ref=e145]:
+                    - generic [ref=e147]: nov 25
+                    - generic [ref=e149]: dic 25
+                    - generic [ref=e151]: ene 26
+                    - generic [ref=e153]: feb 26
+                    - generic [ref=e155]: mar 26
+                    - generic [ref=e157]: abr 26
+                  - generic [ref=e158]:
+                    - generic [ref=e160]: $0
+                    - generic [ref=e162]: $1
+                    - generic [ref=e164]: $2
+                    - generic [ref=e166]: $3
+                    - generic [ref=e168]: $4
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - paragraph [ref=e171]: Presupuesto IA
+                - 'button "Límite: $50 USD — editar" [ref=e172] [cursor=pointer]'
+              - generic [ref=e173]:
+                - generic [ref=e174]:
+                  - generic [ref=e175]: $0.0400 USD usado
+                  - generic [ref=e176]: 0.1%
+                - paragraph [ref=e179]: "Costo total IA: $0.0400 USD"
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - generic [ref=e182]:
+                - heading "📊 Agente Financiero-Contable" [level=3] [ref=e183]
+                - paragraph [ref=e184]: Métricas reales con fórmulas del Dominio de Negocio
+              - button "▶ Recalcular métricas" [ref=e185] [cursor=pointer]
+            - paragraph [ref=e186]: Presiona "Recalcular métricas" para obtener el análisis financiero completo con datos reales de BD.
+  - button "Open Next.js Dev Tools" [ref=e74] [cursor=pointer]:
+    - img [ref=e75]
+  - alert [ref=e78]
+  - generic [ref=e187]: $0

@@ -1,0 +1,28 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - heading "CancioBot 🎵" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Entra a tu cuenta, primo.
+    - generic [ref=e9]:
+      - button "Continuar con Google" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+        - text: Continuar con Google
+      - generic [ref=e20]: O
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]: Email
+          - textbox "Email" [ref=e24]
+        - generic [ref=e25]:
+          - generic [ref=e26]: Contraseña
+          - textbox "Contraseña" [ref=e27]
+        - button "Entrar" [ref=e28] [cursor=pointer]
+        - paragraph [ref=e29]:
+          - link "¿Olvidaste tu contraseña?" [ref=e30] [cursor=pointer]:
+            - /url: /forgot-password
+    - paragraph [ref=e31]:
+      - text: ¿No tienes cuenta?
+      - link "Regístrate" [ref=e32] [cursor=pointer]:
+        - /url: /signup
+  - button "Open Next.js Dev Tools" [ref=e38] [cursor=pointer]:
+    - img [ref=e39]
+  - alert [ref=e42]
