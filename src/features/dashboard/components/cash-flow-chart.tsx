@@ -23,7 +23,7 @@ export function CashFlowChart({ data }: Props) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="month" tick={{ fontSize: 12 }} />
         <YAxis tick={{ fontSize: 12 }} tickFormatter={(v: number) => `$${v.toLocaleString()}`} />
-        <Tooltip formatter={(v) => [`$${Number(v).toLocaleString()} MXN`, 'Ingresos']} />
+        <Tooltip formatter={(v) => [`$${Number(v).toLocaleString()} USD`, 'Ingresos']} />
         <Bar dataKey="revenue" fill="#6366f1" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

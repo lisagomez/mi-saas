@@ -123,7 +123,7 @@ export interface Competitor {
 }
 
 export interface FinancialMetrics {
-  totalRevenueMxn: number
+  totalRevenueUsd: number
   totalAiCostUsd: number
   ordersDelivered: number
   leadsTotal: number
@@ -281,8 +281,8 @@ export interface StorageCleanupLog {
 
 /** Métricas financieras enriquecidas por el Agente Financiero */
 export interface EnrichedFinancialMetrics {
-  totalRevenueMxn: number
-  totalExpensesMxn: number
+  totalRevenueUsd: number
+  totalExpensesUsd: number
   totalAiCostUsd: number
   ordersDelivered: number
   leadsTotal: number

@@ -2,10 +2,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getGlobalRoas } from '@/features/facebook-ads/services/get-campaigns-with-metrics'
 import type { FinancialMetrics } from '@/types/database'
 
-// Precio por canción en MXN (configurable via env)
-const PRICE_PER_SONG_MXN = Number(process.env.SONG_PRICE_MXN ?? 350)
-// Tipo de cambio USD→MXN para costos IA (configurable via env)
-const USD_TO_MXN = Number(process.env.USD_TO_MXN ?? 17)
+// Precio por canción en USD (configurable via env)
+const PRICE_PER_SONG_USD = Number(process.env.SONG_PRICE_USD ?? 25)
 
 export async function getFinancialMetrics(): Promise<FinancialMetrics> {
   const supabase = createAdminClient()
@@ -17,9 +15,9 @@ export async function getFinancialMetrics(): Promise<FinancialMetrics> {
     .eq('status', 'entregado')
 
   const ordersDelivered = delivered?.length ?? 0
-  const totalRevenueMxn = ordersDelivered * PRICE_PER_SONG_MXN
+  const totalRevenueUsd = ordersDelivered * PRICE_PER_SONG_USD
 
-  // Costo total IA
+  // Costo total IA (ya en USD)
   const { data: aiRowsRaw } = await supabase
     .from('ai_usage')
     .select('cost_usd')
@@ -38,27 +36,26 @@ export async function getFinancialMetrics(): Promise<FinancialMetrics> {
     .select('*', { count: 'exact', head: true })
     .eq('qualification_status', 'calificado')
 
-  const totalCostMxn = totalAiCostUsd * USD_TO_MXN
-  const roi = totalCostMxn > 0
-    ? ((totalRevenueMxn - totalCostMxn) / totalCostMxn) * 100
+  const roi = totalAiCostUsd > 0
+    ? ((totalRevenueUsd - totalAiCostUsd) / totalAiCostUsd) * 100
     : null
 
   const cac = (leadsConverted ?? 0) > 0
-    ? totalCostMxn / (leadsConverted ?? 1)
+    ? totalAiCostUsd / (leadsConverted ?? 1)
     : null
 
   const ltv = ordersDelivered > 0
-    ? totalRevenueMxn / ordersDelivered
+    ? totalRevenueUsd / ordersDelivered
     : null
 
   // ROAS global desde Facebook Ads
   const roas = await getGlobalRoas()
 
   // Flujo de caja mensual (últimos 6 meses)
-  const monthlyCashFlow = buildMonthlyCashFlow(delivered ?? [], PRICE_PER_SONG_MXN)
+  const monthlyCashFlow = buildMonthlyCashFlow(delivered ?? [], PRICE_PER_SONG_USD)
 
   return {
-    totalRevenueMxn,
+    totalRevenueUsd,
     totalAiCostUsd,
     ordersDelivered,
     leadsTotal: leadsTotal ?? 0,

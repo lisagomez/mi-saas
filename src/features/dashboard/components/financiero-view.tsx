@@ -55,7 +55,7 @@ export function FinancieroView({ metrics }: { metrics: FinancialMetrics }) {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <MetricCard
           label="Ingresos totales"
-          value={fmt(metrics.totalRevenueMxn, '$', ' MXN')}
+          value={fmt(metrics.totalRevenueUsd, '$', ' USD')}
           sub={`${metrics.ordersDelivered} pedido${metrics.ordersDelivered !== 1 ? 's' : ''} entregado${metrics.ordersDelivered !== 1 ? 's' : ''}`}
         />
         <MetricCard
@@ -65,19 +65,19 @@ export function FinancieroView({ metrics }: { metrics: FinancialMetrics }) {
         />
         <MetricCard
           label="CAC"
-          value={fmt(metrics.cac, '$', ' MXN')}
+          value={fmt(metrics.cac, '$', ' USD')}
           sub="Costo de adquisición"
         />
         <MetricCard
           label="LTV"
-          value={fmt(metrics.ltv, '$', ' MXN')}
+          value={fmt(metrics.ltv, '$', ' USD')}
           sub="Valor por cliente"
         />
       </div>
 
       {/* Flujo de caja */}
       <div className="rounded-xl border border-gray-200 bg-white p-5">
-        <p className="mb-3 text-sm font-semibold text-gray-700">Flujo de Caja Mensual (MXN)</p>
+        <p className="mb-3 text-sm font-semibold text-gray-700">Flujo de Caja Mensual (USD)</p>
         <CashFlowChart data={metrics.monthlyCashFlow} />
       </div>
 

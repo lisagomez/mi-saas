@@ -6,7 +6,8 @@ import { getGlobalRoas } from '@/features/facebook-ads/services/get-campaigns-wi
 import type { EnrichedFinancialMetrics } from '@/types/database'
 
 const PRICE_PER_SONG_USD = Number(process.env.SONG_PRICE_USD ?? 25)
-const USD_TO_MXN = Number(process.env.USD_TO_MXN ?? 17)
+// Tasa de cambio para convertir gastos registrados en MXN → USD
+const MXN_TO_USD = 1 / Number(process.env.USD_TO_MXN ?? 17)
 
 function insuf(metric: string): string {
   return `Datos insuficientes para calcular ${metric}`
@@ -43,59 +44,57 @@ export async function runFinancialAgent(): Promise<{ success: boolean; metrics?:
   const aiRows = (aiUsageRaw ?? []) as { cost_usd: number | null }[]
   const totalAiCostUsd = aiRows.reduce((sum, r) => sum + (r.cost_usd ?? 0), 0)
 
-  // Ingresos: pedidos entregados × precio en USD convertido a MXN
-  const totalRevenueMxn = ordersDelivered * PRICE_PER_SONG_USD * USD_TO_MXN
+  // Ingresos en USD
+  const totalRevenueUsd = ordersDelivered * PRICE_PER_SONG_USD
 
-  // Gastos reales por categoría
-  const totalMarketingMxn = expenses
+  // Gastos reales por categoría (expenses registrados en MXN → convertir a USD)
+  const totalMarketingUsd = expenses
     .filter(e => e.category === 'marketing')
-    .reduce((s, e) => s + Number(e.amount_mxn), 0)
-  const totalExpensesMxn = expenses.reduce((s, e) => s + Number(e.amount_mxn), 0) + totalAiCostUsd * USD_TO_MXN
+    .reduce((s, e) => s + Number(e.amount_mxn) * MXN_TO_USD, 0)
+  const totalExpensesUsd = expenses.reduce((s, e) => s + Number(e.amount_mxn) * MXN_TO_USD, 0) + totalAiCostUsd
 
   // Métricas — con regla anti-alucinación
   const insufficientData: string[] = []
 
   // CAC = Gasto marketing / Leads calificados
   let cac: number | null = null
-  if ((leadsQualified ?? 0) > 0 && totalMarketingMxn > 0) {
-    cac = totalMarketingMxn / (leadsQualified ?? 1)
+  if ((leadsQualified ?? 0) > 0 && totalMarketingUsd > 0) {
+    cac = totalMarketingUsd / (leadsQualified ?? 1)
   } else {
     insufficientData.push(insuf('CAC'))
   }
 
-  // LTV simplificado = Ticket promedio (tenemos ticket pero no frecuencia real aún)
+  // LTV simplificado = Ticket promedio
   let ltv: number | null = null
   if (ordersDelivered > 0) {
-    ltv = totalRevenueMxn / ordersDelivered
+    ltv = totalRevenueUsd / ordersDelivered
   } else {
     insufficientData.push(insuf('LTV'))
   }
 
   // ROI = (Ingresos - Todos los gastos) / Todos los gastos × 100
   let roi: number | null = null
-  if (totalExpensesMxn > 0 && totalRevenueMxn > 0) {
-    roi = ((totalRevenueMxn - totalExpensesMxn) / totalExpensesMxn) * 100
+  if (totalExpensesUsd > 0 && totalRevenueUsd > 0) {
+    roi = ((totalRevenueUsd - totalExpensesUsd) / totalExpensesUsd) * 100
   } else {
     insufficientData.push(insuf('ROI'))
   }
 
-  // Punto de equilibrio = Gastos fijos / Margen de contribución promedio
-  // Aproximación: gastos fijos (suscripciones + operación) / precio unitario
+  // Punto de equilibrio = Gastos fijos / precio unitario
   let puntoEquilibrio: number | null = null
-  const gastosFijos = expenses
+  const gastosFijosUsd = expenses
     .filter(e => ['suscripciones', 'operacion'].includes(e.category))
-    .reduce((s, e) => s + Number(e.amount_mxn), 0)
-  const ticketMxn = PRICE_PER_SONG_USD * USD_TO_MXN
-  if (gastosFijos > 0 && ticketMxn > 0) {
-    puntoEquilibrio = Math.ceil(gastosFijos / ticketMxn)
+    .reduce((s, e) => s + Number(e.amount_mxn) * MXN_TO_USD, 0)
+  if (gastosFijosUsd > 0 && PRICE_PER_SONG_USD > 0) {
+    puntoEquilibrio = Math.ceil(gastosFijosUsd / PRICE_PER_SONG_USD)
   } else {
     insufficientData.push(insuf('Punto de equilibrio'))
   }
 
   // Flujo de caja = Ingresos confirmados - Gastos comprometidos del período
   let flujoCaja: number | null = null
-  if (totalRevenueMxn > 0 || totalExpensesMxn > 0) {
-    flujoCaja = totalRevenueMxn - totalExpensesMxn
+  if (totalRevenueUsd > 0 || totalExpensesUsd > 0) {
+    flujoCaja = totalRevenueUsd - totalExpensesUsd
   } else {
     insufficientData.push(insuf('Flujo de caja'))
   }
@@ -107,11 +106,11 @@ export async function runFinancialAgent(): Promise<{ success: boolean; metrics?:
   }
 
   // Flujo mensual (últimos 6 meses)
-  const monthlyCashFlow = buildMonthlyCashFlow(ordersDeliveredRaw ?? [], PRICE_PER_SONG_USD * USD_TO_MXN)
+  const monthlyCashFlow = buildMonthlyCashFlow(ordersDeliveredRaw ?? [], PRICE_PER_SONG_USD)
 
   const metrics: EnrichedFinancialMetrics = {
-    totalRevenueMxn,
-    totalExpensesMxn,
+    totalRevenueUsd,
+    totalExpensesUsd,
     totalAiCostUsd,
     ordersDelivered,
     leadsTotal: leadsTotal ?? 0,

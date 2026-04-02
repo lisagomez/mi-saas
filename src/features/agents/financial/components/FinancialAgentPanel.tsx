@@ -61,8 +61,8 @@ export function FinancialAgentPanel({ initialMetrics }: Props) {
         <div className="space-y-4">
           {/* KPIs principales */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <MetricCard label="Ingresos totales" value={fmt(metrics.totalRevenueMxn, '$', ' MXN')} sub={`${metrics.ordersDelivered} pedidos entregados`} />
-            <MetricCard label="Gastos totales" value={fmt(metrics.totalExpensesMxn, '$', ' MXN')} sub="Marketing + IA + Operación" />
+            <MetricCard label="Ingresos totales" value={fmt(metrics.totalRevenueUsd, '$', ' USD')} sub={`${metrics.ordersDelivered} pedidos entregados`} />
+            <MetricCard label="Gastos totales" value={fmt(metrics.totalExpensesUsd, '$', ' USD')} sub="Marketing + IA + Operación" />
             <MetricCard
               label="ROI"
               value={metrics.roi !== null ? `${metrics.roi.toFixed(1)}%` : 'Sin datos'}
