@@ -1,11 +1,11 @@
 {
-  "name": "Mi SaaS",
-  "short_name": "MiSaaS",
-  "description": "Mi aplicacion",
+  "name": "CancioBot",
+  "short_name": "CancioBot",
+  "description": "Corridos personalizados por WhatsApp",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#1a1a0e",
+  "theme_color": "#EAB308",
   "lang": "es",
   "icons": [
     { "src": "/icons/icon-72.png", "sizes": "72x72", "type": "image/png" },
