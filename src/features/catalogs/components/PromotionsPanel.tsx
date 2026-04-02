@@ -17,6 +17,7 @@ const EMPTY_FORM = {
   valid_from: '',
   valid_to: '',
   is_active: true,
+  whatsapp_template_name: '',
 }
 
 const OCCASIONS = [
@@ -58,6 +59,7 @@ export function PromotionsPanel({ promotions }: Props) {
       valid_from: p.valid_from,
       valid_to: p.valid_to,
       is_active: p.is_active,
+      whatsapp_template_name: p.whatsapp_template_name ?? '',
     })
     setShowForm(true)
     setError('')
@@ -74,6 +76,7 @@ export function PromotionsPanel({ promotions }: Props) {
       valid_from: form.valid_from,
       valid_to: form.valid_to,
       is_active: form.is_active,
+      whatsapp_template_name: form.whatsapp_template_name.trim() || null,
     }
 
     startTransition(async () => {
@@ -203,6 +206,20 @@ export function PromotionsPanel({ promotions }: Props) {
               />
               <label htmlFor="is_active_promo" className="text-sm text-gray-700">Activa</label>
             </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Template de WhatsApp (Meta) <span className="text-gray-400 font-normal">— opcional</span>
+              </label>
+              <input
+                value={form.whatsapp_template_name}
+                onChange={(e) => setForm({ ...form, whatsapp_template_name: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono"
+                placeholder="ej: canciobot_promo_verano"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Nombre exacto del template aprobado en Meta. Si se configura, la campaña usa este template en lugar de texto libre (necesario para clientes fuera de la ventana de 24h).
+              </p>
+            </div>
           </div>
           {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
           <div className="flex gap-3 mt-4">
@@ -231,6 +248,7 @@ export function PromotionsPanel({ promotions }: Props) {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Ocasión</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Vigencia</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Descuento</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Template Meta</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Estado</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -242,7 +260,13 @@ export function PromotionsPanel({ promotions }: Props) {
                   <td className="px-4 py-3 text-gray-600">{p.occasion}</td>
                   <td className="px-4 py-3 text-gray-600">{p.valid_from} → {p.valid_to}</td>
                   <td className="px-4 py-3 text-gray-600">
-                    {p.discount_percent ? `${p.discount_percent}%` : p.discount_fixed_mxn ? `$${p.discount_fixed_mxn}` : '—'}
+                    {p.discount_percent ? `${p.discount_percent}%` : p.discount_fixed_mxn ? `$${p.discount_fixed_mxn} USD` : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.whatsapp_template_name
+                      ? <span className="font-mono text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{p.whatsapp_template_name}</span>
+                      : <span className="text-gray-400 text-xs">—</span>
+                    }
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>

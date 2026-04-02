@@ -161,6 +161,7 @@ export interface PromotionsCatalog {
   valid_from: string
   valid_to: string
   is_active: boolean
+  whatsapp_template_name: string | null
   created_at: string
   updated_at: string
 }

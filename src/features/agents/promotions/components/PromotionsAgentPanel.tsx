@@ -85,7 +85,7 @@ export function PromotionsAgentPanel({ activePromotions }: Props) {
               >
                 {activePromotions.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} {p.discount_percent ? `(${p.discount_percent}% off)` : p.discount_fixed_mxn ? `($${p.discount_fixed_mxn} off)` : ''}
+                    {p.name} {p.discount_percent ? `(${p.discount_percent}% off)` : p.discount_fixed_mxn ? `($${p.discount_fixed_mxn} USD off)` : ''}
                   </option>
                 ))}
               </select>
@@ -110,7 +110,7 @@ export function PromotionsAgentPanel({ activePromotions }: Props) {
               <p className="font-medium text-gray-900">{previewPromo.name}</p>
               {previewPromo.description && <p className="text-sm text-gray-500 mt-0.5">{previewPromo.description}</p>}
               {previewPromo.discount_percent && <p className="text-sm font-medium text-green-700 mt-1">{previewPromo.discount_percent}% de descuento</p>}
-              {previewPromo.discount_fixed_mxn && <p className="text-sm font-medium text-green-700 mt-1">${previewPromo.discount_fixed_mxn} de descuento</p>}
+              {previewPromo.discount_fixed_mxn && <p className="text-sm font-medium text-green-700 mt-1">${previewPromo.discount_fixed_mxn} USD de descuento</p>}
             </div>
           )}
 

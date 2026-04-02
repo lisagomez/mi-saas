@@ -90,10 +90,12 @@ export function LeadsView({ leads, promotions, campaignHistory = [] }: Props) {
 
         if (!proceed) return
 
+        const selectedPromo = promotions.find((p) => p.id === promotionId)
         const res = await sendCampaignToSelected(
           Array.from(selected),
           promotionId,
-          messageTemplate.trim() || undefined
+          messageTemplate.trim() || undefined,
+          selectedPromo?.whatsapp_template_name ?? undefined
         )
         setResult(res)
         setSelected(new Set())
@@ -185,13 +187,18 @@ export function LeadsView({ leads, promotions, campaignHistory = [] }: Props) {
                   >
                     {promotions.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name}{p.discount_percent ? ` (${p.discount_percent}% off)` : p.discount_fixed_mxn ? ` ($${p.discount_fixed_mxn} off)` : ''}
+                        {p.name}{p.discount_percent ? ` (${p.discount_percent}% off)` : p.discount_fixed_mxn ? ` ($${p.discount_fixed_mxn} USD off)` : ''}
                       </option>
                     ))}
                   </select>
                 )}
               </div>
               <div className="flex items-end gap-2">
+                {promotions.find((p) => p.id === promotionId)?.whatsapp_template_name && (
+                  <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg font-mono">
+                    Template: {promotions.find((p) => p.id === promotionId)!.whatsapp_template_name}
+                  </span>
+                )}
                 <button
                   onClick={() => setShowTemplateInput((v) => !v)}
                   className="text-xs text-gray-500 hover:text-gray-700 underline"

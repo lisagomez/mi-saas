@@ -14,6 +14,7 @@ const PromotionSchema = z.object({
   valid_from: z.string().min(1),
   valid_to: z.string().min(1),
   is_active: z.boolean(),
+  whatsapp_template_name: z.string().optional().nullable(),
 })
 
 async function assertAdmin() {
