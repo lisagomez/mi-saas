@@ -57,6 +57,63 @@ Usuario dice algo
     ├── "Quiero remover SaaS Factory"
     |       → Ejecutar skill EJECT-SF (DESTRUCTIVO, confirmar antes)
     |
+    │── [CancioBot] "Agentes / investigacion / financiero / recompra"
+    |       → Leer prp-agentes-automaticos.md → src/features/agents/
+    |       → Agente Investigador: competidores + AI report
+    |       → Agente Financiero: ROI/ROAS/CAC/LTV desde gastos reales
+    |       → Agente Promociones: campana de recompra masiva por WhatsApp
+    |
+    ├── [CancioBot] "Catalogos / promociones / presupuesto / preferencias"
+    |       → Leer prp-catalogs.md → src/features/catalogs/
+    |       → Tablas: promotions_catalog, preferences_catalog, budgets,
+    |                 expenses, business_domain
+    |       → guardedAiCall() protege cada llamada IA contra exceso de budget
+    |
+    ├── [CancioBot] "Dashboard / roles / vistas por rol"
+    |       → Leer prp-dashboard-roles.md → src/features/dashboard/
+    |       → Roles: creativo | agente_investigador | admin_pagos | administrador
+    |       → Cada rol ve una vista diferente en /dashboard
+    |
+    ├── [CancioBot] "Facebook Ads / campanas / ROAS / atribucion"
+    |       → Leer prp-facebook-ads.md → src/features/facebook-ads/
+    |       → Tablas: facebook_campaigns, campaign_spend
+    |       → Atribucion: leads.source = 'fb_{campaign.source_key}'
+    |
+    ├── [CancioBot] "Generacion de musica / cancion / Suno / audio"
+    |       → Leer prp-music-generation.md → src/features/orders/
+    |       → Pipeline: historia → letra (IA) → audio Suno → Storage → WhatsApp
+    |       → buildMusicPromptDb() cruza estilo + origin/residence del lead
+    |       → extractAndSaveLocation() extrae ubicacion del texto de historia
+    |
+    ├── [CancioBot] "Flujo conversacional / pedido / orden / historia"
+    |       → Leer prp-orders-conversational-flow.md → src/features/orders/
+    |       → Estados: recopilando_historia → recopilando_estilo →
+    |                  generando_letra → letra_generada → pago_pendiente
+    |
+    ├── [CancioBot] "Pagos / comprobante / confirmar pago / cancion entregada"
+    |       → Leer prp-payment-flow.md → src/features/orders/
+    |       → Flujo: comprobante imagen → Storage → admin confirma → bot entrega
+    |       → Panel: PaymentConfirmationPanel en dashboard admin_pagos
+    |
+    ├── [CancioBot] "Recompra / campana WhatsApp / clientes anteriores"
+    |       → Leer prp-rebuy-campaign.md → src/features/agents/promotions/
+    |       → Candidatos: status IN (entregado, pago_confirmado, video_pago_confirmado)
+    |       → Excluye leads con recompra en los ultimos 30 dias
+    |       → Soporta templates Meta para clientes fuera de ventana 24h
+    |
+    ├── [CancioBot] "Storage / almacenamiento / limpieza / buckets"
+    |       → Leer prp-storage-management.md → src/features/storage-management/
+    |       → Tablas: storage_config, storage_cleanup_log
+    |       → Cron: /api/storage/cleanup (CRON_SECRET)
+    |       → Panel solo visible para rol 'administrador'
+    |
+    ├── [CancioBot] "Video / fotos / YouTube / video personalizado"
+    |       → Leer prp-video-generation.md → src/features/video-generation/
+    |       → Pipeline: fotos WhatsApp → Replicate slideshow → YouTube unlisted
+    |       → Estados extra: recopilando_fotos → generando_video → video_listo →
+    |                        video_pago_enviado → video_pago_confirmado
+    |       → Fallback graceful si Replicate falla (entrega solo audio)
+    |
     └── No encaja en nada
             → Usar tu juicio. Si es frontend → agent FRONTEND.
               Si es backend → agent BACKEND.
@@ -146,6 +203,55 @@ Usuario dice algo
 2. Implementar paso a paso
 ```
 
+### Flujo 5: CancioBot - Pedido Completo (End-to-End)
+
+```
+WhatsApp entrada
+    ↓
+getOrCreateLead() → isNew → GREETING → fin
+    ↓ (lead existente)
+qualification_status = 'pending' → runQualifier()
+    → no_calificado → nurturing_list → CLOSE_MESSAGE
+    → calificado → detectOccasion() → promo si aplica → NEXT_STEP_MESSAGE
+    ↓
+handleQualifiedLead()
+    ├── isNew order → ASK_STORY
+    ├── recopilando_historia → appendStoryChunk()
+    |       + extractAndSaveLocation() [fire-and-forget]
+    |       + detectStoryDone() → recopilando_estilo
+    ├── recopilando_estilo → buildMusicPromptDb(style, origin, residence)
+    |       → generateLyrics() [guardedAiCall]
+    |       → letra_generada + buildPaymentRequestMessage()
+    |       → generateAndSendAudioPreview() [after() background]
+    ├── pago_pendiente → imagen → storePaymentProof() → admin confirma
+    ├── pago_confirmado → ofrecer video → recopilando_fotos | video_rechazado
+    ├── recopilando_fotos → storePhoto() x N → 'listo' → generateAndDeliverVideo()
+    └── video_listo → comprobante → admin confirma → URL YouTube enviada
+```
+
+### Flujo 6: CancioBot - Agentes Automaticos
+
+```
+Dashboard (rol: administrador o agente_investigador/admin_pagos)
+    ↓
+AgentesView → tab Investigador | Financiero | Promociones
+    |
+    ├── Investigador → runInvestigatorAgent()
+    |       → scrapea competidores + genera analysis con IA
+    |       → persiste en agent_reports
+    |
+    ├── Financiero → runFinancialAgent()
+    |       → calcula desde: expenses, budgets, ai_usage,
+    |                         orders, facebook_campaigns, campaign_spend
+    |       → ROI, ROAS, CAC, LTV, flujo de caja
+    |
+    └── Promociones → getRebuyCandidates()
+            → status IN [entregado, pago_confirmado, video_pago_confirmado]
+            → excluye recompra < 30 dias
+            → sendRebuycampaign() → WhatsApp masivo
+            → si promo.whatsapp_template_name → usa template Meta
+```
+
 ---
 
 ## Auto-Blindaje
@@ -189,15 +295,29 @@ src/
 ├── app/                      # Next.js App Router
 │   ├── (auth)/              # Rutas de autenticacion
 │   ├── (main)/              # Rutas principales
+│   │   └── dashboard/       # Vista principal por rol
+│   ├── api/
+│   │   ├── webhooks/whatsapp/route.ts   # Entry point del bot (POST + GET)
+│   │   └── storage/cleanup/route.ts     # Cron de limpieza (CRON_SECRET)
 │   └── layout.tsx
 │
-├── features/                 # Organizadas por funcionalidad
-│   └── [feature]/
-│       ├── components/      # UI de la feature
-│       ├── hooks/           # Logica
-│       ├── services/        # API calls
-│       ├── types/           # Tipos
-│       └── store/           # Estado
+├── features/
+│   ├── agents/              # Agentes automaticos (PRP-008)
+│   │   └── promotions/      # Agente de recompra masiva
+│   ├── auth/                # Autenticacion y perfiles
+│   ├── catalogs/            # Catalogos configurables (PRP-007)
+│   ├── dashboard/           # Vistas por rol (PRP-004)
+│   ├── facebook-ads/        # Campanas y ROAS (PRP-009)
+│   ├── leads/               # Leads y campanas manuales
+│   ├── notifications/       # Notificaciones push (PWA)
+│   ├── orders/              # Pedidos + flujo conversacional (PRP-001, 002, 003)
+│   ├── storage-management/  # Monitoreo de Storage (PRP-010b)
+│   ├── video-generation/    # Pipeline de video (PRP-006)
+│   └── whatsapp-bot/        # Bot, calificador, mensajes
+│       ├── qualifier/       # runQualifier() — califica leads con IA
+│       ├── conversation/    # store-message, detect-story-done, extract-location
+│       ├── constants/copy/  # Todos los mensajes del bot
+│       └── services/        # send-whatsapp-message, log-ai-usage
 │
 └── shared/                   # Codigo reutilizable
     ├── components/
@@ -205,6 +325,30 @@ src/
     ├── lib/
     └── types/
 ```
+
+### Tablas clave de Supabase
+
+| Tabla | Feature | PRP |
+|-------|---------|-----|
+| `leads` | whatsapp-bot | — |
+| `orders` | orders | PRP-001 |
+| `songs` | orders | PRP-003 |
+| `videos` | video-generation | PRP-006 |
+| `order_photos` | video-generation | PRP-006 |
+| `conversations` | whatsapp-bot | — |
+| `ai_usage` | catalogs | PRP-007 |
+| `promotions_catalog` | catalogs | PRP-007 |
+| `preferences_catalog` | catalogs | PRP-007 |
+| `budgets` | catalogs | PRP-007 |
+| `expenses` | catalogs | PRP-007 |
+| `business_domain` | catalogs | PRP-007 |
+| `competitors` | agents | PRP-008 |
+| `agent_reports` | agents | PRP-008 |
+| `rebuys` | agents/promotions | PRP-010 |
+| `facebook_campaigns` | facebook-ads | PRP-009 |
+| `campaign_spend` | facebook-ads | PRP-009 |
+| `storage_config` | storage-management | PRP-010b |
+| `storage_cleanup_log` | storage-management | PRP-010b |
 
 ---
 
@@ -287,7 +431,18 @@ npm run lint         # ESLint
 │   └── calidad/              # Agent: testing
 │
 ├── PRPs/                      # Product Requirements Proposals
-│   └── prp-base.md           # Template base
+│   ├── prp-base.md                          # Template base
+│   ├── prp-001-whatsapp-leads-campaign.md   # Campana leads WhatsApp (ACTIVO)
+│   ├── prp-agentes-automaticos.md           # Agentes: investigador, financiero, promociones
+│   ├── prp-catalogs.md                      # Catalogos: promos, preferencias, presupuesto
+│   ├── prp-dashboard-roles.md               # Dashboard multi-rol (4 roles)
+│   ├── prp-facebook-ads.md                  # Campanas Facebook Ads + ROAS
+│   ├── prp-music-generation.md              # Generacion de audio con Suno AI
+│   ├── prp-orders-conversational-flow.md    # Flujo conversacional post-calificacion
+│   ├── prp-payment-flow.md                  # Flujo de pagos y entrega de cancion
+│   ├── prp-rebuy-campaign.md                # Campana de recompra por WhatsApp
+│   ├── prp-storage-management.md            # Monitoreo y limpieza de Storage
+│   └── prp-video-generation.md              # Video personalizado con fotos + YouTube
 │
 │   │   └── references/       # AI Templates (11 bloques)
 │
@@ -307,6 +462,18 @@ npm run lint         # ESLint
 - **Error**: Puerto hardcodeado causa conflictos
 - **Fix**: Siempre usar `npm run dev` (auto-detecta puerto)
 - **Aplicar en**: Todos los proyectos
+
+### 2026-04-02: Validacion de coherencia PRPs vs codigo — hallazgos clave
+- **Aprendizaje**: Antes de reportar una discrepancia como "faltante", leer el archivo real.
+  El agente de validacion reporto 3 "errores criticos" que ya estaban corregidos en el codigo.
+- **Fix**: Siempre verificar el archivo actual antes de asumir que algo falta.
+- **Aplicar en**: Todos los informes de coherencia / auditorias de codebase.
+
+### 2026-04-02: whatsapp_template_name en promotions_catalog
+- **Contexto**: Meta requiere templates aprobados para mensajes fuera de la ventana de 24h.
+- **Fix**: Campo `whatsapp_template_name` agregado a `promotions_catalog`. Si la promo lo
+  tiene configurado, la campana de recompra usa el template en lugar de texto libre.
+- **Aplicar en**: Cualquier envio masivo de WhatsApp a clientes con > 24h de inactividad.
 
 ---
 
