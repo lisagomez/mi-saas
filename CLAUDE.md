@@ -475,6 +475,13 @@ npm run lint         # ESLint
   tiene configurado, la campana de recompra usa el template en lugar de texto libre.
 - **Aplicar en**: Cualquier envio masivo de WhatsApp a clientes con > 24h de inactividad.
 
+### 2026-04-02: next build falla con useContext null cuando NODE_ENV=development
+- **Error**: `TypeError: Cannot read properties of null (reading 'useContext')` en prerendering
+  de `/_global-error` o `/_not-found`. El shell tenia `NODE_ENV=development`.
+- **Fix**: Siempre correr `NODE_ENV=production npm run build`. Cuando NODE_ENV=development,
+  react-redux carga su build de desarrollo que usa useContext diferente y crashea el SSR.
+- **Aplicar en**: Todos los proyectos que usen recharts (depende de react-redux).
+
 ---
 
 *V4: Todo es un Skill. Agent-First. El usuario habla, tu construyes.*
