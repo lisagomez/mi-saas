@@ -475,6 +475,16 @@ npm run lint         # ESLint
   tiene configurado, la campana de recompra usa el template en lugar de texto libre.
 - **Aplicar en**: Cualquier envio masivo de WhatsApp a clientes con > 24h de inactividad.
 
+### 2026-04-05: Usar printf (no echo) al guardar secrets en Vercel via CLI
+- **Error**: `echo "SECRET" | vercel env add` guarda el secret con `\n` al final. Esto rompe HMAC-SHA256 (el secret calculado no coincide con el real) causando 401 silenciosos en webhooks.
+- **Fix**: SIEMPRE usar `printf 'SECRET' | npx vercel env add VAR production` (sin comillas dobles, sin newline).
+- **Aplicar en**: Cualquier variable sensible guardada via Vercel CLI (tokens, secrets, API keys).
+
+### 2026-04-05: Meta pausa entrega de webhooks tras 401 consecutivos
+- **Error**: Después de varios 401, Meta deja de enviar POSTs al webhook. Los logs de Vercel no muestran ninguna nueva petición aunque el usuario mande mensajes.
+- **Fix**: Meta for Developers → WhatsApp → Configuration → Webhook fields → fila `messages` → **Test**. Si responde OK, la entrega se reanuda.
+- **Aplicar en**: Cualquier debugging de webhook WhatsApp que no muestre tráfico en logs.
+
 ### 2026-04-02: next build falla con useContext null cuando NODE_ENV=development
 - **Error**: `TypeError: Cannot read properties of null (reading 'useContext')` en prerendering
   de `/_global-error` o `/_not-found`. El shell tenia `NODE_ENV=development`.

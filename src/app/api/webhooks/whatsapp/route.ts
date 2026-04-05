@@ -68,8 +68,11 @@ export async function POST(request: NextRequest) {
   if (appSecret && signature) {
     const isValid = await verifySignature(body, signature, appSecret)
     if (!isValid) {
+      console.error('[webhook] signature mismatch — sig_prefix:', signature.slice(0, 15), 'secret_len:', appSecret.length, 'body_len:', body.length)
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
+  } else {
+    console.warn('[webhook] skipping signature check — appSecret present:', !!appSecret, 'signature present:', !!signature)
   }
 
   let payload: WhatsAppWebhookPayload

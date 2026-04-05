@@ -175,9 +175,26 @@ npx vercel --prod
 
 ## Errores Comunes
 
-### 401 en todos los POST del webhook
+### 401 en todos los POST del webhook — App Secret incorrecto
 **Causa:** `WHATSAPP_APP_SECRET` en Vercel no coincide con el App Secret real de la app.
 **Fix:** Ir a Meta for Developers → Configuración → Información básica → mostrar App secret → actualizar en Vercel → redeploy.
+
+### 401 persiste después de actualizar el App Secret
+**Causa:** Al guardar con `echo "SECRET" | vercel env add`, el comando `echo` agrega un `\n` invisible al final. El HMAC se calcula con ese newline y nunca coincide con la firma de Meta.
+**Fix SIEMPRE usar `printf` en lugar de `echo`:**
+```bash
+# MAL — agrega \n al final
+echo "el-secret" | npx vercel env add WHATSAPP_APP_SECRET production
+
+# BIEN — sin newline
+printf 'el-secret' | npx vercel env add WHATSAPP_APP_SECRET production
+```
+Si ya está guardado mal: `vercel env rm WHATSAPP_APP_SECRET production --yes` y volver a agregar con `printf`.
+
+### Meta deja de enviar webhooks después de varios 401
+**Causa:** Meta pausa la entrega del webhook automáticamente tras muchos errores consecutivos.
+**Síntoma:** Los logs de Vercel no muestran ningún POST nuevo al webhook aunque el usuario mande mensajes.
+**Fix:** Ir a Meta for Developers → WhatsApp → Configuration → Webhook fields → fila **messages** → clic en **Test**. Si responde "Successfully tested", Meta reanuda la entrega normal.
 
 ### Número sigue en "Pending"
 **Causa:** No se ejecutó el `POST /register`.
