@@ -142,6 +142,73 @@ ALTER TYPE expense_category ADD VALUE 'nueva_categoria';
 
 ---
 
+## Comparación con Paperclip (paperclipai/paperclip)
+
+Paperclip es una plataforma de agentes IA con sistema financiero orientado a **control de costos operacionales**. Comparado con nuestro sistema:
+
+### Lo que Paperclip tiene y nosotros NO (brechas a evaluar)
+
+| Feature | Paperclip | Nuestro sistema | Impacto |
+|---------|-----------|-----------------|---------|
+| `warn_percent` configurable | 80% ajustable por política | Límite duro sin alerta previa | ⚠️ Medio — podríamos avisar antes de parar |
+| Desglose de tokens | input / cached_input / output | Solo `cost_usd` total | ⚠️ Medio — perderíamos análisis de caching |
+| Rolling windows (5h/24h/7d) | Detecta picos de gasto en tiempo real | Solo acumulado mensual | ⚠️ Medio — útil para detectar runaway costs |
+| Budget incidents como tabla | Historial de excedencias con audit trail | Solo bloquea en `guardedAiCall` | 🔵 Bajo — nice to have |
+| Presupuestos por scope (agente/proyecto) | Company + Agent + Project | Solo por categoría (marketing, suscripciones) | 🔵 Bajo — no aplica a nuestro modelo |
+| Pausa automática de agentes | Hard stop pausa el agente en BD | `BudgetLimitError` en runtime | ✅ Cubierto diferente |
+
+### Lo que nosotros tenemos y Paperclip NO tiene
+
+| Feature | Nuestro sistema |
+|---------|-----------------|
+| **ROI** | Ingresos - Gastos totales / Gastos |
+| **ROAS** | Atribución de ingresos a campañas FB Ads |
+| **CAC** | Costo de adquisición por lead calificado |
+| **LTV** | Ticket promedio por cliente |
+| **Punto de equilibrio** | Pedidos necesarios para cubrir costos fijos |
+| **Revenue tracking** | `orders.status = 'entregado'` × precio |
+| **Flujo de caja mensual** | 6 meses de historial visual |
+| **Atribución UTM → lead → pedido** | `leads.source = 'fb_{utm}'` |
+
+> **Conclusión**: Paperclip controla gastos de IA a nivel técnico granular. Nuestro sistema tiene unit economics completos de negocio (ROI, ROAS, CAC, LTV). Son complementarios, no equivalentes.
+
+### Mejoras concretas a implementar (inspiradas en Paperclip)
+
+#### 1. `warn_percent` en tabla `budgets` (RECOMENDADO)
+Agregar umbral de alerta configurable para notificar *antes* de llegar al límite duro.
+
+```sql
+-- Migración sugerida
+ALTER TABLE budgets ADD COLUMN warn_percent integer DEFAULT 80;
+```
+
+En `guardedAiCall.ts`, antes de lanzar `BudgetLimitError`, enviar notificación push si el gasto supera `warn_percent`:
+```ts
+if (spent >= limit * (warnPercent / 100) && spent < limit) {
+  // Notificar al administrador vía push notification
+}
+if (spent >= limit) {
+  throw new BudgetLimitError(...)
+}
+```
+
+#### 2. Desglose de tokens en `ai_usage` (OPCIONAL)
+Paperclip diferencia `inputTokens`, `cachedInputTokens`, `outputTokens`. Los tokens cacheados cuestan ~10x menos en algunos modelos. Agregar estos campos permitiría optimizar qué prompts cachear.
+
+```sql
+ALTER TABLE ai_usage ADD COLUMN tokens_input integer;
+ALTER TABLE ai_usage ADD COLUMN tokens_cached_input integer;
+ALTER TABLE ai_usage ADD COLUMN tokens_output integer;
+```
+
+#### 3. Vista de gasto por ventana temporal (OPCIONAL)
+Paperclip calcula gasto en 5h/24h/7d para detectar picos. En nuestro caso podría implementarse como una query en `runFinancialAgent`:
+```sql
+SELECT SUM(cost_usd) FROM ai_usage WHERE created_at > NOW() - INTERVAL '24 hours'
+```
+
+---
+
 ## Bugs Corregidos
 
 ### ROAS hardcodeado como "Sin datos" en FinancialAgentPanel
