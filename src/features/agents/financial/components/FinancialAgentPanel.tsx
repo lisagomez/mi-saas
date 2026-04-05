@@ -71,22 +71,22 @@ export function FinancialAgentPanel({ initialMetrics }: Props) {
             />
             <MetricCard
               label="ROAS"
-              value="Sin datos"
-              sub="Requiere Facebook Ads"
-              warning
+              value={metrics.roas !== null ? `${metrics.roas.toFixed(2)}x` : 'Sin datos'}
+              sub="Ingresos FB / Gasto FB"
+              warning={metrics.roas === null}
             />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricCard
               label="CAC"
-              value={metrics.cac !== null ? fmt(metrics.cac, '$', ' MXN') : 'Sin datos'}
+              value={metrics.cac !== null ? fmt(metrics.cac, '$', ' USD') : 'Sin datos'}
               sub="Gasto marketing / leads calificados"
               warning={metrics.cac === null}
             />
             <MetricCard
               label="LTV"
-              value={metrics.ltv !== null ? fmt(metrics.ltv, '$', ' MXN') : 'Sin datos'}
+              value={metrics.ltv !== null ? fmt(metrics.ltv, '$', ' USD') : 'Sin datos'}
               sub="Ticket promedio por cliente"
               warning={metrics.ltv === null}
             />
