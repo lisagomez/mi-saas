@@ -54,7 +54,7 @@ const CATALOG: RegionStyleEntry[] = [
 /** Mapeo de artistas conocidos a estilos del catálogo */
 const ARTIST_TO_STYLE: Array<{ keywords: string[]; style: string }> = [
   { keywords: ['beto quintanilla', 'quintanilla'], style: 'corrido sierreño' },
-  { keywords: ['peso pluma', 'natanael cano', 'junior h', 'ivan cornejo', 'eslabón armado'], style: 'corrido tumbado' },
+  { keywords: ['peso pluma', 'natanael cano', 'natael cano', 'junior h', 'ivan cornejo', 'eslabón armado'], style: 'corrido tumbado' },
   { keywords: ['banda ms', 'banda sinaloense', 'el recodo', 'la adictiva', 'la original banda el limón', 'carin leon', 'carín león', 'eden munoz', 'edén muñoz'], style: 'banda' },
   { keywords: ['calibre 50', 'los tucanes', 'los yonics', 'lupillo rivera', 'joan sebastian', 'vicente fernandez', 'vicente fernández'], style: 'corrido norteño' },
   { keywords: ['los dos carnales', 'gabito ballesteros', 'el fantasma'], style: 'corrido sierreño' },
@@ -76,7 +76,8 @@ export function resolveArtistStyle(input: string): string {
 
 /** Fallback cuando no hay match en el catálogo */
 function fallbackDirectives(style: string): string {
-  return `estilo ${style}, producción profesional en español, emotivo y bien producido`
+  const cleaned = style.replace(/^(estilo|en estilo|al estilo de?)\s+/i, '').trim()
+  return `estilo ${cleaned}, producción profesional en español, emotivo y bien producido`
 }
 
 /**
