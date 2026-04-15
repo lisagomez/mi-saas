@@ -1,5 +1,4 @@
-import { generateObject } from 'ai'
-import { z } from 'zod'
+import { generateText } from 'ai'
 import { openrouter, MODELS } from '@/lib/ai/openrouter'
 
 const SYSTEM = `Eres el asistente de un servicio de corridos y canciones personalizadas para migrantes latinos.
@@ -18,24 +17,23 @@ CRITERIOS para historia INCOMPLETA:
 - El contexto es demasiado vago para componer algo personal
 - Hay fechas sin año que cambiarían el significado de la historia
 
-Si la historia está COMPLETA → { "action": "complete" }
-Si la historia está INCOMPLETA → { "action": "collecting", "reply": "..." }
-
-Reglas para el reply:
+Reglas para el reply cuando la historia está incompleta:
 - Máximo 2 oraciones, tono cálido y natural: "primo", "compa", "pa"
 - Haz UNA pregunta específica y accionable basada en lo que falta
 - Si hay muy poco contenido: anímalo a contar sobre la situación o persona
 - Si hay buen contenido pero falta un año o un nombre específico: pide ese dato
 - NO preguntes por el estilo musical (corrido, banda, etc.) — eso viene después
 - NO digas frases vacías como "cuéntame más" sin especificar qué falta
-- NO repitas información que el cliente ya dio`
+- NO repitas información que el cliente ya dio
 
-const StoryGuideSchema = z.object({
-  action: z.enum(['collecting', 'complete']),
-  reply: z.string().optional(),
-})
+RESPUESTA: Devuelve ÚNICAMENTE un objeto JSON con este formato exacto, sin texto adicional:
+Si la historia está COMPLETA: { "action": "complete" }
+Si la historia está INCOMPLETA: { "action": "collecting", "reply": "tu mensaje al cliente" }`
 
-export type StoryGuideResult = z.infer<typeof StoryGuideSchema>
+export interface StoryGuideResult {
+  action: 'collecting' | 'complete'
+  reply?: string
+}
 
 /**
  * Agente conversacional que guía la recopilación de historia para el corrido.
@@ -62,12 +60,24 @@ ${storyAccumulated.trim() || '(sin historia previa)'}
 Nuevo mensaje del cliente:
 ${newMessage.trim()}${metaNote}`
 
-  const { object } = await generateObject({
+  const { text } = await generateText({
     model: openrouter(MODELS.basic),
-    schema: StoryGuideSchema,
     system: SYSTEM,
     prompt,
+    maxOutputTokens: 200,
   })
 
-  return object
+  console.log('[story-guide-agent] raw response:', text.trim())
+
+  try {
+    const parsed = JSON.parse(text.trim()) as { action: string; reply?: string }
+    if (parsed.action === 'complete') {
+      return { action: 'complete' }
+    }
+    return { action: 'collecting', reply: parsed.reply }
+  } catch {
+    // JSON inválido — tratar como collecting sin reply (silencio)
+    console.error('[story-guide-agent] JSON parse error, raw:', text.trim())
+    return { action: 'collecting' }
+  }
 }
