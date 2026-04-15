@@ -62,7 +62,7 @@ export async function confirmPayment(
       status,
       lead_id,
       leads!inner(phone),
-      songs(lyrics_text)
+      songs(lyrics_text, audio_url_full)
     `)
     .eq('id', orderId)
     .single()
@@ -92,12 +92,13 @@ export async function confirmPayment(
   // Obtener teléfono y letra
   const phone = Array.isArray(order.leads) ? order.leads[0]?.phone : order.leads?.phone
   const lyricsText = order.songs?.[0]?.lyrics_text
+  const audioUrlFull = (order.songs?.[0] as { lyrics_text?: string; audio_url_full?: string | null })?.audio_url_full ?? null
 
   if (!phone) return { success: false, error: 'Teléfono del lead no encontrado' }
   if (!lyricsText) return { success: false, error: 'Letra de la canción no encontrada' }
 
-  // Entregar canción al cliente
-  const deliveryResult = await deliverSong({ phone, lyricsText })
+  // Entregar canción completa al cliente
+  const deliveryResult = await deliverSong({ phone, lyricsText, audioUrl: audioUrlFull })
   if (!deliveryResult.success) {
     // Si falla la entrega, no revertir el pago_confirmado — dejar para reintento manual
     return { success: false, error: `Pago confirmado pero fallo la entrega: ${deliveryResult.error}` }

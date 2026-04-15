@@ -3,6 +3,9 @@
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendWhatsAppText } from '@/features/whatsapp-bot/services/send-whatsapp-message'
+import { AUDIO_COMING_MESSAGE } from '@/features/whatsapp-bot/constants/copy'
+import { generateAndSendAudioPreview } from '@/features/orders/services/generate-and-send-audio'
 
 const ApproveLyricsSchema = z.object({ orderId: z.string().uuid() })
 
@@ -24,14 +27,32 @@ export async function approveLyrics(
   }
 
   const supabase = createAdminClient()
-  const { data: orderRaw } = await supabase
-    .from('orders').select('status').eq('id', parsed.data.orderId).single()
 
-  const order = orderRaw as { status: string } | null
+  const { data: orderRaw } = await supabase
+    .from('orders')
+    .select('status, lead_id, songs(id, music_prompt, lyrics_text)')
+    .eq('id', parsed.data.orderId)
+    .single()
+
+  const order = orderRaw as {
+    status: string
+    lead_id: string
+    songs: { id: string; music_prompt: string | null; lyrics_text: string | null }[] | null
+  } | null
+
   if (!order) return { success: false, error: 'Order no encontrado' }
   if (order.status !== 'letra_generada') {
     return { success: false, error: `Estado actual: ${order.status}` }
   }
+
+  const song = order.songs?.[0]
+  if (!song?.lyrics_text) return { success: false, error: 'Letra no encontrada' }
+
+  const { data: leadRaw } = await supabase
+    .from('leads').select('phone').eq('id', order.lead_id).single()
+
+  const phone = (leadRaw as { phone: string } | null)?.phone
+  if (!phone) return { success: false, error: 'Teléfono del lead no encontrado' }
 
   const { error } = await supabase
     .from('orders')
@@ -39,5 +60,20 @@ export async function approveLyrics(
     .eq('id', parsed.data.orderId)
 
   if (error) return { success: false, error: error.message }
+
+  // Notificar al cliente y disparar el audio job
+  await sendWhatsAppText(phone, AUDIO_COMING_MESSAGE)
+
+  try {
+    await generateAndSendAudioPreview({
+      songId: song.id,
+      musicPrompt: song.music_prompt ?? '',
+      lyricsText: song.lyrics_text,
+    })
+  } catch (err) {
+    // Si falla el submit, el cron /api/music/poll reintentará automáticamente
+    console.error('[approveLyrics] submitAudioJob falló — el cron reintentará:', err instanceof Error ? err.message : err)
+  }
+
   return { success: true }
 }

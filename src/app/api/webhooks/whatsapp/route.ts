@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse, after } from 'next/server'
+
+export const maxDuration = 300 // Vercel Pro: permite hasta 300s (necesario para polling MusicAPI)
 import { getOrCreateLead } from '@/features/whatsapp-bot/services/get-or-create-lead'
 import { storeMessage } from '@/features/whatsapp-bot/conversation/services/store-message'
 import { countUserMessages } from '@/features/whatsapp-bot/conversation/services/count-user-messages'
 import { getConversationContext } from '@/features/whatsapp-bot/qualifier/services/get-conversation-context'
 import { runQualifier } from '@/features/whatsapp-bot/qualifier/services/run-qualifier'
-import { detectStoryDone } from '@/features/whatsapp-bot/conversation/services/detect-story-done'
+import { runStoryGuideAgent, type StoryGuideResult } from '@/features/whatsapp-bot/conversation/services/run-story-guide-agent'
 import { logAiUsage } from '@/features/whatsapp-bot/services/log-ai-usage'
 import { sendWhatsAppText } from '@/features/whatsapp-bot/services/send-whatsapp-message'
 import {
@@ -14,7 +16,6 @@ import {
   ASK_STORY_MESSAGE,
   STORY_RECEIVED_ASK_STYLE_MESSAGE,
   GENERATING_LYRICS_MESSAGE,
-  LYRICS_INTRO_MESSAGE,
   ORDER_ALREADY_PROCESSED_MESSAGE,
   buildPaymentRequestMessage,
   PAYMENT_PROOF_RECEIVED_MESSAGE,
@@ -39,11 +40,12 @@ import { generateAndDeliverVideo } from '@/features/video-generation/services/ge
 import { extractAndSaveLocation } from '@/features/whatsapp-bot/conversation/services/extract-location'
 import { transcribeWhatsAppAudio } from '@/features/whatsapp-bot/conversation/services/transcribe-whatsapp-audio'
 import { buildMusicPromptDb } from '@/features/catalogs/services/build-music-prompt-db'
+import { resolveArtistStyle } from '@/features/orders/prompts/music-prompt'
 import { detectOccasion } from '@/features/catalogs/services/detect-occasion'
 import { getActivePromotion, formatPromotionMessage } from '@/features/catalogs/services/get-active-promotion'
 import { guardedAiCall, BudgetLimitError } from '@/features/catalogs/services/guarded-ai-call'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { MODELS } from '@/lib/ai/openrouter'
+import { MODELS, estimateCost } from '@/lib/ai/openrouter'
 import type { OrderStatus } from '@/types/database'
 
 /** Verificación del webhook por Meta (GET) */
@@ -173,7 +175,9 @@ export async function POST(request: NextRequest) {
       model: MODELS.basic,
       tokensInput: usage?.promptTokens ?? null,
       tokensOutput: usage?.completionTokens ?? null,
-      costUsd: null,
+      costUsd: usage
+        ? estimateCost(MODELS.basic, usage.promptTokens ?? 0, usage.completionTokens ?? 0)
+        : null,
     })
 
     if (result.qualified) {
@@ -188,12 +192,22 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      await sendWhatsAppText(phone, NEXT_STEP_QUALIFIED_MESSAGE)
-      await storeMessage({
-        leadId: lead.id,
-        role: 'assistant',
-        contentText: NEXT_STEP_QUALIFIED_MESSAGE,
-      })
+      // Si el mensaje que disparó la calificación ya parece una historia (>150 chars),
+      // guardarlo directamente y pedir el estilo — el cliente no tiene que repetirla.
+      if (text && text.trim().length > 150) {
+        const { order } = await getOrCreateOrder(lead.id)
+        await appendStoryChunk(order.id, text)
+        void extractAndSaveLocation({ leadId: lead.id, storyText: text })
+        await updateOrderStatus(order.id, 'recopilando_estilo')
+        await sendAndStore(phone, lead.id, STORY_RECEIVED_ASK_STYLE_MESSAGE)
+      } else {
+        await sendWhatsAppText(phone, NEXT_STEP_QUALIFIED_MESSAGE)
+        await storeMessage({
+          leadId: lead.id,
+          role: 'assistant',
+          contentText: NEXT_STEP_QUALIFIED_MESSAGE,
+        })
+      }
     } else {
       await supabase
         .from('nurturing_list')
@@ -229,46 +243,86 @@ async function handleQualifiedLead(params: {
   const { leadId, phone, text, imageMediaId, imageMimeType } = params
   const { order, isNew } = await getOrCreateOrder(leadId)
 
-  // Order recién creado → pedir historia
+  // Order recién creado → si el mensaje es muy corto, pedir historia; si no, correr el agente
   if (isNew) {
-    await sendAndStore(phone, leadId, ASK_STORY_MESSAGE)
-    return
-  }
-
-  const status = order.status as OrderStatus
-
-  if (status === 'recopilando_historia') {
-    if (detectStoryDone(text)) {
-      // Guardar el chunk aunque venga junto al keyword de cierre
-      await appendStoryChunk(order.id, text)
-      void extractAndSaveLocation({ leadId, storyText: text })
-      await updateOrderStatus(order.id, 'recopilando_estilo')
-      await sendAndStore(phone, leadId, STORY_RECEIVED_ASK_STYLE_MESSAGE)
-    } else {
-      await appendStoryChunk(order.id, text)
-      // Fire-and-forget: extraer origen/residencia mientras el cliente sigue contando
-      void extractAndSaveLocation({ leadId, storyText: text })
+    if (text.trim().length < 30) {
+      await sendAndStore(phone, leadId, ASK_STORY_MESSAGE)
+      return
     }
-    return
-  }
 
-  if (status === 'recopilando_estilo') {
+    await appendStoryChunk(order.id, text)
+    void extractAndSaveLocation({ leadId, storyText: text })
+
     const supabase = createAdminClient()
-
-    // Obtener origin/residence del lead para enriquecer el prompt musical
     const { data: leadData } = await supabase
       .from('leads')
       .select('origin, residence')
       .eq('id', leadId)
       .single()
 
-    const musicalStyle = text.trim()
     const leadMeta = leadData as { origin: string | null; residence: string | null } | null
-    const musicPrompt = await buildMusicPromptDb(
-      musicalStyle,
-      leadMeta?.origin ?? null,
-      leadMeta?.residence ?? null
-    )
+    let guideResult: StoryGuideResult
+    try {
+      guideResult = await runStoryGuideAgent({
+        storyAccumulated: text,
+        newMessage: text,
+        leadMeta: leadMeta ?? { origin: null, residence: null },
+      })
+    } catch (err) {
+      console.error('[webhook] runStoryGuideAgent failed on new order', err)
+      await sendAndStore(phone, leadId, ASK_STORY_MESSAGE)
+      return
+    }
+
+    if (guideResult.action === 'complete') {
+      await updateOrderStatus(order.id, 'recopilando_estilo')
+      await sendAndStore(phone, leadId, STORY_RECEIVED_ASK_STYLE_MESSAGE)
+    } else if (guideResult.reply) {
+      await sendAndStore(phone, leadId, guideResult.reply)
+    } else {
+      await sendAndStore(phone, leadId, ASK_STORY_MESSAGE)
+    }
+    return
+  }
+
+  const status = order.status as OrderStatus
+
+  if (status === 'recopilando_historia') {
+    await appendStoryChunk(order.id, text)
+    void extractAndSaveLocation({ leadId, storyText: text })
+
+    const supabaseStory = createAdminClient()
+    const [{ data: freshOrder }, { data: leadDataStory }] = await Promise.all([
+      supabaseStory.from('orders').select('story_text').eq('id', order.id).single(),
+      supabaseStory.from('leads').select('origin, residence').eq('id', leadId).single(),
+    ])
+
+    const leadMetaStory = leadDataStory as { origin: string | null; residence: string | null } | null
+    let storyResult: StoryGuideResult
+    try {
+      storyResult = await runStoryGuideAgent({
+        storyAccumulated: (freshOrder as { story_text: string | null } | null)?.story_text ?? '',
+        newMessage: text,
+        leadMeta: leadMetaStory ?? { origin: null, residence: null },
+      })
+    } catch (err) {
+      console.error('[webhook] runStoryGuideAgent failed', err)
+      return // Chunk guardado, responder en el siguiente mensaje
+    }
+
+    if (storyResult.action === 'complete') {
+      await updateOrderStatus(order.id, 'recopilando_estilo')
+      await sendAndStore(phone, leadId, STORY_RECEIVED_ASK_STYLE_MESSAGE)
+    } else if (storyResult.reply) {
+      await sendAndStore(phone, leadId, storyResult.reply)
+    }
+    // action='collecting' sin reply → silencio (chunk muy corto, no interrumpir)
+    return
+  }
+
+  if (status === 'recopilando_estilo') {
+    const supabase = createAdminClient()
+    const musicalStyle = resolveArtistStyle(text.trim())
 
     await supabase
       .from('orders')
@@ -278,53 +332,10 @@ async function handleQualifiedLead(params: {
       } as never)
       .eq('id', order.id)
 
-    await updateOrderStatus(order.id, 'generando_letra')
-    await sendAndStore(phone, leadId, GENERATING_LYRICS_MESSAGE)
-
-    const storyText = order.story_text ?? text
-    let lyricsText: string
-    let songId: string
-
-    try {
-      const result = await guardedAiCall(order.id, () =>
-        generateLyrics({ orderId: order.id, leadId, storyText, musicalStyle, musicPrompt })
-      )
-      lyricsText = result.lyricsText
-      songId = result.songId
-    } catch (err) {
-      if (err instanceof BudgetLimitError) {
-        await sendAndStore(phone, leadId, '⏳ Tu canción está en proceso. Te la enviamos pronto, compa.')
-        return
-      }
-      throw err
-    }
-
-    // Persistir musicPrompt en la canción
-    await supabase
-      .from('songs')
-      .update({ music_prompt: musicPrompt } as never)
-      .eq('id', songId)
-
-    await updateOrderStatus(order.id, 'letra_generada')
-
-    // Enviar letra + solicitud de pago al cliente (respuesta inmediata)
-    await sendAndStore(phone, leadId, LYRICS_INTRO_MESSAGE)
-    const chunks = splitLyricsForWhatsApp(lyricsText)
-    for (const chunk of chunks) {
-      await sendAndStore(phone, leadId, chunk)
-    }
-    await sendAndStore(phone, leadId, buildPaymentRequestMessage())
-    await updateOrderStatus(order.id, 'pago_pendiente')
-
-    // Generar audio en background (after() — no bloquea la respuesta a Meta)
-    after(async () => {
-      await generateAndSendAudioPreview({
-        orderId: order.id,
-        songId,
-        phone,
-        musicPrompt,
-        lyricsText,
-      })
+    await handleGenerateLyrics({
+      order: { ...order, story_text: order.story_text, musical_style: musicalStyle },
+      leadId,
+      phone,
     })
     return
   }
@@ -356,8 +367,30 @@ async function handleQualifiedLead(params: {
       return
     }
 
-    // Texto mientras espera pago → recordar instrucciones
-    await sendAndStore(phone, leadId, buildPaymentRequestMessage())
+    // Texto mientras espera pago → verificar si el audio ya llegó o sigue generando
+    const supabaseCheck = createAdminClient()
+    const { data: songData } = await supabaseCheck
+      .from('songs')
+      .select('audio_url, id, music_prompt, lyrics_text, musicapi_task_id')
+      .eq('order_id', order.id)
+      .single()
+
+    const song = songData as { audio_url: string | null; id: string; music_prompt: string | null; lyrics_text: string | null; musicapi_task_id: string | null } | null
+
+    if (!song?.audio_url) {
+      await sendAndStore(phone, leadId, '🎵 Tu canción está en proceso, compa. En unos minutos te la mando al WhatsApp. ¡No te desesperes!')
+      // Si no hay task_id activo, submitir el job directamente (solo es un POST rápido)
+      if (song?.id && song?.lyrics_text && !song.musicapi_task_id) {
+        await generateAndSendAudioPreview({
+          songId: song.id,
+          musicPrompt: song.music_prompt ?? '',
+          lyricsText: song.lyrics_text ?? '',
+        })
+      }
+    } else {
+      // Audio ya fue enviado → recordar instrucciones de pago
+      await sendAndStore(phone, leadId, buildPaymentRequestMessage())
+    }
     return
   }
 
@@ -365,11 +398,11 @@ async function handleQualifiedLead(params: {
   // deliver-song ya ofreció el video; esperamos respuesta del cliente.
   if (status === 'pago_confirmado') {
     const lowerText = text.toLowerCase().trim()
-    if (lowerText === 'sí' || lowerText === 'si' || lowerText === 's' || lowerText === 'yes') {
+    if (isAffirmative(lowerText)) {
       await createVideoRecord(order.id)
       await updateOrderStatus(order.id, 'recopilando_fotos')
       await sendAndStore(phone, leadId, ASK_PHOTOS_MESSAGE)
-    } else if (lowerText === 'no') {
+    } else if (isNegative(lowerText)) {
       await updateOrderStatus(order.id, 'video_rechazado')
       await sendAndStore(phone, leadId, VIDEO_REJECTED_MESSAGE)
     } else {
@@ -423,8 +456,11 @@ async function handleQualifiedLead(params: {
     }
 
     // Texto "listo" → confirmar y disparar pipeline
+    // Acepta variantes naturales: "listo ya las mande", "ya listo", "ok primo", etc.
     const lowerText = text.toLowerCase().trim()
-    if (lowerText === 'listo' || lowerText === 'ya' || lowerText === 'ok') {
+    const isDone = lowerText === 'listo' || lowerText === 'ya' || lowerText === 'ok'
+      || lowerText.startsWith('listo ') || lowerText.startsWith('ya ') || lowerText.startsWith('ok ')
+    if (isDone) {
       const { data: videoData } = await supabase
         .from('videos')
         .select('photo_count')
@@ -484,12 +520,91 @@ async function handleQualifiedLead(params: {
   }
 }
 
+/**
+ * Genera la letra, la envía al cliente y queda a la espera del pago.
+ * Reutilizable desde recopilando_estilo y aclarando_detalles.
+ */
+async function handleGenerateLyrics(params: {
+  order: { id: string; story_text: string | null; musical_style: string | null }
+  leadId: string
+  phone: string
+}): Promise<void> {
+  const { order, leadId, phone } = params
+  const supabase = createAdminClient()
+
+  const { data: leadData } = await supabase
+    .from('leads')
+    .select('origin, residence')
+    .eq('id', leadId)
+    .single()
+
+  const musicalStyle = order.musical_style ?? 'corrido'
+  const leadMeta = leadData as { origin: string | null; residence: string | null } | null
+  const musicPrompt = await buildMusicPromptDb(
+    musicalStyle,
+    leadMeta?.origin ?? null,
+    leadMeta?.residence ?? null
+  )
+
+  await updateOrderStatus(order.id, 'generando_letra')
+  await sendAndStore(phone, leadId, GENERATING_LYRICS_MESSAGE)
+
+  const storyText = order.story_text ?? ''
+  let lyricsText: string
+  let songId: string
+
+  try {
+    const result = await guardedAiCall(order.id, () =>
+      generateLyrics({ orderId: order.id, leadId, storyText, musicalStyle, musicPrompt })
+    )
+    lyricsText = result.lyricsText
+    songId = result.songId
+  } catch (err) {
+    if (err instanceof BudgetLimitError) {
+      await sendAndStore(phone, leadId, '⏳ Tu canción está en proceso. Te la enviamos pronto, compa.')
+      return
+    }
+    throw err
+  }
+
+  await supabase
+    .from('songs')
+    .update({ music_prompt: musicPrompt } as never)
+    .eq('id', songId)
+
+  // Parar aquí: el rol 'creativo' revisa la letra en el dashboard antes de avanzar.
+  // approveLyrics() enviará AUDIO_COMING_MESSAGE y disparará el audio job al aprobar.
+  await updateOrderStatus(order.id, 'letra_generada')
+}
+
 /** Envía un mensaje por WhatsApp y lo registra en conversations. */
 async function sendAndStore(phone: string, leadId: string, message: string): Promise<void> {
   const sent = await sendWhatsAppText(phone, message)
   if (sent.success) {
     await storeMessage({ leadId, role: 'assistant', contentText: message })
   }
+}
+
+/**
+ * Detecta afirmativos naturales de migrantes latinos.
+ * El bot pide "SÍ" pero los clientes responden de múltiples formas.
+ */
+function isAffirmative(text: string): boolean {
+  const AFFIRMATIVES = ['sí', 'si', 's', 'yes', 'dale', 'ándale', 'andale', 'claro', 'simon', 'simón', 'simas', 'pos si', 'pues si', 'pues sí', 'órale', 'orale', 'sale']
+  if (AFFIRMATIVES.includes(text)) return true
+  // "si quiero", "si primo", "si por favor", etc.
+  if (text.startsWith('si ') || text.startsWith('sí ')) return true
+  return false
+}
+
+/**
+ * Detecta negativos naturales.
+ */
+function isNegative(text: string): boolean {
+  const NEGATIVES = ['no', 'nel', 'nop', 'nope', 'no gracias', 'no quiero', 'nel pastel']
+  if (NEGATIVES.includes(text)) return true
+  if (text.startsWith('no ')) return true
+  return false
 }
 
 function extractCampaignSource(msg: { referral?: { source_url?: string } }): string | undefined {

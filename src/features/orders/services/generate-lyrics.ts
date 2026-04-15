@@ -1,5 +1,5 @@
 import { generateText } from 'ai'
-import { openrouter, MODELS } from '@/lib/ai/openrouter'
+import { openrouter, MODELS, estimateCost } from '@/lib/ai/openrouter'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logAiUsage } from '@/features/whatsapp-bot/services/log-ai-usage'
 import { buildLyricsPrompt, LYRICS_SYSTEM_PROMPT } from '../prompts/lyrics-prompt'
@@ -53,7 +53,7 @@ export async function generateLyrics(
 
   // Calcular costo estimado y registrar uso
   const costUsd = usage
-    ? (usage.inputTokens ?? 0) * 0.000003 + (usage.outputTokens ?? 0) * 0.000015
+    ? estimateCost(MODELS.balanced, usage.inputTokens ?? 0, usage.outputTokens ?? 0)
     : null
 
   await logAiUsage({

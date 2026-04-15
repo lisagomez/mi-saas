@@ -1,47 +1,24 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { generateAudio } from './generate-audio'
-import { storeAudio } from './store-audio'
-import { sendWhatsAppAudio, sendWhatsAppText } from '@/features/whatsapp-bot/services/send-whatsapp-message'
-import { AUDIO_PREVIEW_MESSAGE } from '@/features/whatsapp-bot/constants/copy'
+import { submitAudioJob } from './generate-audio'
 
 /**
- * Genera el audio de la canción, lo sube a Storage y lo envía al cliente.
- * Diseñado para ejecutarse en after() — después de que el webhook respondió a Meta.
- *
- * Fallo silencioso: si Suno no está disponible o falla, el cliente ya tiene
- * su letra y solicitud de pago. No bloquea ni interrumpe nada.
+ * Envía el job a MusicAPI y guarda el task_id en songs.
+ * El cron /api/music/poll se encarga de hacer polling y entregar el audio al cliente.
  */
 export async function generateAndSendAudioPreview(params: {
-  orderId: string
   songId: string
-  phone: string
   musicPrompt: string
   lyricsText: string
 }): Promise<void> {
-  const { orderId, songId, phone, musicPrompt, lyricsText } = params
+  const { songId, musicPrompt, lyricsText } = params
 
-  try {
-    // 1. Generar audio con Suno (puede tardar 30-90s)
-    const { audioUrl: sunoUrl } = await generateAudio({
-      musicPrompt,
-      lyricsText,
-    })
+  const { taskId } = await submitAudioJob({ musicPrompt, lyricsText })
 
-    // 2. Descargar y subir a Storage (URL permanente)
-    const { publicUrl } = await storeAudio({ audioUrl: sunoUrl, orderId, songId })
+  const supabase = createAdminClient()
+  await supabase
+    .from('songs')
+    .update({ musicapi_task_id: taskId } as never)
+    .eq('id', songId)
 
-    // 3. Persistir audio_url en songs
-    const supabase = createAdminClient()
-    await supabase
-      .from('songs')
-      .update({ audio_url: publicUrl } as never)
-      .eq('id', songId)
-
-    // 4. Enviar preview al cliente por WhatsApp
-    await sendWhatsAppText(phone, AUDIO_PREVIEW_MESSAGE)
-    await sendWhatsAppAudio(phone, publicUrl)
-  } catch (err) {
-    // Fallo silencioso — loggear para debugging pero no propagar
-    console.error('[generateAndSendAudioPreview] fallback:', err instanceof Error ? err.message : err)
-  }
+  console.log(`[generateAndSendAudioPreview] job submitted — task_id: ${taskId}, song: ${songId}`)
 }

@@ -1,20 +1,41 @@
 /** Mensajes del asistente WhatsApp (personalidad primo/compa). */
 
-export const GREETING_MESSAGE = `¡Qué onda, compa! 👋 Soy el asistente de *CancioBot*. Aquí hacemos corridos y canciones personalizadas para ti o para quien tú quieras: cumpleaños, boda, aniversario, lo que sea.
+export const GREETING_MESSAGE = `¡Qué onda, compa! 👋 Aquí hacemos corridos y canciones personalizadas para ti o para quien tú quieras: cumpleaños, boda, aniversario, lo que sea.
 
 ¿Para quién sería la canción o qué ocasión tienes en mente? Cuéntame un poco.`
 
 export const CLOSE_NOT_QUALIFIED_MESSAGE = `Sin problema, compa. Si más adelante te animas con una canción personalizada, aquí estaré. Que estés bien. 🙌`
 
-export const NEXT_STEP_QUALIFIED_MESSAGE = `¡Qué padre! Para armarte tu canción necesito que me cuentes la historia o dedicatoria (puede ser en texto o en audio) y qué estilo te late: banda, pop, romántica, etc. ¿Me platicas?`
+export const NEXT_STEP_QUALIFIED_MESSAGE = `¡Qué padre! Para armarte tu canción necesito que me cuentes la historia o dedicatoria (puede ser en texto o en audio) y qué estilo te late: corrido tumbado, corrido norteño, corrido sierreño o banda. ¿Me platicas?`
 
 // --- Flujo post-calificación ---
 
-export const ASK_STORY_MESSAGE = `¡Perfecto, compa! 🎶 Ahora cuéntame la historia o dedicatoria para la canción. Puede ser en uno o varios mensajes. Cuando termines, escribe *listo* para continuar.`
+export const ASK_STORY_MESSAGE = `¡Perfecto, compa! 🎶 Cuéntame la historia o dedicatoria para la canción. Puede ser en uno o varios mensajes, como tú quieras.`
 
-export const STORY_RECEIVED_ASK_STYLE_MESSAGE = `¡Ya tengo tu historia, qué bonita! 🙌 Ahora dime, ¿qué estilo te late para la canción? Por ejemplo: banda, pop, romántica, reggaeton, corrido tumbado, cumbia... tú decides.`
+export const STORY_RECEIVED_ASK_STYLE_MESSAGE = `¡Ya tengo tu historia, qué bonita! 🙌 Ahora dime, ¿qué estilo te late para la canción?
 
-export const GENERATING_LYRICS_MESSAGE = `¡Sale! Dame un momento, ya estoy generando tu letra con todo el corazón... ✍️🎵`
+🎵 *Corrido Tumbado* — estilo moderno, oscuro y épico
+🎵 *Corrido Norteño* — acordeón y bajo sexto, estilo fronterizo
+🎵 *Corrido Sierreño* — guitarras y acordeón, muy pegajoso
+🎵 *Banda* — metales, tuba y tambora, pura fiesta
+
+¿Cuál te gusta?`
+
+// --- Aclaración de detalles ---
+
+/**
+ * Prefijo que se añade antes de las preguntas de aclaración generadas por IA.
+ * El bot pregunta detalles clave que enriquecen el corrido (año, apodo, etc.).
+ */
+export function buildClarificationMessage(questions: string): string {
+  return `Una cosita más, primo 🤠\n\n${questions}\n\nCon eso ya tenemos todo para armar tu corrido.`
+}
+
+export const CLARIFICATION_DONE_MESSAGE = `¡Perfecto, compa! 🙌 Con eso ya tengo todo lo que necesito. Dame un momento...`
+
+export const GENERATING_LYRICS_MESSAGE = `¡Sale! Dame un momento, ya estoy componiendo tu canción con todo el corazón... 🎵`
+
+export const AUDIO_COMING_MESSAGE = `¡Ya quedó la letra! Ahora la estoy grabando en audio para mandártela. Dame unos minutitos... 🎤`
 
 export const LYRICS_INTRO_MESSAGE = `¡Listo, compa! Aquí está tu letra personalizada 🎶👇`
 
@@ -76,7 +97,9 @@ export const AUDIO_PREVIEW_MESSAGE = `🎵 ¡Aquí está el preview de tu canci�
 
 export const SONG_DELIVERED_MESSAGE = `¡Listo, compa! 🎉 Tu canción ya está lista. Aquí te la mando con todo el cariño. ¡Espero que les encante! 🎶`
 
-export const SONG_DELIVERY_CLOSING_MESSAGE = `Gracias por confiar en nosotros. Si quieres otra canción para otra ocasión especial, aquí estamos. ¡Que la disfruten mucho! 🙌`
+export const SONG_DELIVERY_CLOSING_MESSAGE = `Gracias por confiar en nosotros, compa. 🙌 ¡Que la disfruten mucho!
+
+👉 Si en algún momento quieres *otra canción* — para tus hijos, tu esposa, tus compadres, quien sea — aquí estamos. Solo escríbeme y arrancamos. 🎶`
 
 // --- Video personalizado add-on ---
 

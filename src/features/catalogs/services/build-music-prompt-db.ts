@@ -20,7 +20,12 @@ export async function buildMusicPromptDb(
       .eq('is_active', true)
       .order('sort_order', { ascending: true })
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      console.warn('[buildMusicPromptDb] DB error, usando catálogo hardcodeado:', error.message)
+      return buildMusicPrompt(style, origin, residence)
+    }
+    if (!data || data.length === 0) {
+      console.warn('[buildMusicPromptDb] preferences_catalog vacío o sin activos, usando catálogo hardcodeado')
       return buildMusicPrompt(style, origin, residence)
     }
 
@@ -46,7 +51,8 @@ export async function buildMusicPromptDb(
 
     // Fallback hardcodeado
     return buildMusicPrompt(style, origin, residence)
-  } catch {
+  } catch (err) {
+    console.warn('[buildMusicPromptDb] excepción inesperada, usando catálogo hardcodeado:', err instanceof Error ? err.message : err)
     return buildMusicPrompt(style, origin, residence)
   }
 }

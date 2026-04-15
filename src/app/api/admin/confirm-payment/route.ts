@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
   const { data: orderRaw, error } = await supabase
     .from('orders')
-    .select('id, status, leads(id, phone), songs(lyrics_text, audio_url)')
+    .select('id, status, leads(id, phone), songs(lyrics_text, audio_url_full)')
     .eq('id', orderId)
     .single()
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     id: string
     status: string
     leads: { id: string; phone: string } | null
-    songs: Array<{ lyrics_text: string | null; audio_url: string | null }> | null
+    songs: Array<{ lyrics_text: string | null; audio_url_full: string | null }> | null
   }
 
   if (order.status !== 'pago_pendiente') {
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   const result = await deliverSong({
     phone: lead.phone,
     lyricsText: song.lyrics_text,
-    audioUrl: song.audio_url,
+    audioUrl: song.audio_url_full,
   })
 
   if (!result.success) {

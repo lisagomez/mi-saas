@@ -4,6 +4,7 @@ import {
 } from '@/features/whatsapp-bot/services/send-whatsapp-message'
 import {
   SONG_DELIVERED_MESSAGE,
+  SONG_DELIVERY_CLOSING_MESSAGE,
   buildVideoOfferMessage,
 } from '@/features/whatsapp-bot/constants/copy'
 import { splitLyricsForWhatsApp } from './generate-lyrics'
@@ -37,6 +38,9 @@ export async function deliverSong(params: {
 
   // Ofrecer video add-on (precio configurable via VIDEO_PRICE_USD)
   await sendWhatsAppText(phone, buildVideoOfferMessage())
+
+  // Mensaje de cierre: agradecimiento + invitación a recompra
+  await sendWhatsAppText(phone, SONG_DELIVERY_CLOSING_MESSAGE)
 
   return { success: true }
 }

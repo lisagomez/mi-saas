@@ -5,6 +5,7 @@ export type QualificationStatus = 'pending' | 'calificado' | 'no_calificado'
 export type OrderStatus =
   | 'recopilando_historia'
   | 'recopilando_estilo'
+  | 'aclarando_detalles'
   | 'generando_letra'
   | 'letra_generada'
   | 'pago_pendiente'

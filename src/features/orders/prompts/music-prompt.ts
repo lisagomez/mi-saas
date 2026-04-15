@@ -11,66 +11,68 @@ interface RegionStyleEntry {
 }
 
 const CATALOG: RegionStyleEntry[] = [
-  // --- Banda ---
+  // --- Corrido Tumbado / Sierreño / Corrido genérico ---
+  // Catch-all para cualquier "corrido X" sin región específica.
+  // Debe ir ANTES de norteño para que 'corrido' no sea capturado por ese entry.
   {
-    regions: ['sinaloa', 'culiacán', 'culiacan', 'mazatlán', 'mazatlan', 'los mochis', 'guasave', 'sonora', 'hermosillo', 'navojoa'],
-    styles: ['banda', 'grupero', 'sinaloense'],
-    directives: 'banda sinaloense, tuba prominente, clarinete, tambora, tempo 130-145 BPM, feel de fiesta norteña',
-  },
-  {
-    regions: ['jalisco', 'guadalajara', 'zapopan', 'colima', 'nayarit', 'tepic', 'michoacán', 'michoacan', 'morelia'],
-    styles: ['banda', 'grupero'],
-    directives: 'banda jalisciense, metales brillantes, trombón, tambora jaliscience, tempo 125-135 BPM',
-  },
-  // --- Mariachi ---
-  {
-    regions: ['jalisco', 'guadalajara', 'zapopan', 'michoacán', 'michoacan', 'morelia', 'guanajuato', 'cdmx', 'ciudad de méxico', 'ciudad de mexico'],
-    styles: ['mariachi', 'ranchera', 'ranchero', 'corrido'],
-    directives: 'mariachi tradicional mexicano, trompetas brillantes, guitarrón, vihuela, guitarra de golpe, compás 3/4 o 2/4, emotivo y romántico',
-  },
-  // --- Norteño ---
-  {
-    regions: ['nuevo león', 'nuevo leon', 'monterrey', 'tamaulipas', 'coahuila', 'chihuahua', 'durango', 'zacatecas'],
-    styles: ['norteño', 'norteno', 'corrido', 'grupero', 'banda'],
-    directives: 'norteño regiomontano, bajo sexto, acordeón diatónico, polka rhythm, tempo 110-130 BPM, estilo fronterizo',
-  },
-  // --- Corrido Tumbado / Regional Mexicano moderno ---
-  {
-    regions: [],  // nacional / sin región específica
-    styles: ['corrido tumbado', 'corridos tumbados', 'regional mexicano', 'sierreño', 'sierreno'],
+    regions: [
+      'sonora', 'sinaloa', 'baja california', 'tijuana', 'culiacan', 'culiacán',
+      'hermosillo', 'navojoa', 'los mochis', 'guasave',
+      'chihuahua', 'durango', 'jalisco', 'nayarit', 'guerrero',
+      'michoacan', 'michoacán', 'zacatecas', 'colima',
+      'california', 'los angeles', 'arizona', 'nevada', 'chicago',
+    ],
+    styles: [
+      'corrido tumbado', 'corridos tumbados', 'tumbado',
+      'sierreño', 'sierreno', 'corrido sierreño', 'corrido sierreno',
+      'regional mexicano', 'corrido moderno', 'corrido',
+    ],
     directives: 'corrido tumbado moderno, guitarras eléctricas con distorsión leve, bajo profundo, acordeón, trap 808 sutil, tempo 75-85 BPM, mood oscuro y épico',
   },
-  // --- Pop / Balada ---
+  // --- Corrido Norteño ---
+  // SIN 'corrido' genérico — evita capturar "corrido tumbado" / "corrido sierreño"
   {
-    regions: [],
-    styles: ['pop', 'balada', 'pop balada', 'romántico', 'romantico', 'romántica', 'romantica'],
-    directives: 'pop balada en español, piano emocional, cuerdas suaves, producción limpia, tempo 70-90 BPM, emotivo y cinematográfico',
+    regions: [
+      'chihuahua', 'coahuila', 'tamaulipas', 'nuevo leon', 'nuevo león',
+      'monterrey', 'durango', 'zacatecas',
+      'texas', 'el paso', 'laredo', 'san antonio', 'houston',
+    ],
+    styles: ['corrido norteño', 'corrido norteno', 'norteño', 'norteno', 'regional norteño', 'conjunto norteño'],
+    directives: 'corrido norteño, bajo sexto, acordeón diatónico, batería norteña, tempo 110-130 BPM, estilo fronterizo y emotivo',
   },
-  // --- Reggaeton / Urbano ---
+  // --- Banda Sinaloense ---
   {
-    regions: [],
-    styles: ['reggaeton', 'urbano', 'trap', 'perreo'],
-    directives: 'reggaeton moderno, dembow beat, sintetizadores, 808 bass, hi-hats en loop, tempo 90-95 BPM',
-  },
-  // --- Cumbia ---
-  {
-    regions: ['veracruz', 'tabasco', 'villahermosa', 'coatzacoalcos', 'campeche', 'yucatán', 'yucatan', 'mérida', 'merida'],
-    styles: ['cumbia', 'tropical', 'salsa'],
-    directives: 'cumbia tropical mexicana, marimba, percusiones latinas, bajo eléctrico, tempo 110-120 BPM, festivo y bailable',
-  },
-  // --- Cumbia nacional ---
-  {
-    regions: [],
-    styles: ['cumbia', 'tropical'],
-    directives: 'cumbia pop, acordeón, percusiones, bajo eléctrico, tempo 110-120 BPM',
-  },
-  // --- Rock / Alternativo ---
-  {
-    regions: [],
-    styles: ['rock', 'alternativo', 'rock alternativo', 'metal', 'punk'],
-    directives: 'rock en español, guitarras eléctricas, batería en vivo, bajo, tempo 120-160 BPM según intensidad',
+    regions: [
+      'sinaloa', 'culiacan', 'culiacán', 'mazatlan', 'mazatlán', 'los mochis',
+      'sonora', 'hermosillo', 'nayarit', 'colima', 'jalisco',
+    ],
+    styles: ['banda', 'sinaloense', 'grupero'],
+    directives: 'banda sinaloense, tuba prominente, clarinete, trombones, tambora, tempo 125-145 BPM, feel de fiesta norteña',
   },
 ]
+
+/** Mapeo de artistas conocidos a estilos del catálogo */
+const ARTIST_TO_STYLE: Array<{ keywords: string[]; style: string }> = [
+  { keywords: ['beto quintanilla', 'quintanilla'], style: 'corrido sierreño' },
+  { keywords: ['peso pluma', 'natanael cano', 'junior h', 'ivan cornejo', 'eslabón armado'], style: 'corrido tumbado' },
+  { keywords: ['banda ms', 'banda sinaloense', 'el recodo', 'la adictiva', 'la original banda el limón', 'carin leon', 'carín león', 'eden munoz', 'edén muñoz'], style: 'banda' },
+  { keywords: ['calibre 50', 'los tucanes', 'los yonics', 'lupillo rivera', 'joan sebastian', 'vicente fernandez', 'vicente fernández'], style: 'corrido norteño' },
+  { keywords: ['los dos carnales', 'gabito ballesteros', 'el fantasma'], style: 'corrido sierreño' },
+]
+
+/**
+ * Si el texto menciona un artista conocido, devuelve el estilo correspondiente.
+ * De lo contrario, devuelve el texto original.
+ */
+export function resolveArtistStyle(input: string): string {
+  const lower = input.toLowerCase()
+  for (const entry of ARTIST_TO_STYLE) {
+    if (entry.keywords.some(k => lower.includes(k))) {
+      return entry.style
+    }
+  }
+  return input
+}
 
 /** Fallback cuando no hay match en el catálogo */
 function fallbackDirectives(style: string): string {
