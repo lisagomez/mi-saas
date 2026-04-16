@@ -34,17 +34,17 @@ export async function confirmPayment(
   const { data: { user } } = await supabaseUser.auth.getUser()
   if (!user) return { success: false, error: 'No autenticado' }
 
-  const { data: profile } = await supabaseUser
+  const supabase = createAdminClient()
+
+  const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  if (!profile || !['administrador', 'admin_pagos'].includes(profile.role)) {
+  if (!profile || !['administrador', 'admin_pagos'].includes((profile as { role: string }).role)) {
     return { success: false, error: 'Sin permisos' }
   }
-
-  const supabase = createAdminClient()
 
   interface OrderWithRelations {
     id: string

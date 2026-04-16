@@ -12,17 +12,17 @@ const schema = z.object({
 })
 
 export async function updateStorageConfig(formData: unknown) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabaseUser = await createClient()
+  const { data: { user } } = await supabaseUser.auth.getUser()
   if (!user) return { error: 'No autenticado' }
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const admin = createAdminClient()
+
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
   if ((profile as { role: string } | null)?.role !== 'administrador') return { error: 'Sin permiso' }
 
   const parsed = schema.safeParse(formData)
   if (!parsed.success) return { error: parsed.error.issues[0].message }
-
-  const admin = createAdminClient()
   const { error } = await admin
     .from('storage_config')
     .update({

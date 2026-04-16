@@ -19,14 +19,14 @@ export async function approveLyrics(
   const { data: { user } } = await supabaseUser.auth.getUser()
   if (!user) return { success: false, error: 'No autenticado' }
 
-  const { data: profile } = await supabaseUser
+  const supabase = createAdminClient()
+
+  const { data: profile } = await supabase
     .from('profiles').select('role').eq('id', user.id).single()
 
-  if (!profile || !['administrador', 'creativo'].includes(profile.role)) {
+  if (!profile || !['administrador', 'creativo'].includes((profile as { role: string }).role)) {
     return { success: false, error: 'Sin permisos' }
   }
-
-  const supabase = createAdminClient()
 
   const { data: orderRaw } = await supabase
     .from('orders')
