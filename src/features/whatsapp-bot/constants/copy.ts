@@ -14,10 +14,10 @@ export const ASK_STORY_MESSAGE = `¡Perfecto, compa! 🎶 Cuéntame la historia 
 
 export const STORY_RECEIVED_ASK_STYLE_MESSAGE = `¡Ya tengo tu historia, qué bonita! 🙌 Ahora dime, ¿qué estilo te late para la canción?
 
-🎵 *Corrido Tumbado* — estilo moderno, oscuro y épico
-🎵 *Corrido Norteño* — acordeón y bajo sexto, estilo fronterizo
-🎵 *Corrido Sierreño* — guitarras y acordeón, muy pegajoso
-🎵 *Banda* — metales, tuba y tambora, pura fiesta
+🎵 *Corrido Tumbado*
+🎵 *Corrido Norteño*
+🎵 *Corrido Sierreño*
+🎵 *Banda*
 
 ¿Cuál te gusta?`
 
@@ -75,8 +75,8 @@ function formatAccounts(accounts: PaymentAccount[]): string {
     .join('\n\n')
 }
 
-export function buildPaymentRequestMessage(): string {
-  const precio = process.env.PAYMENT_PRICE ?? '$X'
+export function buildPaymentRequestMessage(priceLabel?: string | null): string {
+  const precio = priceLabel ?? process.env.PAYMENT_PRICE ?? '$X'
   const accounts = parsePaymentAccounts()
 
   return `¡Tu canción quedó increíble! 🎶

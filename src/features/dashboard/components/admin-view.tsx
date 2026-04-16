@@ -14,6 +14,7 @@ import { FacebookAdsPanel } from '@/features/facebook-ads/components/FacebookAds
 import { StorageMonitorPanel } from '@/features/storage-management/components/StorageMonitorPanel'
 import { LeadsView } from '@/features/leads/components/LeadsView'
 import { LeadsImporter } from '@/features/leads/components/LeadsImporter'
+import { PricingCampaignPanel } from './pricing-campaign-panel'
 import type { Competitor, FinancialMetrics, PromotionsCatalog, CampaignWithMetrics, StorageConfig, StorageCleanupLog } from '@/types/database'
 import type { InvestigatorReport } from '@/features/agents/investigator/services/run-investigator-agent'
 import type { BucketStats } from '@/features/storage-management/services/get-storage-stats'
@@ -35,6 +36,24 @@ interface PendingVideoPayment {
   payment_proof_url: string | null; video_price: number | null; created_at: string
 }
 
+interface PricingCampaign {
+  id: string
+  campaign_number: number
+  campaign_name: string
+  price_label: string
+  valid_from: string
+  valid_until: string | null
+  assignment: 'all' | 'new_leads' | 'specific'
+  lead_ids: string[]
+  is_active: boolean
+}
+
+interface QualifiedLead {
+  id: string
+  phone: string
+  created_at: string
+}
+
 interface Props {
   lyricsOrders: LyricsOrder[]
   competitors: Competitor[]
@@ -50,6 +69,8 @@ interface Props {
   convertedLeads?: ConvertedLead[]
   allPromotions?: PromotionsCatalog[]
   campaignHistory?: CampaignHistory[]
+  pricingCampaigns?: PricingCampaign[]
+  qualifiedLeads?: QualifiedLead[]
 }
 
 const TABS = [
@@ -60,6 +81,7 @@ const TABS = [
   { key: 'videos', label: '🎬 Videos' },
   { key: 'leads', label: '👥 Leads' },
   { key: 'importar', label: '📥 Importar' },
+  { key: 'precios', label: '💰 Precios' },
   { key: 'facebook-ads', label: '📣 Facebook Ads' },
   { key: 'storage', label: '💾 Storage' },
   { key: 'agentes', label: '🤖 Agentes' },
@@ -67,7 +89,7 @@ const TABS = [
 
 type TabKey = typeof TABS[number]['key']
 
-export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments, pendingVideoPayments, latestInvestigatorReport, activePromotions, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads = [], allPromotions = [], campaignHistory = [] }: Props) {
+export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments, pendingVideoPayments, latestInvestigatorReport, activePromotions, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads = [], allPromotions = [], campaignHistory = [], pricingCampaigns = [], qualifiedLeads = [] }: Props) {
   const [tab, setTab] = useState<TabKey>('letras')
 
   return (
@@ -129,9 +151,13 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
       {tab === 'videos' && <VideoPaymentConfirmationPanel orders={pendingVideoPayments} />}
       {tab === 'leads' && <LeadsView leads={convertedLeads} promotions={allPromotions} campaignHistory={campaignHistory} />}
       {tab === 'importar' && <LeadsImporter />}
+      {tab === 'precios' && (
+        <PricingCampaignPanel campaigns={pricingCampaigns} leads={qualifiedLeads} />
+      )}
       {tab === 'facebook-ads' && (
         <FacebookAdsPanel initialCampaigns={facebookCampaigns ?? []} />
       )}
+
       {tab === 'storage' && storageStats && (
         <StorageMonitorPanel
           stats={storageStats}

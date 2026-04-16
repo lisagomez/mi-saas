@@ -65,7 +65,7 @@ export default async function DashboardPage() {
 
   // Datos para agentes (solo admin)
   const isAdmin = role === 'administrador'
-  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads, allPromotions, campaignHistory] = isAdmin
+  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads, allPromotions, campaignHistory, pricingCampaignsRaw, qualifiedLeadsRaw] = isAdmin
     ? await Promise.all([
         getLatestInvestigatorReport(),
         admin.from('promotions_catalog').select('*').eq('is_active', true)
@@ -79,10 +79,19 @@ export default async function DashboardPage() {
         getConvertedLeads(),
         admin.from('promotions_catalog').select('*').order('created_at', { ascending: false }),
         getCampaignHistory(),
+        admin.from('pricing_campaigns').select('*').order('created_at', { ascending: false }),
+        admin.from('leads').select('id, phone, created_at')
+          .eq('qualification_status', 'calificado')
+          .order('created_at', { ascending: false })
+          .limit(200),
       ])
-    : [null, { data: [] }, [], [], [], [], [], { data: [] }, []]
+    : [null, { data: [] }, [], [], [], [], [], { data: [] }, [], { data: [] }, { data: [] }]
   const activePromotions = (activePromotionsRaw.data ?? []) as PromotionsCatalog[]
   const allPromotionsList = ((allPromotions as { data: unknown[] }).data ?? []) as PromotionsCatalog[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pricingCampaigns = ((pricingCampaignsRaw as any).data ?? [])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const qualifiedLeads = ((qualifiedLeadsRaw as any).data ?? [])
 
   // Pagos pendientes (admin_pagos + admin)
   const needsPayments = role === 'admin_pagos' || role === 'administrador'
@@ -163,6 +172,8 @@ export default async function DashboardPage() {
             convertedLeads={convertedLeads as import('@/features/leads/services/get-converted-leads').ConvertedLead[]}
             allPromotions={allPromotionsList}
             campaignHistory={campaignHistory as import('@/features/leads/types/leads').CampaignHistory[]}
+            pricingCampaigns={pricingCampaigns}
+            qualifiedLeads={qualifiedLeads}
           />
         )}
 

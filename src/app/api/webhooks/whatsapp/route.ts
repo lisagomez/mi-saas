@@ -388,8 +388,8 @@ async function handleQualifiedLead(params: {
         })
       }
     } else {
-      // Audio ya fue enviado → recordar instrucciones de pago
-      await sendAndStore(phone, leadId, buildPaymentRequestMessage())
+      // Audio ya fue enviado → recordar instrucciones de pago (con precio de campaña si aplica)
+      await sendAndStore(phone, leadId, buildPaymentRequestMessage((order as { price_label?: string | null }).price_label))
     }
     return
   }

@@ -80,6 +80,7 @@ export async function GET(request: NextRequest) {
     .is('audio_url', null)
     .limit(10) as unknown as { data: PendingSong[] | null; error: { message: string } | null }
 
+
   if (error) {
     console.error('[music/poll] error:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -101,15 +102,15 @@ export async function GET(request: NextRequest) {
         continue
       }
 
-      // Obtener lead/phone desde la orden
+      // Obtener lead/phone y precio desde la orden
       const { data: order } = await supabase
         .from('orders')
-        .select('lead_id')
+        .select('lead_id, price_label')
         .eq('id', song.order_id as string)
         .single()
 
       if (!order) continue
-      const { lead_id: leadId } = order as { lead_id: string }
+      const { lead_id: leadId, price_label: priceLabel } = order as { lead_id: string; price_label: string | null }
 
       const { data: lead } = await supabase
         .from('leads')
@@ -169,7 +170,7 @@ export async function GET(request: NextRequest) {
         await storeMessage({ leadId, role: 'assistant', contentText: AUDIO_PREVIEW_MESSAGE })
       }
 
-      const paymentMsg = buildPaymentRequestMessage()
+      const paymentMsg = buildPaymentRequestMessage(priceLabel)
       const textSent = await sendWhatsAppText(phone, paymentMsg)
       if (textSent.success) {
         await storeMessage({ leadId, role: 'assistant', contentText: paymentMsg })

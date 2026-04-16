@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { sendWhatsAppText } from '@/features/whatsapp-bot/services/send-whatsapp-message'
 import { AUDIO_COMING_MESSAGE } from '@/features/whatsapp-bot/constants/copy'
 import { generateAndSendAudioPreview } from '@/features/orders/services/generate-and-send-audio'
+import { getActivePriceForLead } from '@/features/catalogs/services/get-active-price-for-lead'
 
 const ApproveLyricsSchema = z.object({ orderId: z.string().uuid() })
 
@@ -54,9 +55,16 @@ export async function approveLyrics(
   const phone = (leadRaw as { phone: string } | null)?.phone
   if (!phone) return { success: false, error: 'Teléfono del lead no encontrado' }
 
+  // Resolver precio de campaña activa para este lead (se guarda en el order)
+  const priceLabel = await getActivePriceForLead(order.lead_id)
+
   const { error } = await supabase
     .from('orders')
-    .update({ status: 'pago_pendiente', updated_at: new Date().toISOString() } as never)
+    .update({
+      status: 'pago_pendiente',
+      updated_at: new Date().toISOString(),
+      ...(priceLabel ? { price_label: priceLabel } : {}),
+    } as never)
     .eq('id', parsed.data.orderId)
 
   if (error) return { success: false, error: error.message }
