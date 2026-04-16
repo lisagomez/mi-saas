@@ -125,7 +125,9 @@ export async function GET(request: NextRequest) {
       if (!audioRes.ok) throw new Error(`Descarga de audio falló: ${audioRes.status}`)
       const arrayBuf = await audioRes.arrayBuffer()
       const fullBuffer = Buffer.from(arrayBuf)
-      const contentType = audioRes.headers.get('content-type') ?? 'audio/mpeg'
+      const rawContentType = audioRes.headers.get('content-type') ?? 'audio/mpeg'
+      // Normalizar audio/mp3 → audio/mpeg: WhatsApp Cloud API solo acepta audio/mpeg
+      const contentType = rawContentType === 'audio/mp3' ? 'audio/mpeg' : rawContentType
       const ext = contentType.includes('ogg') ? 'ogg' : contentType.includes('wav') ? 'wav' : 'mp3'
 
       // Clipear: preview (50%) + full — pasa el formato para frame sync correcto
@@ -158,8 +160,9 @@ export async function GET(request: NextRequest) {
         continue
       }
 
-      // Enviar preview al cliente — continuar aunque falle el audio (payment message sigue siendo útil)
-      const audioSent = await sendWhatsAppAudio(phone, urlPreview.publicUrl)
+      // Enviar preview al cliente — el caption incluye el AUDIO_PREVIEW_MESSAGE directamente
+      // en el archivo para que el cliente vea contexto sin un mensaje de texto separado.
+      const audioSent = await sendWhatsAppAudio(phone, urlPreview.publicUrl, AUDIO_PREVIEW_MESSAGE)
       if (!audioSent.success) {
         console.error(`[music/poll] WhatsApp audio send failed for ${phone}: ${audioSent.error}`)
       } else {

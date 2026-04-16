@@ -24,9 +24,9 @@ export async function deliverSong(params: {
   const introResult = await sendWhatsAppText(phone, SONG_DELIVERED_MESSAGE)
   if (!introResult.success) return introResult
 
-  // Enviar audio si está disponible
+  // Enviar audio completo si está disponible
   if (audioUrl) {
-    await sendWhatsAppAudio(phone, audioUrl)
+    await sendWhatsAppAudio(phone, audioUrl, '🎶 Tu corrido completo — ¡ya es tuyo!')
   }
 
   // Enviar letra (dividida si es muy larga)

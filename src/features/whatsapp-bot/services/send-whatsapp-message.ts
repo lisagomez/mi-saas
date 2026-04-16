@@ -1,10 +1,13 @@
 /**
- * Envía un mensaje de audio por WhatsApp Cloud API.
- * audioUrl debe ser una URL HTTPS pública accesible (ej: Supabase Storage público).
+ * Envía un archivo de audio por WhatsApp Cloud API como documento descargable.
+ * Usa type:"document" en lugar de "audio" porque WhatsApp requiere audio/mpeg
+ * pero Supabase Storage sirve el archivo como audio/mp3, lo cual WhatsApp rechaza
+ * silenciosamente para el tipo "audio". El tipo "document" no tiene esa restricción.
  */
 export async function sendWhatsAppAudio(
   to: string,
-  audioUrl: string
+  audioUrl: string,
+  caption?: string
 ): Promise<{ success: boolean; error?: string }> {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
   const token = process.env.WHATSAPP_ACCESS_TOKEN
@@ -24,8 +27,12 @@ export async function sendWhatsAppAudio(
     body: JSON.stringify({
       messaging_product: 'whatsapp',
       to: normalizedTo,
-      type: 'audio',
-      audio: { link: audioUrl },
+      type: 'document',
+      document: {
+        link: audioUrl,
+        filename: 'preview.mp3',
+        ...(caption ? { caption } : {}),
+      },
     }),
   })
 
