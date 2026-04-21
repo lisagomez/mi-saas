@@ -63,3 +63,9 @@ Thumbs.db
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# Playwright MCP artifacts
+.playwright-mcp/
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
