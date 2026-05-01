@@ -290,6 +290,176 @@ YOUTUBE_CHANNEL_ID=         # Canal donde se suben los videos (privados)
 
 > Esta sección CRECE con cada error encontrado durante la implementación.
 
+### 2026-04-29: Auditoría con prueba real (10 fotos + mp3 de 5 MB)
+
+Contexto: prueba aislada subiendo audio + 10 fotos a Storage y disparando Replicate.
+Storage funcionó. Replicate falló. Análisis del código reveló problemas estructurales.
+
+#### CRÍTICO — Bloquea generación en producción
+
+1. **El modelo `lucataco/music-video-maker:latest` no existe en Replicate** (404).
+   El usuario `lucataco` tampoco existe en la plataforma. Es un nombre inventado durante
+   la implementación. Verificación: `GET /v1/models/lucataco` → 404.
+   Default en `generate-video.ts:7` y valor en `.env.local` apuntan al mismo fantasma.
+   **Fix**: el slideshow + audio NO es un workload de Replicate — es composición
+   determinista. La opción correcta es ffmpeg (en Lambda, container, o servicio externo
+   tipo Cloudinary/Mux). Replicate solo aporta valor para animar **una** foto (i2v),
+   no para concatenar N fotos con audio.
+
+2. **Uso incorrecto del campo `version` de Replicate.**
+   `/v1/predictions` requiere un hash de 40 chars hex. El código manda
+   `version: 'owner/name:latest'` que siempre resolvería 404 aunque el modelo existiera.
+   Para un slug `owner/name` el endpoint correcto es `POST /v1/models/{owner}/{name}/predictions`
+   sin campo `version`. El test script ya implementa la detección automática.
+
+3. **Inputs de Replicate inventados.** `images`, `audio`, `transition`, `transition_duration`,
+   `style_prompt`, `color_filter` no están validados contra ningún schema real. Si más
+   adelante adoptamos un modelo real, su schema casi seguro será diferente.
+
+#### ARQUITECTURA — Romper en cuanto la canción dure 4 minutos
+
+4. **Timing del slideshow incompatible con canción de 4 min.**
+   `STYLE_MAP` define `photoDuration: 3.5s` (norteño). 10 fotos × 3.5s = 35s — la canción
+   dura 240s. El video terminaría con 205s de audio sobre la última foto estática.
+   **Fix**: calcular `photoDuration = audioDuration / N` con un mínimo de 2s y máximo 6s,
+   y si `audioDuration / N > 6`, hacer **loop** del slideshow para llenar el audio,
+   con ken-burns (zoompan) para mantener movimiento visual.
+
+5. **`MAX_POLL_ATTEMPTS = 60 × 5s = 5 min` es marginal para 4 min de video.**
+   Render de 4 min de slideshow HD + crossfades + audio mux toma típicamente 1–3 min en
+   ffmpeg, pero modelos AI pueden ser mucho más lentos. Si subimos el límite, el
+   `after()` de Vercel choca con el timeout del runtime.
+
+6. **`after()` puede no completar pipeline + YouTube en una invocación.**
+   Vercel Hobby = 60s, Pro = 300s, Enterprise = 900s. Pipeline completo:
+   render (60–180s) + descarga (10–30s) + upload Storage (10–30s) + upload YouTube (60–120s)
+   = 140–360s. **Fix**: mover el pipeline a una cola (Inngest/Trigger.dev/QStash) o a una
+   función con tier alto.
+
+7. **YouTube multipart vs resumable.** `upload-to-youtube.ts` usa `uploadType=multipart`,
+   que es para videos < 5 MB. Un video de 4 min HD (200–500 MB) requiere
+   `uploadType=resumable` con upload por chunks. **El upload se romperá** cuando
+   probemos con audio real de 4 min.
+
+8. **Memoria peak de 2× tamaño de video.** `storeVideo` hace `await res.arrayBuffer()` y
+   pasa el ArrayBuffer entero a `uploadToYouTube`, que crea una `Uint8Array` adicional.
+   Para video de 300 MB → peak ~600 MB en RAM. Vercel Pro Lambda cap = 1769 MB.
+   **Fix**: stream Replicate → YouTube resumable (chunked) sin pasar por memoria intermedia.
+
+#### FLUJO CONVERSACIONAL
+
+9. **HEIC se "renombra" a `.jpg` sin convertir bytes** (`store-photo.ts:37`).
+   Si Meta no convierte (no garantizado), Replicate/ffmpeg recibirá un archivo `.jpg`
+   que en realidad es HEIC y rechazará. **Fix**: convertir con `sharp` server-side
+   (sharp soporta HEIC vía libheif), o validar magic bytes y rechazar pidiendo otra foto.
+
+10. **Sin idempotencia por `mediaId`.** WhatsApp reintenta webhooks. El mismo `mediaId`
+    puede entrar dos veces y crear dos rows en `order_photos` con `sort_order` distintos.
+    **Fix**: índice único `(order_id, meta_media_id)` y manejo de conflict.
+
+11. **Límite de 10 fotos es bajo para 4 min de canción.** A pacing natural de 5s por foto,
+    4 min = 48 fotos. Realista por WhatsApp = 5–15. **Decisión**: aceptar 10 max y
+    compensar con loop + ken-burns (más barato que pedir 50 fotos al cliente).
+
+12. **El usuario puede mandar fotos en estados que las ignoran.** El webhook solo procesa
+    `imageMediaId` cuando `status === 'recopilando_fotos'`. En `pago_pendiente`, `letra_generada`
+    o cualquier otro estado, las fotos se descartan silenciosamente. **Fix**: si el cliente
+    manda foto fuera de tiempo, responder explicando cuándo puede mandarlas.
+
+#### COSTO Y CALIDAD
+
+13. **Polling de 5 min en serverless = compute facturable.** Cada orden con video gasta
+    ~5 min de Lambda time aunque Replicate tarde 30s. **Fix**: usar webhook de Replicate
+    (`webhook` field en `POST /predictions`) y pasar a estado push.
+
+14. **Sin `guardedAiCall()` en el pipeline.** `generate-video.ts` ignora el budget
+    protection que sí tienen `generate-lyrics` y otros llamados IA. Si el modelo cuesta
+    $X por job y el budget mensual está agotado, debe bloquearse antes de pegarle a Replicate.
+
+15. **Fallback no notifica al cliente.** En el catch de `generate-and-deliver-video.ts:117-131`
+    se marca la orden como `requiere_procesamiento_manual` pero no se le manda mensaje al
+    cliente. El cliente ya tiene el audio (entregado en `pago_confirmado`), pero queda
+    esperando el video sin info. **Fix**: enviar WhatsApp tipo "no pudimos procesar el video,
+    el equipo revisa y te avisa" + alerta al admin (notificación push).
+
+16. **`confirm-video-payment.ts` hace 2 UPDATEs secuenciales** (status → `video_pago_confirmado`
+    y luego → `entregado`). Innecesario. Un solo UPDATE a `entregado` basta. Y el row de
+    `videos` se queda con `status='listo'` para siempre — debería pasar a `entregado` o
+    `confirmado` para que el dashboard refleje el estado final.
+
+#### Estado del test 2026-04-29
+
+- ✅ Subida a Storage funciona (10 fotos a `order-photos/`, mp3 a `songs/`).
+- ✅ Signed URLs y public URL generadas correctamente.
+- ❌ Replicate 404 — modelo no existe.
+- ⏸️ ffmpeg no disponible localmente (sin sudo). Test pendiente de decisión sobre arquitectura.
+
+Script de prueba: `scripts/test-video-generation.ts`.
+Assets de prueba: `test-assets/video/` (audio.mp3 + photo-01..10.jpg).
+
+### 2026-05-01: Pipeline reconstruido con ffmpeg local — funciona en serverless
+
+Decisión arquitectónica tomada: **abandonar Replicate, usar `ffmpeg-static` en el mismo
+runtime de la Server Action**. Composición determinista, sin polling, sin webhook
+externo, sin dependencias de modelos AI fantasma. `ffmpeg-static` bundlea el binario en
+`node_modules` y resuelve "no hay sudo en el container".
+
+Resuelve los aprendizajes #1, #2, #3 (modelo fantasma + endpoint roto + inputs inventados),
+#7 (multipart→resumable), #9 (HEIC → `sharp` normaliza), #10 (idempotencia `mediaId` —
+migración aplicada), #15 (fallback notifica al cliente con `VIDEO_FAILED_MESSAGE`), #16
+(UPDATE único en `confirm-video-payment.ts` + `videos.status='entregado'` agregado al CHECK).
+
+#### LECCIÓN — `blend overlay` en filter_complex es prohibitivo en serverless
+
+17. **`blend=all_mode=overlay` causó 17 min de wall-time + 143 MB de output parcial.**
+    El tinte por estilo musical (`color=...:rate=30[tint];[concat][tint]blend=...`) es
+    per-pixel sobre el video completo (~5B operaciones para 60s × 720p × 30fps × 3 canales).
+    Además los gradientes del blend rompen H.264 — output ~16× mayor que un slideshow
+    equivalente. **Fix**: removido. Sin tinte, render bajó a 26s y output a 8.7 MB.
+    Si se re-introduce color grading, debe ser per-frame barato (`eq=saturation=...`,
+    `colorbalance`, `colorchannelmixer`), nunca `blend`.
+
+#### RECETA — Slideshow ffmpeg que sí funciona en serverless
+
+18. **Pipeline final: blur-bg + xfade + zoompan.** Reemplaza `pad=...:black` (pillarbox
+    feo en fotos verticales) y `fade=in/out + concat` (flash negro en cada transición).
+
+    Por foto (resuelve pillarbox + Ken Burns):
+    ```
+    [i:v]fps=30,split=2[a][b];
+    [a]scale=W:H:force_original_aspect_ratio=increase,crop=W:H,boxblur=20:1[bg];
+    [b]scale=W:H:force_original_aspect_ratio=decrease[fg];
+    [bg][fg]overlay=(W-w)/2:(H-h)/2,format=yuv420p,
+              zoompan=z='min(1+0.0005*on,1.09)':d=1:s=WxH:fps=30[v_i]
+    ```
+
+    Inter-foto (resuelve flash negro): `xfade=transition=fade:duration=0.4:offset=n*5.6`
+    encadenado. NO usar `concat` con fades por clip.
+
+    Resultado medido: 30.3s render para canción de 3:41, 34.5 MB output. Cabe en
+    `after()` de Vercel Pro (300s) con margen 10×.
+
+#### OPS — Aplicar migraciones sin DB password
+
+19. **`supabase db push` requiere DB password — el access token NO es suficiente.**
+    Cuando el MCP de Supabase no está disponible y `.env.local` no tiene
+    `SUPABASE_DB_PASSWORD`, usar `POST /v1/projects/{ref}/database/query` con el
+    `SUPABASE_ACCESS_TOKEN`. Después insertar en `supabase_migrations.schema_migrations`
+    para mantener bookkeeping (futuras corridas de `supabase db push` no re-aplicarán).
+    Script: `scripts/apply-migrations.ts`.
+
+20. **Pre-flight obligatorio antes de cambiar un CHECK constraint.** La migración
+    `videos_status_entregado` reemplaza el CHECK con un enum más restringido. Antes de
+    aplicar: `SELECT count(*) FROM table WHERE col NOT IN (new_enum)`. Si > 0, la
+    migración fallará al aplicar. Patrón en `scripts/check-migration-safety.ts`.
+
+#### Estado del test 2026-05-01
+
+- ✅ Pipeline ffmpeg end-to-end: 10 fotos + 3:41 audio → MP4 de 34.5 MB en 30.3s.
+- ✅ Migraciones `order_photos.meta_media_id` + `videos.status='entregado'` aplicadas en prod.
+- ✅ `NODE_ENV=production npm run build` limpio (22 páginas, 5.6s compile).
+- ⏸️ YouTube upload + entrega WhatsApp end-to-end no validados (necesitan webhook real).
+
 ---
 
 ## Gotchas
@@ -316,4 +486,4 @@ YOUTUBE_CHANNEL_ID=         # Canal donde se suben los videos (privados)
 
 ---
 
-*PRP pendiente aprobación. No se ha modificado código.*
+*PRP en ejecución. Pipeline ffmpeg + migraciones aplicadas el 2026-05-01.*

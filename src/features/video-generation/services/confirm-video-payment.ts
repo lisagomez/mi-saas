@@ -78,30 +78,22 @@ export async function confirmVideoPayment(
   const leadId = lead?.id
   if (!phone || !leadId) return { success: false, error: 'Teléfono del lead no encontrado' }
 
-  // Actualizar pago del video a confirmado
+  // Marcar video como confirmado y entregado en una sola escritura
   await supabase
     .from('videos')
     .update({
       payment_status: 'confirmado',
+      status: 'entregado',
       updated_at: new Date().toISOString(),
     } as never)
     .eq('order_id', orderId)
-
-  // Actualizar estado de la orden
-  await supabase
-    .from('orders')
-    .update({
-      status: 'video_pago_confirmado',
-      updated_at: new Date().toISOString(),
-    } as never)
-    .eq('id', orderId)
 
   // Enviar enlace de YouTube al cliente
   const deliveryMessage = buildVideoDeliveryMessage(youtubeUrl)
   await sendWhatsAppText(phone, deliveryMessage)
   await storeMessage({ leadId, role: 'assistant', contentText: deliveryMessage })
 
-  // Marcar orden como entregada
+  // Avanzar la orden directo a entregado (sin parada en video_pago_confirmado)
   await supabase
     .from('orders')
     .update({

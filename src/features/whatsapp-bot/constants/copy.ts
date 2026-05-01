@@ -120,6 +120,8 @@ export const PHOTOS_RECEIVED_MESSAGE = `📷 ¡Foto recibida! Sigue mandando las
 
 export const PHOTOS_CONFIRMED_MESSAGE = `¡Listo, compa! 🎬 Ya tengo tus fotos. Estoy armando tu video con la canción... en unos minutos te aviso cuando esté listo. ¡Va a quedar increíble! 🙌`
 
+export const VIDEO_FAILED_MESSAGE = `Compa, tuve un problema al armar tu video. Ya le avisé al equipo y lo van a revisar manualmente. Tu canción ya la tienes, y en cuanto resolvamos el video te contactamos. ¡Gracias por tu paciencia! 🙏`
+
 export function buildVideoReadyMessage(): string {
   const price = process.env.VIDEO_PRICE_USD ?? 'X'
   const accounts = parsePaymentAccounts()

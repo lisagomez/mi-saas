@@ -69,3 +69,6 @@ supabase/.temp
 
 # TypeScript build cache
 tsconfig.tsbuildinfo
+
+# Local test fixtures
+/test-assets/

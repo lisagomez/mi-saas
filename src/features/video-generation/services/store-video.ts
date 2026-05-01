@@ -1,37 +1,32 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { readFile, stat } from 'node:fs/promises'
 
 /**
- * Descarga el video desde la URL temporal de Replicate y lo sube a Supabase Storage (backup).
- * Retorna el ArrayBuffer para pasarlo a YouTube sin descargarlo dos veces.
- *
- * NUNCA guardar URLs temporales de Replicate en la DB — expiran.
+ * Lee el video generado localmente, lo sube a Supabase Storage como backup
+ * y retorna el Buffer para reutilizarlo en el upload a YouTube
+ * (sin descargar dos veces ni hacer una segunda copia en memoria).
  */
 export async function storeVideo(params: {
-  videoUrl: string
+  localPath: string
   orderId: string
-}): Promise<{ videoBuffer: ArrayBuffer; storagePath: string }> {
-  const { videoUrl, orderId } = params
+}): Promise<{ videoBuffer: Buffer; storagePath: string; sizeBytes: number }> {
+  const { localPath, orderId } = params
 
-  const res = await fetch(videoUrl)
-  if (!res.ok) throw new Error(`Video download failed: ${res.status}`)
-
-  const videoBuffer = await res.arrayBuffer()
-  const contentType = res.headers.get('content-type') ?? 'video/mp4'
-  const ext = contentType.includes('webm') ? 'webm' : 'mp4'
-  const storagePath = `${orderId}/${Date.now()}.${ext}`
+  const stats = await stat(localPath)
+  const videoBuffer = await readFile(localPath)
+  const storagePath = `${orderId}/${Date.now()}.mp4`
 
   const supabase = createAdminClient()
   const { error: uploadError } = await supabase.storage
     .from('videos')
-    .upload(storagePath, videoBuffer, { contentType, upsert: true })
+    .upload(storagePath, videoBuffer, { contentType: 'video/mp4', upsert: true })
 
   if (uploadError) throw new Error(`Storage upload failed: ${uploadError.message}`)
 
-  // Persistir el storage path como backup
   await supabase
     .from('videos')
     .update({ video_storage_path: storagePath, updated_at: new Date().toISOString() } as never)
     .eq('order_id', orderId)
 
-  return { videoBuffer, storagePath }
+  return { videoBuffer, storagePath, sizeBytes: stats.size }
 }
