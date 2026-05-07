@@ -2,7 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { sendWhatsAppText } from '@/features/whatsapp-bot/services/send-whatsapp-message'
+import { sendWhatsAppText, sendWhatsAppTemplate } from '@/features/whatsapp-bot/services/send-whatsapp-message'
 import { getActivePromotion, formatPromotionMessage } from '@/features/catalogs/services/get-active-promotion'
 import { getRebuyCandidates } from './get-rebuy-candidates'
 import type { PromotionsCatalog } from '@/types/database'
@@ -67,7 +67,9 @@ export async function sendRebuyCampaign(promotionId: string): Promise<CampaignRe
   let failed = 0
 
   for (const candidate of candidates) {
-    const result = await sendWhatsAppText(candidate.phone, rebuyText)
+    const result = promotion.whatsapp_template_name
+      ? await sendWhatsAppTemplate(candidate.phone, promotion.whatsapp_template_name)
+      : await sendWhatsAppText(candidate.phone, rebuyText)
     const status = result.success ? 'sent' : 'failed'
 
     await admin.from('rebuys').insert({

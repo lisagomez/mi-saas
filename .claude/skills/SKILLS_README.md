@@ -40,7 +40,6 @@
 | `vercel-deployer` | Deploy, env vars, dominios, rollbacks |
 | `documentacion` | Actualizar docs despues de cambios en codigo |
 | `calidad` | Testing, quality gates, validacion |
-| `video-generation` | Modificar pipeline video: ffmpeg, YouTube upload, store-photo, confirm-video-payment |
 
 ---
 

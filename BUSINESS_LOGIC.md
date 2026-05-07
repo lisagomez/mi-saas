@@ -21,7 +21,7 @@ La atención al cliente en WhatsApp para venta de canciones personalizadas es le
 ## 2. Solución
 
 **Propuesta de valor:**
-Un asistente automatizado de WhatsApp con personalidad cercana ("primo", "cuate") que califica leads por intención de pago antes de generar cualquier producto con IA, automatiza el flujo completo de producción (letra + canción + video vía Freebeat), y provee un panel de control con métricas financieras, trazabilidad de pedidos y control de presupuesto de IA en tiempo real.
+Un asistente automatizado de WhatsApp con personalidad cercana ("primo", "cuate") que califica leads por intención de pago antes de generar cualquier producto con IA, automatiza el flujo completo de producción (letra vía OpenRouter + canción vía MusicAPI/Suno + video vía ffmpeg), y provee un panel de control con métricas financieras, trazabilidad de pedidos y control de presupuesto de IA en tiempo real.
 
 **Flujo principal (Happy Path):**
 1. Cliente ve anuncio en Facebook → clic → trigger a WhatsApp Business API
@@ -32,15 +32,13 @@ Un asistente automatizado de WhatsApp con personalidad cercana ("primo", "cuate"
 6. El asistente identifica ocasión especial (catálogo de promociones) y ofrece promoción vigente
 7. El sistema identifica origen/residencia del cliente → selecciona prompt del catálogo de preferencias
 8. El sistema genera la letra con IA (historia + estilo + prompt personalizado)
-9. El sistema genera el audio con Freebeat → cliente puede escuchar opciones de tono
-10. El asistente envía el preview al cliente
-11. El asistente informa precio y datos de depósito
-12. Cliente realiza pago y envía comprobante
-13. Colaborador (Admin de Pagos) verifica depósito en panel
-14. Creativo revisa y aprueba (o ajusta manualmente) la versión final
-15. Asistente entrega la canción completa al cliente
-16. Asistente ofrece video personalizado (letra + fotos + fondos IA vía Freebeat)
-17. Si acepta → cliente sube fotos → sistema genera video → espera pago → colaborador confirma → sube a YouTube → envía liga al cliente
+9. El sistema genera el audio con MusicAPI (Suno AI) → preview enviado automáticamente al cliente
+10. El asistente envía el preview al cliente junto con precio y datos de depósito
+11. Cliente realiza pago y envía comprobante (imagen)
+12. Colaborador (Admin de Pagos) verifica comprobante en panel del dashboard
+13. Al confirmar pago → asistente entrega la canción al cliente (estado: entregado)
+14. Asistente ofrece video personalizado (fotos del cliente + slideshow ffmpeg)
+15. Si acepta → cliente sube fotos → sistema genera video con ffmpeg → espera pago → colaborador confirma → sube a YouTube → envía liga al cliente
 18. Asistente envía mensaje de agradecimiento + campaña de recompra/promoción
 
 ---
@@ -98,8 +96,8 @@ Un asistente automatizado de WhatsApp con personalidad cercana ("primo", "cuate"
 
 **Entregables al cliente:**
 - Letra generada con IA
-- Audio de la canción — preview + versión final (Freebeat)
-- Video personalizado (Freebeat) → subido a YouTube → liga enviada al cliente
+- Audio de la canción — generado con MusicAPI (Suno AI), preview enviado automáticamente
+- Video personalizado (slideshow ffmpeg con fotos del cliente) → subido a YouTube → liga enviada al cliente
 - Mensajes de recompra y promociones segmentadas
 
 **Panel de administración:**
@@ -185,7 +183,8 @@ Fórmulas exactas — sin alucinaciones. Usables en otras aplicaciones.
 | Backend | Supabase (Auth + Database + RLS + Storage) |
 | WhatsApp | WhatsApp Business API (cuenta activa) |
 | IA — Texto/Agentes | OpenRouter (routing: modelo económico / avanzado) |
-| IA — Música y Video | Freebeat API |
+| IA — Música | MusicAPI (Suno AI wrapper, `api.musicapi.ai`) |
+| Video | ffmpeg-static (slideshow local, sin dependencias externas) |
 | Validación | Zod |
 | Estado | Zustand |
 | Facebook Ads | Meta Marketing API (tracking campañas + leads) |
@@ -204,7 +203,7 @@ src/features/
 │   ├── conversation/        # Manejo de mensajes texto y audio
 │   └── nurturing/           # Lista de leads no calificados
 ├── orders/                  # Gestión de pedidos con semáforo de estado
-├── production/              # Generación de letra, audio y video (Freebeat)
+├── video-generation/        # Slideshow ffmpeg + YouTube upload + fotos del cliente
 ├── payments/                # Verificación de comprobantes + confirmación manual
 ├── catalogs/                # Promociones, preferencias, presupuesto, dominio
 ├── agents/                  # Agentes automáticos
@@ -248,19 +247,21 @@ async function guardedAICall(task: "basic" | "advanced", pedidoId: string) {
 
 ## 10. Próximos Pasos
 
-1. [ ] Configurar Supabase + tablas + RLS
-2. [ ] Implementar Auth (3 roles: Creativo, Admin Pagos, Administrador)
-3. [ ] Conectar WhatsApp Business API
-4. [ ] Feature: `whatsapp-bot` (calificador + flujo conversacional)
-5. [ ] Feature: `catalogs` (promociones, preferencias, presupuesto, dominio)
-6. [ ] Feature: `production` (generación letra + Freebeat música/video)
-7. [ ] Feature: `payments` (verificación de comprobantes)
-8. [ ] Feature: `orders` (semáforo de estado + trazabilidad)
-9. [ ] Feature: `dashboard` (métricas + presupuesto + costos IA)
-10. [ ] Feature: `agents` (Investigador + Financiero + Promociones)
-11. [ ] Feature: `facebook-ads` (tracking ROAS + atribución de leads)
-12. [ ] Testing E2E con Playwright
-13. [ ] Deploy en Vercel
+1. [x] Configurar Supabase + tablas + RLS
+2. [x] Implementar Auth (4 roles: Creativo, Admin Pagos, Administrador, Agente Investigador)
+3. [x] Conectar WhatsApp Business API
+4. [x] Feature: `whatsapp-bot` (calificador + flujo conversacional + story guide agent)
+5. [x] Feature: `catalogs` (promociones, preferencias, presupuesto, dominio)
+6. [x] Feature: `orders` + `music-generation` (letra OpenRouter + audio MusicAPI/Suno)
+7. [x] Feature: `payments` (verificación de comprobantes)
+8. [x] Feature: `video-generation` (slideshow ffmpeg + YouTube)
+9. [x] Feature: `dashboard` (métricas + presupuesto + costos IA + vistas por rol)
+10. [x] Feature: `agents` (Investigador + Financiero + Promociones con template Meta)
+11. [x] Feature: `facebook-ads` (tracking ROAS + atribución de leads)
+12. [x] Feature: `leads` (campañas manuales + importador + historial)
+13. [x] Feature: `storage-management` (monitoreo buckets + limpieza cron)
+14. [ ] Testing E2E con Playwright
+15. [ ] Validar YouTube upload + WhatsApp delivery end-to-end en producción
 
 ---
 

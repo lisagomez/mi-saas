@@ -126,7 +126,7 @@ async function renderSlideshowBase(params: {
   outputPath: string
   colorFilter: string | null
 }): Promise<void> {
-  const { photoPaths, photoDuration, outputPath } = params
+  const { photoPaths, photoDuration, outputPath, colorFilter } = params
   const N = photoPaths.length
 
   // Inputs: cada foto como still loop con duración fija
@@ -162,14 +162,26 @@ async function renderSlideshowBase(params: {
     }
   }
 
-  const filterComplex = [...photoFilters, ...transitions].join(';')
+  // Tint de color por estilo musical: overlay semi-transparente (22% opacidad)
+  // usando la fuente 'color' de ffmpeg + overlay con alpha compositing.
+  const tintFilters: string[] = []
+  const finalOutputLabel = colorFilter ? '[tinted]' : '[out]'
+  if (colorFilter) {
+    const hex = colorFilter.replace('#', '')
+    tintFilters.push(
+      `color=c=#${hex}@0.22:s=${VIDEO_WIDTH}x${VIDEO_HEIGHT}:r=${VIDEO_FPS}[tintLayer]`,
+      `[out][tintLayer]overlay=0:0:format=yuv420p[tinted]`,
+    )
+  }
+
+  const filterComplex = [...photoFilters, ...transitions, ...tintFilters].join(';')
 
   await exec(
     ffmpegPath!,
     [
       ...inputs,
       '-filter_complex', filterComplex,
-      '-map', '[out]',
+      '-map', finalOutputLabel,
       '-c:v', 'libx264',
       '-preset', 'veryfast',
       '-crf', '23',

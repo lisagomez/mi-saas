@@ -515,7 +515,7 @@ async function handleQualifiedLead(params: {
   }
 
   // Cualquier otro estado → mensaje informativo
-  if (['video_pago_enviado', 'video_pago_confirmado', 'video_rechazado', 'generando_video', 'entregado', 'requiere_procesamiento_manual'].includes(status)) {
+  if (['video_pago_enviado', 'video_rechazado', 'generando_video', 'entregado', 'requiere_procesamiento_manual'].includes(status)) {
     await sendAndStore(phone, leadId, ORDER_ALREADY_PROCESSED_MESSAGE)
   }
 }

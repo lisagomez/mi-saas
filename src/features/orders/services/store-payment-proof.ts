@@ -49,7 +49,7 @@ export async function storePaymentProof(params: {
   // Retornar URL firmada con 1 hora de expiración (para uso en dashboard)
   const { data: signedData, error: signError } = await supabase.storage
     .from('payment-proofs')
-    .createSignedUrl(path, 3600)
+    .createSignedUrl(path, 60 * 60 * 24 * 7) // 7 días — cubre revisión del admin
 
   if (signError || !signedData?.signedUrl) {
     throw new Error(`Signed URL failed: ${signError?.message}`)

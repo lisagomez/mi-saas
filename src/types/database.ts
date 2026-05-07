@@ -14,7 +14,6 @@ export type OrderStatus =
   | 'generando_video'
   | 'video_listo'
   | 'video_pago_enviado'
-  | 'video_pago_confirmado'
   | 'video_rechazado'
   | 'entregado'
   | 'requiere_procesamiento_manual'

@@ -18,7 +18,7 @@ export async function getConvertedLeads(): Promise<ConvertedLead[]> {
   const { data: ordersRaw, error } = await admin
     .from('orders')
     .select('lead_id, created_at, leads!inner(phone, origin, residence)')
-    .in('status', ['entregado', 'pago_confirmado', 'video_pago_confirmado'])
+    .in('status', ['entregado', 'pago_confirmado'])
     .order('created_at', { ascending: false })
 
   if (error || !ordersRaw) return []

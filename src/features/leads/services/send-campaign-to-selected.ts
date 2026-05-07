@@ -61,7 +61,7 @@ export async function sendCampaignToSelected(
       .from('orders')
       .select('lead_id, created_at')
       .in('lead_id', leadIds)
-      .in('status', ['entregado', 'pago_confirmado', 'video_pago_confirmado'])
+      .in('status', ['entregado', 'pago_confirmado'])
 
     ordersByLead = new Map()
     for (const order of (ordersRaw ?? []) as Array<{ lead_id: string; created_at: string }>) {

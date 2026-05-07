@@ -97,7 +97,7 @@ Usuario dice algo
     |
     ├── [CancioBot] "Recompra / campana WhatsApp / clientes anteriores"
     |       → Leer prp-rebuy-campaign.md → src/features/agents/promotions/
-    |       → Candidatos: status IN (entregado, pago_confirmado, video_pago_confirmado)
+    |       → Candidatos: status IN (entregado, pago_confirmado)
     |       → Excluye leads con recompra en los ultimos 30 dias
     |       → Soporta templates Meta para clientes fuera de ventana 24h
     |
@@ -109,10 +109,10 @@ Usuario dice algo
     |
     ├── [CancioBot] "Video / fotos / YouTube / video personalizado"
     |       → Leer prp-video-generation.md → src/features/video-generation/
-    |       → Pipeline: fotos WhatsApp → Replicate slideshow → YouTube unlisted
+    |       → Pipeline: fotos WhatsApp → ffmpeg slideshow → YouTube unlisted
     |       → Estados extra: recopilando_fotos → generando_video → video_listo →
-    |                        video_pago_enviado → video_pago_confirmado
-    |       → Fallback graceful si Replicate falla (entrega solo audio)
+    |                        video_pago_enviado → entregado (sin parada en video_pago_confirmado)
+    |       → Fallback graceful si ffmpeg falla (entrega solo audio)
     |
     └── No encaja en nada
             → Usar tu juicio. Si es frontend → agent FRONTEND.
@@ -246,10 +246,11 @@ AgentesView → tab Investigador | Financiero | Promociones
     |       → ROI, ROAS, CAC, LTV, flujo de caja
     |
     └── Promociones → getRebuyCandidates()
-            → status IN [entregado, pago_confirmado, video_pago_confirmado]
+            → status IN [entregado, pago_confirmado]
             → excluye recompra < 30 dias
-            → sendRebuycampaign() → WhatsApp masivo
-            → si promo.whatsapp_template_name → usa template Meta
+            → sendRebuyCampaign() → WhatsApp masivo
+            → si promo.whatsapp_template_name → usa template Meta (sendWhatsAppTemplate)
+            → sin template → texto libre (sendWhatsAppText)
 ```
 
 ---
@@ -491,6 +492,28 @@ npm run lint         # ESLint
 - **Fix**: Siempre correr `NODE_ENV=production npm run build`. Cuando NODE_ENV=development,
   react-redux carga su build de desarrollo que usa useContext diferente y crashea el SSR.
 - **Aplicar en**: Todos los proyectos que usen recharts (depende de react-redux).
+
+### 2026-05-07: colorFilter en ffmpeg ignorado silenciosamente
+- **Error**: `generate-video.ts` recibia el parametro `colorFilter` de `buildVideoStylePrompt`
+  pero no lo desestructuraba — el tinte de color nunca se aplicaba en el slideshow.
+- **Fix**: Desestructurar `colorFilter`, agregar fuente `color` de ffmpeg con opacidad 0.22
+  y filtro `overlay`, y usar `[tinted]` como label final si hay color.
+- **Aplicar en**: Cualquier pipeline ffmpeg con parametros opcionales — verificar que todos los
+  params se usen explicitamente, TypeScript no advierte sobre destructuring incompleto.
+
+### 2026-05-07: payment_proof_url expira en 1 hora — dashboard rompe imagenes
+- **Error**: `store-payment-proof.ts` generaba signed URL con TTL de 3600s (1h). El admin que
+  revisara comprobantes mas tarde de 1h veia imagenes rotas en el dashboard.
+- **Fix**: TTL aumentado a `60 * 60 * 24 * 7` (7 dias) — cubre cualquier revision razonable.
+- **Aplicar en**: Cualquier signed URL que deba sobrevivir una sesion de trabajo del admin.
+
+### 2026-05-07: video_pago_confirmado era un estado zombie en OrderStatus
+- **Error**: El estado existia en el tipo `OrderStatus` y en 3 filtros `.in()`, pero
+  `confirm-video-payment.ts` lo saltaba explicitamente (iba directo de `video_pago_enviado`
+  a `entregado`). Ningun orden en DB tenia ese estado.
+- **Fix**: Eliminado de `database.ts`, `get-rebuy-candidates.ts`, `get-converted-leads.ts`
+  y `send-campaign-to-selected.ts`. Solo queda como comentario en `confirm-video-payment.ts`.
+- **Aplicar en**: Al agregar nuevos estados a `OrderStatus`, verificar que algun codigo los setee.
 
 ---
 
