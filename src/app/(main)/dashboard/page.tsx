@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -157,24 +158,26 @@ export default async function DashboardPage() {
         )}
 
         {role === 'administrador' && metrics && (
-          <AdminView
-            lyricsOrders={lyricsOrders}
-            competitors={competitors}
-            metrics={metrics}
-            pendingPayments={pendingPayments}
-            pendingVideoPayments={pendingVideoPayments}
-            latestInvestigatorReport={latestInvestigatorReport}
-            activePromotions={activePromotions}
-            facebookCampaigns={facebookCampaigns}
-            storageStats={storageStats}
-            storageConfigs={storageConfigs}
-            storageCleanupLog={storageCleanupLog}
-            convertedLeads={convertedLeads as import('@/features/leads/services/get-converted-leads').ConvertedLead[]}
-            allPromotions={allPromotionsList}
-            campaignHistory={campaignHistory as import('@/features/leads/types/leads').CampaignHistory[]}
-            pricingCampaigns={pricingCampaigns}
-            qualifiedLeads={qualifiedLeads}
-          />
+          <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-gray-100" />}>
+            <AdminView
+              lyricsOrders={lyricsOrders}
+              competitors={competitors}
+              metrics={metrics}
+              pendingPayments={pendingPayments}
+              pendingVideoPayments={pendingVideoPayments}
+              latestInvestigatorReport={latestInvestigatorReport}
+              activePromotions={activePromotions}
+              facebookCampaigns={facebookCampaigns}
+              storageStats={storageStats}
+              storageConfigs={storageConfigs}
+              storageCleanupLog={storageCleanupLog}
+              convertedLeads={convertedLeads as import('@/features/leads/services/get-converted-leads').ConvertedLead[]}
+              allPromotions={allPromotionsList}
+              campaignHistory={campaignHistory as import('@/features/leads/types/leads').CampaignHistory[]}
+              pricingCampaigns={pricingCampaigns}
+              qualifiedLeads={qualifiedLeads}
+            />
+          </Suspense>
         )}
 
         {!role && (

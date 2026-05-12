@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { logout } from '@/features/auth/services/logout'
+import { AppLauncherPopover } from '@/features/app-launcher/components/AppLauncherPopover'
 
 type Role = 'creativo' | 'agente_investigador' | 'admin_pagos' | 'administrador' | null
 
@@ -142,6 +143,9 @@ export function DashboardShell({ email, role, children }: Props) {
               <span>🎸</span> CancioBot
             </span>
           </div>
+
+          {/* App launcher */}
+          <AppLauncherPopover />
 
           {/* Right: role + email + logout */}
           <div className="flex items-center gap-3">

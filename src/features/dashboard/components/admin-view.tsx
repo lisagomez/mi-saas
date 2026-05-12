@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CreativoView } from './creativo-view'
 import { InvestigadorView } from './investigador-view'
@@ -90,7 +91,15 @@ const TABS = [
 type TabKey = typeof TABS[number]['key']
 
 export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments, pendingVideoPayments, latestInvestigatorReport, activePromotions, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads = [], allPromotions = [], campaignHistory = [], pricingCampaigns = [], qualifiedLeads = [] }: Props) {
-  const [tab, setTab] = useState<TabKey>('letras')
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get('tab') as TabKey | null
+  const validTab = tabParam && TABS.some(t => t.key === tabParam) ? tabParam : 'letras'
+  const [tab, setTab] = useState<TabKey>(validTab)
+
+  useEffect(() => {
+    const p = searchParams.get('tab') as TabKey | null
+    if (p && TABS.some(t => t.key === p)) setTab(p)
+  }, [searchParams])
 
   return (
     <div className="space-y-6">

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import PWARegister from '@/components/PWARegister'
 import { PushNotificationPrompt } from '@/features/notifications/components/PushNotificationPrompt'
+import { QueryProvider } from '@/components/QueryProvider'
 
 export const metadata: Metadata = {
   title: 'CancioBot — Corridos Personalizados por WhatsApp',
@@ -22,9 +23,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body>
-        {children}
-        <PWARegister />
-        <PushNotificationPrompt />
+        <QueryProvider>
+          {children}
+          <PWARegister />
+          <PushNotificationPrompt />
+        </QueryProvider>
       </body>
     </html>
   )
