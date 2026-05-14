@@ -48,6 +48,32 @@ Usuario dice algo
     ├── "Revisa que funcione / testea / hay un bug"
     |       → Ejecutar skill QA (Playwright CLI automatizado)
     |
+    ├── "Genera copy / prompts de contenido / ad / reel / carousel del insight"
+    |       → Ejecutar skill CONTENT-PROMPT-GEN
+    |       → Carga insight de proactive_insights (o texto manual)
+    |       → PAS para orgánico (Reel, carousel, post) + AIDA para inorgánico (FB Ad, broadcast)
+    |       → Output copy-paste listo por formato
+    |
+    ├── "Investiga mi avatar / quien es mi cliente / buyer persona / habitos de consumo"
+    |       → Ejecutar skill AVATAR-RESEARCH
+    |       → Opcion A: perfil manual (origen, residencia, edad, ocasion, estilo)
+    |       → Opcion B: extraer de leads reales en Supabase
+    |       → Investiga web + cruza con preferences_catalog + persiste en agent_reports
+    |
+    ├── "Monitorea mis posts / engagement / metricas / resultados del copy / scrape publicaciones"
+    |       → Ejecutar skill MONITOR
+    |       → Playwright visita URLs de posts publicados y extrae likes/comentarios/shares
+    |       → Actualiza content_outcomes en Supabase con métricas reales
+    |       → Recalcula scores por variante y avatar → alimenta al Judge con datos reales
+    |       → Fallback manual si la plataforma bloquea scraping (Instagram siempre manual)
+    |
+    ├── "Evento de intención / trackear click / dm / save / señal de comportamiento"
+    |       → Ejecutar skill EVENT-TRACKER
+    |       → POST /api/events/track con strategy_id + event_type + UTM params
+    |       → Tabla events vincula señal a content_outcomes via strategy_id
+    |       → trackEvent() (client) o trackEventServer() (server) — siempre fire-and-forget
+    |       → v_strategy_scores muestra dm_count / save_count / click_count por variante
+    |
     ├── "Quiero hacer deploy / publicar"
     |       → Activar agent VERCEL-DEPLOYER
     |
@@ -141,6 +167,9 @@ Usuario dice algo
 | `ai` | Implementar capacidades de IA: chat, RAG, vision, tools, web search |
 | `qa` | Testing automatizado con Playwright CLI. Verificar bugs, testear flujos completos |
 | `skill-creator` | Crear nuevos skills para extender la fabrica |
+| `avatar-research` | Investiga habitos de consumo de un perfil de cliente combinando web + Supabase |
+| `content-prompt-gen` | Convierte insights proactivos en copy listo (AIDA/PAS) para redes y ads |
+| `monitor` | Scrape de posts publicados con Playwright, actualiza metricas en content_outcomes, recalcula scores |
 
 ### Que tu activas automaticamente (el usuario no necesita saber)
 
@@ -423,6 +452,9 @@ npm run lint         # ESLint
 │   ├── ai/                   # AI Templates hub
 │   ├── qa/                   # Playwright CLI QA
 │   ├── skill-creator/        # Crear nuevos skills
+│   ├── avatar-research/      # Investigacion de avatar con web + Supabase
+│   ├── content-prompt-gen/   # Generador de copy AIDA/PAS desde insights
+│   ├── monitor/              # Scrape engagement + actualiza content_outcomes
 │   ├── backend/              # Agent: backend
 │   ├── frontend/             # Agent: frontend
 │   ├── supabase-admin/       # Agent: Supabase

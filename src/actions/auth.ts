@@ -13,7 +13,7 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
-    return { error: error.message }
+    return { error: 'Credenciales no válidas' }
   }
 
   revalidatePath('/', 'layout')
@@ -48,7 +48,7 @@ export async function resetPassword(formData: FormData) {
   const email = formData.get('email') as string
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/update-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/callback?next=/update-password`,
   })
 
   if (error) {

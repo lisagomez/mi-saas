@@ -1,21 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { login } from '@/actions/auth'
-import { GoogleSignInButton } from './GoogleSignInButton'
-import { AuthDivider } from './AuthDivider'
 
 export function LoginForm() {
-  const searchParams = useSearchParams()
-  const oauthError = searchParams.get('error')
-  const [error, setError] = useState<string | null>(
-    oauthError === 'auth_callback_failed'
-      ? 'Error al iniciar sesión con Google. Intenta de nuevo.'
-      : null
-  )
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(formData: FormData) {
     setLoading(true)
@@ -29,10 +21,6 @@ export function LoginForm() {
 
   return (
     <div className="space-y-5">
-      <GoogleSignInButton />
-
-      <AuthDivider />
-
       <form action={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-xs font-black uppercase tracking-wider">
@@ -51,13 +39,33 @@ export function LoginForm() {
           <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider">
             Contraseña
           </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            className="mt-1 block w-full border-2 border-black bg-white px-3 py-2.5 font-medium shadow-[3px_3px_0px_0px_#000] focus:outline-none focus:shadow-[5px_5px_0px_0px_#FFE500]"
-          />
+          <div className="relative mt-1">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              className="block w-full border-2 border-black bg-white px-3 py-2.5 pr-10 font-medium shadow-[3px_3px_0px_0px_#000] focus:outline-none focus:shadow-[5px_5px_0px_0px_#FFE500]"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-black/50 hover:text-black"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            >
+              {showPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-9-7s4-7 9-7c1.02 0 2 .16 2.91.46M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         {error && (
