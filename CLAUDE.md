@@ -54,6 +54,21 @@ Usuario dice algo
     |       → PAS para orgánico (Reel, carousel, post) + AIDA para inorgánico (FB Ad, broadcast)
     |       → Output copy-paste listo por formato
     |
+    ├── "Encuentra el tema / tendencias del nicho / qué hablo esta semana / weekly theme / trend radar"
+    |       → Ejecutar skill TREND-RADAR
+    |       → WebSearch: 3 búsquedas (nicho + fechas culturales + comportamiento de contenido)
+    |       → Cruza tendencias con dolores activos del avatar (avatar_insights en DB)
+    |       → IA genera weekly_theme + reasoning auditáble (por qué ese tema, confianza, riesgos)
+    |       → Output: JSON con feed_generator_input listo para pasar a FEED-GENERATOR
+    |
+    ├── "Genera el feed / calendario de contenido / arma la semana / feed semanal / planea el contenido"
+    |       → Ejecutar skill FEED-GENERATOR
+    |       → Input: Tema Semanal (hilo narrativo) + avatar + num_posts (default 7)
+    |       → Lee proactive_insights (strategy-bridge) con clasificacion 4D ya resuelta
+    |       → Distribuye: 50% Atraccion / 30% Educacion / 20% Conversion
+    |       → Output: JSON con Fecha, Canal, Formato, Prompt Final, Objetivo
+    |       → Siguiente paso: content-prompt-gen para expandir cada prompt en copy completo
+    |
     ├── "Investiga mi avatar / quien es mi cliente / buyer persona / habitos de consumo"
     |       → Ejecutar skill AVATAR-RESEARCH
     |       → Opcion A: perfil manual (origen, residencia, edad, ocasion, estilo)
@@ -169,6 +184,8 @@ Usuario dice algo
 | `skill-creator` | Crear nuevos skills para extender la fabrica |
 | `avatar-research` | Investiga habitos de consumo de un perfil de cliente combinando web + Supabase |
 | `content-prompt-gen` | Convierte insights proactivos en copy listo (AIDA/PAS) para redes y ads |
+| `trend-radar` | Detecta 3 tendencias del nicho (WebSearch), cruza con dolores del avatar (DB), genera weekly_theme + reasoning auditáble → input automático para feed-generator |
+| `feed-generator` | Distribuye plantillas de strategy-bridge en calendario semanal 50/30/20 con Tema Semanal como hilo narrativo |
 | `monitor` | Scrape de posts publicados con Playwright, actualiza metricas en content_outcomes, recalcula scores |
 
 ### Que tu activas automaticamente (el usuario no necesita saber)
@@ -454,6 +471,8 @@ npm run lint         # ESLint
 │   ├── skill-creator/        # Crear nuevos skills
 │   ├── avatar-research/      # Investigacion de avatar con web + Supabase
 │   ├── content-prompt-gen/   # Generador de copy AIDA/PAS desde insights
+│   ├── trend-radar/          # Tendencias nicho × dolores avatar → weekly_theme auditáble
+│   ├── feed-generator/       # Calendario semanal 50/30/20 con Tema Semanal
 │   ├── monitor/              # Scrape engagement + actualiza content_outcomes
 │   ├── backend/              # Agent: backend
 │   ├── frontend/             # Agent: frontend
