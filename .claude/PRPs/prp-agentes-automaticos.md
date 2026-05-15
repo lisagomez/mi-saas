@@ -232,7 +232,11 @@ El agente debe leer las fórmulas con `is_active = true` de la tabla `business_d
 
 > Esta sección CRECE con cada error encontrado durante la implementación.
 
-_(Vacío — se llena durante implementación con `/bucle-agentico`)_
+### 2026-05-14: Integración con capa de estrategia proactiva
+- **Decisión**: Tras finalizar `avatar-research`, se dispara automáticamente el skill `strategy-bridge`.
+- **Flujo añadido**: `agent_reports (avatar_research)` → `avatars` → `avatar_insights` → `proactive_insights (status=pending)` → `content-prompt-gen`.
+- **Trazabilidad**: El `avatar_id` viaja desde el INSERT en `avatars` hasta `proactive_insights.avatar_id` y `avatar_insights.avatar_id`. El `agent_report_id` en `avatars` cierra el círculo hacia el reporte fuente.
+- **Skill nuevo**: `.claude/skills/strategy-bridge/SKILL.md` — bridge entre investigación y estrategia de contenido.
 
 ---
 

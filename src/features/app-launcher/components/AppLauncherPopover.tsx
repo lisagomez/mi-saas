@@ -54,9 +54,9 @@ export function AppLauncherPopover() {
       <PopoverTrigger asChild>
         <button
           aria-label="App launcher"
-          className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center w-11 h-11 rounded-lg text-gray-500 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 hover:shadow-md transition-all"
         >
-          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+          <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor">
             <rect x="3"  y="3"  width="4" height="4" rx="1" />
             <rect x="10" y="3"  width="4" height="4" rx="1" />
             <rect x="17" y="3"  width="4" height="4" rx="1" />

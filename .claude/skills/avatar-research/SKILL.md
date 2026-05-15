@@ -336,6 +336,8 @@ ALTER TABLE agent_reports ADD CONSTRAINT agent_reports_agent_type_check
 
 ### Guardar el reporte
 
+Usar `RETURNING id` para capturar el `agent_report_id` — **es obligatorio para el bridge**:
+
 ```sql
 INSERT INTO agent_reports (agent_type, report_json, generated_at)
 VALUES (
@@ -351,12 +353,31 @@ VALUES (
     "top_motivators": ["...", "..."],
     "top_barriers": ["...", "..."],
     "recommended_hook": "[frase]",
+    "preferred_channels": ["WhatsApp", "Facebook"],
+    "best_contact_time": "[día/hora]",
     "sources": ["...", "..."],
     "report_md": "[markdown completo escapado]"
   }'::jsonb,
   NOW()
-);
+)
+RETURNING id;
 ```
+
+Guardar el `id` retornado como `$agent_report_id` — se pasa a Fase 6.
+
+---
+
+## Fase 6: Bridge automático → capa de estrategia
+
+**Esta fase es obligatoria.** Ejecutar inmediatamente después de guardar en `agent_reports`.
+
+Con el `$agent_report_id` obtenido en Fase 5, ejecutar el skill `strategy-bridge`:
+- Crea el registro en `avatars` con `profile_json` completo → obtiene `avatar_id`
+- Genera 5 `avatar_insights` inmutables del perfil
+- Llama a IA para producir 5 `proactive_insights` (status='pending') listos para content-prompt-gen
+- Mantiene la cadena: `agent_reports.id` → `avatars.agent_report_id` → `avatar_insights.avatar_id` → `proactive_insights.avatar_id`
+
+El `avatar_id` queda disponible para toda la capa de estrategia sin ningún paso manual.
 
 ---
 
@@ -365,7 +386,11 @@ VALUES (
 Mostrar:
 1. El reporte completo en markdown
 2. **3 insights accionables** numerados — qué cambiar hoy en el bot/mensajes
-3. Confirmar: "Guardé este perfil en tus reportes de agentes (agent_reports)."
+3. Resumen del bridge:
+   ```
+   ✅ Avatar registrado con ID: {avatar_id}
+   ✅ 5 proactive_insights generados — listos para /content-prompt-gen
+   ```
 
 ---
 
@@ -387,3 +412,4 @@ Mostrar:
 | Ocasión de alto gasto no cubierta | Agregar a `promotions_catalog` |
 | Canal nuevo identificado | Documentar en `business_domain` como métrica de experiencia |
 | Competitor no registrado | Agregar a tabla `competitors` |
+| Bridge completado | Ejecutar `/content-prompt-gen` para generar copy del insight más relevante |

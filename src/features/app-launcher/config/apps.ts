@@ -5,7 +5,7 @@ export const APP_GROUPS: AppGroup[] = [
     label: 'Dashboard',
     apps: [
       { key: 'letras',       label: 'Letras',        icon: '🎵', href: '/dashboard?tab=letras' },
-      { key: 'competencia',  label: 'Competencia',   icon: '🔍', href: '/dashboard?tab=competencia' },
+      { key: 'competencia',  label: 'Investigador',  icon: '🔍', href: '/investigador' },
       { key: 'financiero',   label: 'Financiero',    icon: '📊', href: '/dashboard?tab=financiero' },
       { key: 'pagos',        label: 'Pagos',         icon: '💳', href: '/dashboard?tab=pagos' },
       { key: 'videos',       label: 'Videos',        icon: '🎬', href: '/dashboard?tab=videos' },
@@ -14,6 +14,12 @@ export const APP_GROUPS: AppGroup[] = [
       { key: 'facebook-ads', label: 'Facebook Ads',  icon: '📣', href: '/dashboard?tab=facebook-ads' },
       { key: 'storage',      label: 'Storage',       icon: '💾', href: '/dashboard?tab=storage' },
       { key: 'agentes',      label: 'Agentes',       icon: '🤖', href: '/dashboard?tab=agentes' },
+    ],
+  },
+  {
+    label: 'Estrategia',
+    apps: [
+      { key: 'avatar-research', label: 'Avatares',   icon: '🧑‍🤝‍🧑', href: '/avatar-research' },
     ],
   },
   {
