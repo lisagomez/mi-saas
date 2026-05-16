@@ -407,6 +407,30 @@ Si audit.overall == false y N == 3:
 
 ### PASS PATH
 
+Antes de aprobar, verificar si el Guardian bloqueó la publicación:
+
+```sql
+SELECT publishing_paused, publishing_paused_reason
+FROM guardian_config
+WHERE is_active = true
+LIMIT 1;
+```
+
+Si `publishing_paused = true`:
+```
+⛔ El Guardian tiene la publicación pausada.
+   Motivo: {publishing_paused_reason}
+   El post queda en estado 'Generado' con el contenido guardado.
+   Ve a Dashboard → Guardian → Reanudar publicación cuando sea seguro.
+```
+
+```sql
+UPDATE posts
+SET body = '{generated_content}', status = 'Generado'
+WHERE id = '{post_id}';
+```
+
+Si `publishing_paused = false`:
 ```sql
 UPDATE posts
 SET

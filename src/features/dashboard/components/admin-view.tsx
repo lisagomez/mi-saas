@@ -13,6 +13,7 @@ import { FinancialAgentPanel } from '@/features/agents/financial/components/Fina
 import { PromotionsAgentPanel } from '@/features/agents/promotions/components/PromotionsAgentPanel'
 import { FacebookAdsPanel } from '@/features/facebook-ads/components/FacebookAdsPanel'
 import { StorageMonitorPanel } from '@/features/storage-management/components/StorageMonitorPanel'
+import { GuardianPanel } from '@/features/content-guardian/components/GuardianPanel'
 import { LeadsView } from '@/features/leads/components/LeadsView'
 import { LeadsImporter } from '@/features/leads/components/LeadsImporter'
 import { PricingCampaignPanel } from './pricing-campaign-panel'
@@ -86,6 +87,7 @@ const TABS = [
   { key: 'facebook-ads', label: '📣 Facebook Ads' },
   { key: 'storage', label: '💾 Storage' },
   { key: 'agentes', label: '🤖 Agentes' },
+  { key: 'guardian', label: '🛡️ Guardian' },
 ] as const
 
 type TabKey = typeof TABS[number]['key']
@@ -183,6 +185,7 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
           <PromotionsAgentPanel activePromotions={activePromotions ?? []} />
         </div>
       )}
+      {tab === 'guardian' && <GuardianPanel />}
     </div>
   )
 }
