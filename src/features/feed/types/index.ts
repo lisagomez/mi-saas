@@ -13,3 +13,17 @@ export interface Post {
   weekly_theme: string | null
   avatar_name: string | null
 }
+
+export type TrendStatus = 'running' | 'success' | 'error'
+
+export interface TrendLog {
+  id: string
+  avatar_name: string | null
+  theme_json: Record<string, unknown>
+  reasoning: string
+  status: TrendStatus
+  error_message: string | null
+  execution_ms: number | null
+  source: string
+  created_at: string
+}

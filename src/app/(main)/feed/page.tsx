@@ -1,14 +1,20 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getFeedPosts } from '@/features/feed/services/get-feed-posts'
+import { getTrendLogs } from '@/features/feed/services/get-trend-logs'
 import { KanbanBoard } from '@/features/feed/components/KanbanBoard'
+import { TrendRadarLog } from '@/features/feed/components/TrendRadarLog'
 
 export default async function FeedPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const posts = await getFeedPosts()
+  const [posts, trendLogs] = await Promise.all([
+    getFeedPosts(),
+    getTrendLogs(10),
+  ])
+
   const total = posts.length
   const published = posts.filter(p => p.status === 'Publicado').length
 
@@ -48,6 +54,9 @@ export default async function FeedPage() {
       ) : (
         <KanbanBoard initialPosts={posts} />
       )}
+
+      {/* Trend Radar log */}
+      <TrendRadarLog logs={trendLogs} />
     </div>
   )
 }
