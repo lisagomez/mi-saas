@@ -4,9 +4,13 @@ description: |
   Toma un insight proactivo (de proactive_insights o texto manual) y el perfil del avatar,
   y genera copy listo para pegar usando frameworks AIDA (inorgánico/conversión) y PAS
   (orgánico/engagement). Produce 2 bloques por formato: texto completo + versión corta.
+  Incluye Modo Autónomo: genera, audita y auto-corrige hasta aprobar (máx 3 intentos),
+  luego mueve el post a 'Aprobado' o lo regresa a 'Ideado' con alerta si falla.
   Usar cuando el usuario diga: "genera contenido del insight", "crea copy del avatar",
   "prompts de contenido", "generador de prompts", "copy para ads", "copy orgánico",
-  "contenido del insight proactivo", "genera el anuncio", "haz el copy", "contenido para redes".
+  "contenido del insight proactivo", "genera el anuncio", "haz el copy", "contenido para redes",
+  "modo autónomo", "autonomous-mode", "genera y aprueba", "auto-publica el copy",
+  "aprueba directo", "genera sin revisión", "procesa el post en automático".
 allowed-tools: Read, Bash, mcp__supabase__execute_sql
 ---
 
@@ -294,3 +298,174 @@ Evitar siempre:
 - "Crea los prompts del insight de contradicción"
 - "Quiero el ad para Facebook del insight pendiente"
 - "Genera copy orgánico e inorgánico del insight de blind spot"
+
+---
+
+## Modo Autónomo
+
+Genera, audita y auto-corrige el copy de **un formato a la vez** sin intervención humana.
+El agente no muestra borradores — solo entrega contenido aprobado o una alerta accionable.
+
+**Activación:** usuario dice "modo autónomo", "autonomous-mode", "genera y aprueba",
+"auto-publica", "aprueba directo", o equivalente.
+
+---
+
+### Input requerido
+
+**Opción A — post existente:**
+```
+post_id: UUID del post en la tabla `posts`
+```
+Cargar el post para obtener `format`, `avatar_id`, `insight_id` (o `weekly_theme`).
+
+**Opción B — insight + formato:**
+```
+insight_id: UUID de proactive_insights
+format: "Reel" | "Carousel" | "Post" | "Story" | "FB Ad" | "WhatsApp Broadcast" | "Retargeting"
+```
+Insertar un nuevo post primero:
+```sql
+INSERT INTO posts (avatar_id, format, weekly_theme, status, source_insight_id)
+VALUES ('{avatar_id}', '{format}', '{insight_title}', 'Ideado', '{insight_id}')
+RETURNING id;
+```
+Usar el `id` retornado como `post_id`.
+
+Si el usuario no provee ninguno: pedir el `post_id` o la combinación insight+formato.
+
+---
+
+### Formato → Framework
+
+| Formato | Framework |
+|---------|-----------|
+| Reel | PAS |
+| Carousel | PAS |
+| Post | PAS |
+| Story | PAS |
+| FB Ad | AIDA |
+| WhatsApp Broadcast | AIDA |
+| Retargeting | AIDA |
+
+---
+
+### Loop — máximo 3 intentos
+
+Ejecutar para el `post_id` dado. Mantener lista `audit_history = []`.
+
+#### INTENTO N (N = 1, 2, 3)
+
+**Paso 1 — GENERAR**
+
+Construir el contexto del avatar (Fases 1 y 2 de este SKILL.md).
+
+Usar el prompt correspondiente al framework (Fase 3):
+- PAS → extraer solo el bloque del formato pedido del JSON generado.
+- AIDA → extraer solo el bloque del formato pedido del JSON generado.
+
+Si N > 1: agregar al prompt de generación el bloque de corrección:
+```
+El intento anterior falló la auditoría.
+Problemas específicos a corregir:
+{audit_anterior.correction_brief}
+
+Re-genera el copy corrigiendo exactamente esos puntos.
+Mantén el framework {framework} y el perfil del avatar.
+No cambies lo que no falló.
+```
+
+**Paso 2 — AUDITAR**
+
+Llamar al LLM con el prompt en `references/audit-prompt.md`.
+Rellenar los placeholders:
+- `{generated_content}` → texto del bloque generado en Paso 1
+- `{format_type}` → nombre del formato
+- `{framework_description}` → "PAS: Problem → Agitation → Solution" o "AIDA: Attention → Interest → Desire → Action"
+- `{avatar_profile}` → perfil construido en Fase 2
+
+Parsear el JSON. Si falla el parse:
+→ Limpiar fences y reintentar una vez.
+→ Si sigue fallando: registrar audit con todos los criterios en FAIL y `correction_brief = "Error de parseo del auditor — reintentar"`.
+
+Agregar el `audit_json` a `audit_history`.
+
+**Paso 3 — DECIDIR**
+
+```
+Si audit.overall == true:
+  → PASS PATH
+
+Si audit.overall == false y N < 3:
+  → CORRECTION PATH (volver a Intento N+1)
+
+Si audit.overall == false y N == 3:
+  → FAIL×3 PATH
+```
+
+---
+
+### PASS PATH
+
+```sql
+UPDATE posts
+SET
+  body   = '{generated_content}',
+  status = 'Aprobado',
+  notes  = NULL
+WHERE id = '{post_id}';
+```
+
+Reportar al usuario:
+```
+✅ Aprobado en {N} intento(s)
+   Formato: {format_type} | Avatar: {avatar_name}
+   Post ID: {post_id}
+```
+
+---
+
+### FAIL×3 PATH
+
+Construir la lista de criterios fallidos del último intento:
+```
+criterios_fallidos = criterios donde audit_history[2].{criterio}.pass == false
+```
+
+```sql
+UPDATE posts
+SET
+  status = 'Ideado',
+  notes  = '⚠️ ALERTA AUTÓNOMA: 3 intentos fallidos sin aprobar.
+Formato: {format_type} | Avatar: {avatar_name} | {fecha_iso}
+Criterios fallidos: {lista_criterios_fallidos}
+Audits: {json_array_de_3_audits}'
+WHERE id = '{post_id}';
+```
+
+Reportar al usuario:
+```
+⚠️ El post {post_id} regresó a Ideado — necesita revisión manual.
+   Formato: {format_type} | Avatar: {avatar_name}
+   Criterios que no pasaron: {lista_criterios_fallidos}
+   Los 3 audits están guardados en el campo `notes` del Kanban.
+```
+
+---
+
+### Reglas del Modo Autónomo
+
+1. **Un formato por ejecución.** No procesar un bundle de 6 formatos en un solo loop.
+   Si el usuario pide "todos los formatos en autónomo", ejecutar el loop N veces secuencialmente.
+
+2. **No mostrar borradores.** El usuario solo ve el resultado final (PASS o FAIL×3).
+   La única excepción: si el usuario pide explícitamente ver los intentos intermedios.
+
+3. **El auditor usa temperatura 0.1.** El generador usa temperatura 0.7 para variabilidad.
+   No invertir estas temperaturas.
+
+4. **No truncar los audits en `notes`.** Los 3 JSON completos deben caber en el campo.
+   Si el campo `notes` tiene límite en la DB: serializar como array JSON compacto.
+
+5. **El `correction_brief` dirige el intento siguiente.** No ignorarlo ni resumirlo.
+   Copiarlo textualmente en el prompt de corrección.
