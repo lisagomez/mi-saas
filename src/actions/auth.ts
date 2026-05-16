@@ -17,7 +17,7 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect('/avatar-research')
 }
 
 export async function signup(formData: FormData) {
@@ -69,7 +69,7 @@ export async function updatePassword(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect('/avatar-research')
 }
 
 export async function updateProfile(formData: FormData) {
