@@ -1,7 +1,7 @@
 ---
 name: add-login
 description: "Inyectar sistema de autenticacion completo: login, signup, password reset, profiles, Google OAuth, y RLS. Activar cuando el usuario dice: necesito login, agregar registro, autenticacion, que los usuarios puedan entrar, crear cuentas, o proteger rutas."
-allowed-tools: Read, Write, Edit, Bash
+allowed-tools: Read, Write, Edit, Bash, mcp__supabase__apply_migration, mcp__supabase__execute_sql
 ---
 
 # Sistema de Autenticacion Completo

@@ -7,7 +7,7 @@ description: |
   proteger datos, RLS, migracion, query, cuantos usuarios, metricas, revenue, dame los datos,
   consulta supabase, cuantos registros, analiza los datos, estadisticas, reportes, churn,
   funnel, storage, auth, configurar permisos, o cualquier operacion de BD.
-allowed-tools: Bash(curl *) Bash(export *) Bash(grep *) Bash(python3 *) Read, Write, Edit, Grep
+allowed-tools: Read, Write, Edit, Grep, Bash, mcp__supabase__execute_sql, mcp__supabase__apply_migration, mcp__supabase__list_tables, mcp__supabase__get_logs, mcp__supabase__get_advisors
 metadata:
   author: saas-factory
   version: "2.0"

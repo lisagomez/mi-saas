@@ -13,6 +13,9 @@ interface RawTrendLog {
   execution_ms: number | null
   source: string
   created_at: string
+  relevance_score: number | null
+  decision_type: string | null
+  decision_log: Record<string, unknown> | null
 }
 
 export async function getTrendLogs(limit = 10): Promise<TrendLog[]> {
@@ -21,7 +24,7 @@ export async function getTrendLogs(limit = 10): Promise<TrendLog[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (admin as any)
     .from('weekly_trends')
-    .select('id, avatar_name, theme_json, reasoning, status, error_message, execution_ms, source, created_at')
+    .select('id, avatar_name, theme_json, reasoning, status, error_message, execution_ms, source, created_at, relevance_score, decision_type, decision_log')
     .order('created_at', { ascending: false })
     .limit(limit) as { data: RawTrendLog[] | null }
 
@@ -37,5 +40,8 @@ export async function getTrendLogs(limit = 10): Promise<TrendLog[]> {
     execution_ms: row.execution_ms,
     source: row.source,
     created_at: row.created_at,
+    relevance_score: row.relevance_score,
+    decision_type: row.decision_type as TrendLog['decision_type'],
+    decision_log: row.decision_log,
   }))
 }

@@ -51,6 +51,18 @@ function PostCard({ post, isDragging = false }: { post: Post; isDragging?: boole
         </p>
       )}
 
+      {post.notes && (
+        <div className={`rounded-md px-2 py-1.5 text-[10px] leading-snug ${
+          post.notes.startsWith('🔄')
+            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+            : post.notes.startsWith('💡')
+              ? 'bg-amber-50 text-amber-700 border border-amber-100'
+              : 'bg-gray-50 text-gray-500 border border-gray-100'
+        }`}>
+          {post.notes}
+        </div>
+      )}
+
       <p className="text-[10px] text-gray-300 pt-0.5">
         {new Date(post.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
       </p>

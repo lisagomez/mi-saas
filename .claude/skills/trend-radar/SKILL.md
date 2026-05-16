@@ -9,7 +9,7 @@ description: |
   "busca tendencias del nicho", "genera el tema semanal", "investiga tendencias",
   "qué está pasando en el nicho", "tema para el feed", "automatiza el tema", "qué hablo esta semana",
   "dame el weekly theme", "analiza las tendencias".
-allowed-tools: Read, WebSearch, mcp__supabase__execute_sql
+allowed-tools: Read, WebSearch, mcp__supabase__execute_sql, mcp__supabase__apply_migration
 ---
 
 # Trend Radar
@@ -155,155 +155,55 @@ No fallar el skill si 1 de 3 búsquedas es pobre — trabajar con lo que hay.
 Usar `generateText` + `JSON.parse` manual vía OpenRouter.
 **Nunca usar `generateObject`** (no compatible con OpenRouter).
 
-**Modelo:** `google/gemini-2.0-flash-001`
-**Temperatura:** 0.3 (balance creatividad/consistencia)
+**Modelo:** `google/gemini-2.0-flash-001` · **Temperatura:** 0.3
 
-Leer el template base en: `.claude/skills/ai/references/single-call.md`
+**Prompt de referencia:** El prompt completo (con campos, comparación contra tema previo,
+`relevance_score`, `relevance_vs_previous`) vive en:
+`supabase/functions/trend-radar/index.ts` — constante `iaPrompt` (~línea 190).
 
-### Prompt de intersección
+Usar ese mismo prompt para runs manuales. Los placeholders `{prevContext}` y `{prevThemeJson}`
+requieren consultar el último registro exitoso en `weekly_trends`:
 
+```sql
+SELECT id, theme_json, relevance_score
+FROM weekly_trends
+WHERE status = 'success'
+ORDER BY created_at DESC
+LIMIT 1;
 ```
-Eres un estratega de marketing especializado en negocios de regalo emocional para migrantes latinos en EE.UU.
 
-NICHO DEL NEGOCIO:
-{niche_description}
-
-PERFIL DEL AVATAR:
-Nombre: {avatar.name}
-Origen: {avatar.origin} → Residencia en EE.UU.: {avatar.residence}
-Estilo musical preferido: {avatar.musical_style}
-Motivadores principales: {top_motivators}
-Barreras principales: {top_barriers}
-Canal preferido: {preferred_channels}
-Mejor momento de contacto: {best_contact_time}
-Gancho recomendado: {recommended_hook}
-
-DOLORES Y TRIGGERS (de biblioteca de insights):
-{avatar_insights_pain_point}
-{avatar_insights_emotional_trigger}
-
-TENDENCIAS DETECTADAS ESTA SEMANA:
-1. [{relevancia_1}] {titulo_1}
-   Fuente: {fuente_1}
-   Resumen: {resumen_1}
-   Conexión con avatar: {por_que_relevante_1}
-
-2. [{relevancia_2}] {titulo_2}
-   Fuente: {fuente_2}
-   Resumen: {resumen_2}
-   Conexión con avatar: {por_que_relevante_2}
-
-3. [{relevancia_3}] {titulo_3}
-   Fuente: {fuente_3}
-   Resumen: {resumen_3}
-   Conexión con avatar: {por_que_relevante_3}
-
-FECHA DE LA SEMANA: {fecha_inicio} al {fecha_fin}
-
-─────────────────────────────────────────────
-TU TAREA:
-Encuentra la INTERSECCIÓN ÓPTIMA entre una tendencia y un dolor/motivador del avatar.
-El weekly_theme resultante debe:
-- Ser un ángulo narrativo que cohesione 7 piezas de contenido
-- Conectar una tendencia real CON una emoción verdadera del avatar
-- Ser específico (no genérico), memorable (5-10 palabras), en español
-- Funcionar como hilo conductor en Instagram Reels, carousels y Facebook Ads
-
-CAMPO CRÍTICO — reasoning:
-Este campo es para auditoría humana. Sé explícito y honesto:
-- Por qué elegiste ESA tendencia y no las otras
-- Exactamente cuál dolor/motivador activa y cómo
-- Si hay urgencia temporal real (fecha próxima), cuantifícala
-- Admite limitaciones: si la tendencia es débil, dilo
-- Mínimo 100 palabras
-
-Responde SOLO con JSON válido — sin markdown, sin texto previo ni posterior:
-{
-  "weekly_theme": "string (5-10 palabras, español, sin signos de puntuación al final)",
-  "reasoning": "string — párrafo detallado para auditoría, mín 100 palabras",
-  "trend_applied": {
-    "titulo": "cuál tendencia se usó",
-    "fuente": "URL o identificador",
-    "por_que_esta_y_no_las_otras": "razón explícita de por qué ganó esta tendencia"
-  },
-  "trend_why_now": "por qué esta tendencia es especialmente relevante ESTA semana (no genérico)",
-  "pain_addressed": {
-    "tipo": "pain_point | emotional_trigger | spending_behavior",
-    "descripcion": "el dolor específico que activa el tema"
-  },
-  "pain_mechanism": "cómo exactamente el weekly_theme conecta con ese dolor — el puente emocional",
-  "confidence": "high | medium | low",
-  "confidence_reason": "por qué ese nivel — sé honesto si la data es escasa",
-  "urgency": {
-    "nivel": "alta | media | baja",
-    "explicacion": "una línea concreta, ej: 'Día del Padre en 18 días — ventana de compra activa'"
-  },
-  "suggested_channels": ["canal1", "canal2"],
-  "risks": "qué podría salir mal con este tema o por qué podría no resonar",
-  "alternative_theme": {
-    "theme": "segunda opción si la principal no convence (5-10 palabras)",
-    "reasoning": "50 palabras: por qué es la segunda opción y cuándo preferirla"
-  }
-}
-```
+Si no existe tema previo → enviar el bloque `'TEMA PREVIO: Primera ejecución'`.
 
 ### Manejo de error de parseo
-
-Si `JSON.parse` falla en el primer intento:
-1. Limpiar la respuesta (remover markdown fences, texto introductorio)
-2. Reintentar el parse una vez
-3. Si falla de nuevo → mostrar la respuesta en crudo al usuario con mensaje:
-   ```
-   La IA retornó un formato inesperado. Aquí está la respuesta sin procesar:
-   [respuesta cruda]
-   ```
-   No fallar silenciosamente.
-
-Registrar el costo en `ai_usage`:
-```sql
-INSERT INTO ai_usage (model, tokens_input, tokens_output, cost_usd, feature)
-VALUES (
-  'google/gemini-2.0-flash-001',
-  {tokens_in},
-  {tokens_out},
-  {costo_calculado},
-  'trend-radar'
-);
-```
+1. Limpiar fences markdown (```` ```json ``` ````), reintentar parse una vez
+2. Si falla de nuevo → mostrar respuesta cruda. No fallar silenciosamente.
 
 ---
 
 ## Fase 2b: Persistir resultado en weekly_trends
 
-Guardar el resultado en la tabla `weekly_trends` **siempre** — tanto en runs manuales (skill)
-como automáticos (cron). Esto crea el historial compartido y permite auditorías futuras.
+Incluye los campos de Decisión Autónoma introducidos en la migración `weekly_trends_decision_columns`:
 
 ```sql
 INSERT INTO weekly_trends (
-  avatar_id,
-  avatar_name,
-  theme_json,
-  reasoning,
-  status,
-  source,
-  execution_ms
+  avatar_id, avatar_name, theme_json, reasoning,
+  relevance_score, decision_type, decision_log,
+  status, source
 )
 VALUES (
-  '{avatar_id}',
-  '{avatar_name}',
-  '{theme_json_completo}'::jsonb,
-  '{reasoning}',
-  'success',
-  'skill',
-  {execution_ms_estimado}
+  '{avatar_id}', '{avatar_name}', '{theme_json}'::jsonb, '{reasoning}',
+  {relevance_score},
+  'first_run',   -- o 'auto_replace' / 'suggest_adjustment' según lógica abajo
+  '{decision_log}'::jsonb,
+  'success', 'skill'
 )
 RETURNING id;
 ```
 
-Guardar el `id` retornado como `weekly_trend_id` — puede ser útil para trazabilidad.
-
-**Nota:** No incluir `search_results_raw` en el path manual para mantener el INSERT simple.
-Si el usuario pide auditoría completa, incluirlo. El campo acepta `NULL`.
+**Lógica de decisión (igual que en Edge Function):**
+- Sin tema previo o sin `relevance_score` previo → `first_run`, no tocar posts
+- Mejora ≥ 20% → `auto_replace`: mover posts `Ideado` al nuevo `weekly_theme_id`, nota en Generado/Aprobado
+- Mejora < 20% → `suggest_adjustment`: nota de oportunidad en posts no Publicados
 
 ---
 

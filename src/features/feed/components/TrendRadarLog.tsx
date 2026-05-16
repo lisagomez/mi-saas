@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { TrendLog } from '../types'
+import type { TrendLog, DecisionType } from '../types'
 
 const STATUS_META = {
   success: { dot: 'bg-emerald-500', label: 'OK',       text: 'text-emerald-700', bg: 'bg-emerald-50' },
@@ -21,6 +21,12 @@ const URGENCY_ICONS: Record<string, string> = {
   baja:  '📌',
 }
 
+const DECISION_META: Record<DecisionType, { label: string; bg: string; text: string; icon: string }> = {
+  auto_replace:       { label: 'Auto-reemplazado', bg: 'bg-emerald-50', text: 'text-emerald-700', icon: '🔄' },
+  suggest_adjustment: { label: 'Sugerencia',        bg: 'bg-amber-50',   text: 'text-amber-700',   icon: '💡' },
+  first_run:          { label: 'Primera ejecución', bg: 'bg-blue-50',    text: 'text-blue-700',    icon: '🆕' },
+}
+
 function TrendLogRow({ log }: { log: TrendLog }) {
   const [expanded, setExpanded] = useState(false)
   const meta = STATUS_META[log.status] ?? STATUS_META.error
@@ -37,6 +43,16 @@ function TrendLogRow({ log }: { log: TrendLog }) {
   const weeklyTheme = theme.weekly_theme ?? (log.status === 'running' ? 'Calculando…' : '—')
   const confidence = theme.confidence
   const urgencyLevel = theme.urgency?.nivel
+  const decisionMeta = log.decision_type ? DECISION_META[log.decision_type] : null
+  const decisionLog = log.decision_log as {
+    improvement_pct?: number
+    posts_ideado_moved?: number
+    posts_review_noted?: number
+    posts_noted?: number
+    action?: string
+    reason?: string
+    ai_reasoning?: string
+  } | null
 
   return (
     <div className={`rounded-xl border transition-all ${expanded ? 'border-gray-300' : 'border-gray-100'} bg-white overflow-hidden`}>
@@ -66,9 +82,20 @@ function TrendLogRow({ log }: { log: TrendLog }) {
               {confidence}
             </span>
           )}
+          {log.relevance_score !== null && log.relevance_score !== undefined && (
+            <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-0.5" title="Score de relevancia">
+              {log.relevance_score}/100
+            </span>
+          )}
           {urgencyLevel && (
             <span className="text-sm" title={`Urgencia: ${urgencyLevel}`}>
               {URGENCY_ICONS[urgencyLevel] ?? '📌'}
+            </span>
+          )}
+          {decisionMeta && (
+            <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${decisionMeta.bg} ${decisionMeta.text}`} title={decisionMeta.label}>
+              {decisionMeta.icon}
+              {decisionLog?.improvement_pct !== undefined && ` +${decisionLog.improvement_pct}%`}
             </span>
           )}
           {log.execution_ms && (
@@ -141,6 +168,22 @@ function TrendLogRow({ log }: { log: TrendLog }) {
                 </div>
               )}
             </>
+          )}
+
+          {/* Decision Log */}
+          {decisionMeta && decisionLog && (
+            <div className={`rounded-lg border px-3 py-2 ${decisionMeta.bg}`}>
+              <p className={`text-[10px] font-semibold uppercase tracking-widest mb-1.5 ${decisionMeta.text}`}>
+                {decisionMeta.icon} {decisionMeta.label}
+              </p>
+              <p className={`text-xs font-medium mb-1 ${decisionMeta.text}`}>{decisionLog.reason}</p>
+              {decisionLog.action && (
+                <p className="text-[11px] text-gray-500">{decisionLog.action}</p>
+              )}
+              {decisionLog.ai_reasoning && (
+                <p className="text-[11px] text-gray-400 mt-1 italic">{decisionLog.ai_reasoning}</p>
+              )}
+            </div>
           )}
 
           {log.avatar_name && (

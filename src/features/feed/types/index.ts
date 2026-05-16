@@ -15,6 +15,7 @@ export interface Post {
 }
 
 export type TrendStatus = 'running' | 'success' | 'error'
+export type DecisionType = 'first_run' | 'auto_replace' | 'suggest_adjustment'
 
 export interface TrendLog {
   id: string
@@ -26,4 +27,7 @@ export interface TrendLog {
   execution_ms: number | null
   source: string
   created_at: string
+  relevance_score: number | null
+  decision_type: DecisionType | null
+  decision_log: Record<string, unknown> | null
 }
