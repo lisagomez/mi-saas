@@ -15,6 +15,7 @@ import { getStorageConfig } from '@/features/storage-management/services/get-sto
 import { getCleanupLog } from '@/features/storage-management/services/get-cleanup-log'
 import { getConvertedLeads } from '@/features/leads/services/get-converted-leads'
 import { getCampaignHistory } from '@/features/leads/services/get-campaign-history'
+import { getAvatars } from '@/features/avatar-research/services/get-avatars'
 import type { Competitor, PromotionsCatalog } from '@/types/database'
 
 export default async function DashboardPage() {
@@ -66,7 +67,7 @@ export default async function DashboardPage() {
 
   // Datos para agentes (solo admin)
   const isAdmin = role === 'administrador'
-  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads, allPromotions, campaignHistory, pricingCampaignsRaw, qualifiedLeadsRaw] = isAdmin
+  const [latestInvestigatorReport, activePromotionsRaw, facebookCampaigns, storageStats, storageConfigs, storageCleanupLog, convertedLeads, allPromotions, campaignHistory, pricingCampaignsRaw, qualifiedLeadsRaw, avatars] = isAdmin
     ? await Promise.all([
         getLatestInvestigatorReport(),
         admin.from('promotions_catalog').select('*').eq('is_active', true)
@@ -85,8 +86,9 @@ export default async function DashboardPage() {
           .eq('qualification_status', 'calificado')
           .order('created_at', { ascending: false })
           .limit(200),
+        getAvatars(),
       ])
-    : [null, { data: [] }, [], [], [], [], [], { data: [] }, [], { data: [] }, { data: [] }]
+    : [null, { data: [] }, [], [], [], [], [], { data: [] }, [], { data: [] }, { data: [] }, []]
   const activePromotions = (activePromotionsRaw.data ?? []) as PromotionsCatalog[]
   const allPromotionsList = ((allPromotions as { data: unknown[] }).data ?? []) as PromotionsCatalog[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,6 +178,7 @@ export default async function DashboardPage() {
               campaignHistory={campaignHistory as import('@/features/leads/types/leads').CampaignHistory[]}
               pricingCampaigns={pricingCampaigns}
               qualifiedLeads={qualifiedLeads}
+              avatars={avatars as import('@/features/avatar-research/services/get-avatars').AvatarWithInsights[]}
             />
           </Suspense>
         )}
