@@ -70,7 +70,7 @@ export function AppLauncherPopover() {
         </button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" sideOffset={8} className="w-[320px] p-4 space-y-4 bg-white border border-gray-200 shadow-xl">
+      <PopoverContent align="start" sideOffset={8} className="w-[360px] p-4 space-y-4 bg-white border border-gray-200 shadow-xl">
         {isLoading ? (
           <>
             <GroupSkeleton />
