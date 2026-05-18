@@ -9,7 +9,7 @@ import type { AppItem } from '../types'
 
 function AppTile({ item, onSelect }: { item: AppItem; onSelect: () => void }) {
   const inner = (
-    <div className="flex flex-col items-center gap-1.5 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer text-center w-[76px]">
+    <div className="flex flex-col items-center gap-1.5 rounded-xl p-3 bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all cursor-pointer text-center w-[76px]">
       <span className="text-2xl leading-none">{item.icon}</span>
       <span className="text-[11px] font-medium text-gray-600 leading-tight line-clamp-2">{item.label}</span>
     </div>
@@ -32,7 +32,7 @@ function GroupSkeleton() {
       <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
       <div className="flex flex-wrap gap-1">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="w-[76px] h-[76px] rounded-lg bg-gray-100 animate-pulse" />
+          <div key={i} className="w-[76px] h-[76px] rounded-xl bg-gray-100 animate-pulse shadow-sm" />
         ))}
       </div>
     </div>
@@ -70,7 +70,7 @@ export function AppLauncherPopover() {
         </button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" sideOffset={8} className="w-[320px] p-4 space-y-4">
+      <PopoverContent align="start" sideOffset={8} className="w-[320px] p-4 space-y-4 bg-white border border-gray-200 shadow-xl">
         {isLoading ? (
           <>
             <GroupSkeleton />
