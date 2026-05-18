@@ -215,7 +215,14 @@ CONTEXTO DEL AVATAR:
 Avatar: {avatar.name} | Origen: {avatar.origin} → Residencia: {avatar.residence}
 Estilo musical: {avatar.musical_style}
 Canal preferido: {classification.canal}
+Variante dialectal: {variante_dialectal} — PROHIBIDO usar formas de otro dialecto
 ```
+
+Derivar `variante_dialectal` desde `avatar.origin` antes de construir el bloque:
+- Honduras / Guatemala / El Salvador / México → `"tuteo coloquial neutro (tú, te, tu)"`
+- Argentina / Uruguay → `"voseo rioplatense (vos, sos, regalás)"`
+- Puerto Rico / Cuba / República Dominicana → `"tuteo caribeño (tú, dale, qué vacano)"`
+- Otro / desconocido → `"tuteo neutro latinoamericano"`
 
 ---
 
@@ -336,6 +343,25 @@ Imprimir el objeto JSON completo en un bloque de código (copy-paste listo).
 
 5. **Reutilización = variación de formato,** no de contenido. El mismo insight
    en dos formatos distintos el mismo día o en días separados.
+
+---
+
+## Reglas de tono
+
+### Variante dialectal — obligatoria en prompt_final
+
+El campo `Variante dialectal` en `CONTEXTO DEL AVATAR` le indica a `content-prompt-gen`
+el dialecto a usar sin ambigüedad. No depender de que el generador lo infiera.
+
+| Origen | Variante_dialectal a inyectar | Formas correctas | Prohibido |
+|--------|-------------------------------|-----------------|-----------|
+| Honduras, Guatemala, El Salvador, México | `"tuteo coloquial neutro (tú, te, tu)"` | "recuérdalo", "te extraña", "llámale" | "regalás", "acordás", "vos" |
+| Argentina, Uruguay | `"voseo rioplatense (vos, sos, regalás)"` | "vos sabés", "regalás", "acordás" | tuteo forzado |
+| Puerto Rico, Cuba, Rep. Dominicana | `"tuteo caribeño (tú, dale, qué vacano)"` | "dale", "tú sabes" | Voseo rioplatense |
+| Otro / desconocido | `"tuteo neutro latinoamericano"` | "tú", "te", "tu" | Cualquier voseo |
+
+**Regla de oro:** El campo `Variante dialectal` viaja en **cada entrada** del `calendar`.
+Si `avatar.origin` no está en la tabla → usar `"tuteo neutro latinoamericano"`.
 
 ---
 

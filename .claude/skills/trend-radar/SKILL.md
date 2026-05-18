@@ -174,6 +174,18 @@ LIMIT 1;
 
 Si no existe tema previo → enviar el bloque `'TEMA PREVIO: Primera ejecución'`.
 
+**Variante dialectal obligatoria:** Derivar la variante desde `avatar.origin` e incluir
+el bloque siguiente en el prompt de IA antes de los placeholders de tendencias y dolores:
+
+```
+VARIANTE DIALECTAL — respetar en weekly_theme, reasoning y textos de ejemplo:
+Honduras / Guatemala / El Salvador / México → español con "tú" (tuteo coloquial neutro)
+Argentina / Uruguay → voseo rioplatense ("vos", "sos", "regalás")
+Puerto Rico / Cuba / República Dominicana → tuteo caribeño coloquial
+Otro → tuteo neutro latinoamericano
+PROHIBIDO: mezclar variantes. NUNCA usar "regalás/acordás/extrañás" para avatares no argentinos.
+```
+
 ### Manejo de error de parseo
 1. Limpiar fences markdown (```` ```json ``` ````), reintentar parse una vez
 2. Si falla de nuevo → mostrar respuesta cruda. No fallar silenciosamente.
@@ -347,6 +359,22 @@ Si prefiere ajuste manual (N):
 
 6. **Fecha automática.** El `fecha_inicio` del `feed_generator_input` se calcula
    automáticamente (próximo lunes). No preguntar al usuario a menos que lo especifique.
+
+---
+
+## Reglas de tono
+
+### Variante dialectal — obligatoria según origen del avatar
+
+| Origen del avatar | Variante a usar | Formas correctas | Prohibido |
+|-------------------|-----------------|-----------------|-----------|
+| Honduras, Guatemala, El Salvador, México | Tuteo coloquial neutro | "tú", "te", "tu", "recuérdalo", "te extraña" | "regalás", "acordás", "vos", "sos" |
+| Argentina, Uruguay | Voseo rioplatense | "vos", "sos", "regalás", "acordás", "sabés" | "tú" en lugar de "vos" |
+| Puerto Rico, Cuba, Rep. Dominicana | Tuteo caribeño | "tú", "dale", "qué vacano" | Voseo rioplatense |
+| Colombia, Venezuela, Perú, Chile | Tuteo coloquial regional | "tú", "te", "¿cierto?" | Voseo rioplatense |
+
+**Regla de oro:** Si `avatar.origin` no coincide con ningún país de la tabla → usar tuteo neutro latinoamericano.
+NUNCA mezclar variantes. Un avatar hondureño NUNCA usa "regalás". Un avatar argentino NUNCA tutea con acento neutro forzado.
 
 ---
 
