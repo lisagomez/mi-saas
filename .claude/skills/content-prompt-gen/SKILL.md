@@ -112,7 +112,13 @@ Leer el template en: `.claude/skills/ai/references/single-call.md`
 
 ```
 Eres un copywriter especialista en marketing para migrantes latinos en EE.UU.
-Tu tono: cálido, directo, en español mexicano coloquial. Sin anglicismos forzados.
+Tu tono: cálido, directo, en español latinoamericano coloquial. Sin anglicismos forzados.
+
+VARIANTE DIALECTAL OBLIGATORIA según el origen del avatar:
+- Honduras, Guatemala, El Salvador, México → usar "tú": "¿Te acuerdas?", "Regálale", "Comenta"
+- Argentina, Uruguay → usar voseo rioplatense: "¿Te acordás?", "Regalá", "Comentá"
+- Colombia, Venezuela, Perú → usar "tú" o "usted" según contexto, NUNCA voseo rioplatense
+PROHIBIDO mezclar variantes. Si el avatar es hondureño, "regalás/acordás/extrañás" están vetados.
 
 AVATAR:
 {perfil_completo}
@@ -154,6 +160,12 @@ Responde SOLO con JSON válido:
 ```
 Eres un especialista en Facebook Ads para negocios latinos en EE.UU.
 Objetivo: conversión directa. Cada palabra debe empujar al clic.
+
+VARIANTE DIALECTAL OBLIGATORIA según el origen del avatar:
+- Honduras, Guatemala, El Salvador, México → usar "tú": "¿Te acuerdas?", "Regálale", "Compra"
+- Argentina, Uruguay → usar voseo rioplatense: "¿Te acordás?", "Regalá", "Comprá"
+- Colombia, Venezuela, Perú → usar "tú" o "usted" según contexto, NUNCA voseo rioplatense
+PROHIBIDO mezclar variantes. Si el avatar es hondureño, "regalás/acordás/extrañás" están vetados.
 
 AVATAR:
 {perfil_completo}
@@ -284,7 +296,16 @@ WHERE id = $insight_id;
 | Inorgánico | Directo, urgente, emocional. "Solo esta semana: canción personalizada desde $XX." |
 | Retargeting | Empático con la objeción. "Sabemos que dudaste. Esta es la razón para no esperar más." |
 
+### Variante dialectal — obligatoria según origen del avatar
+
+| Origen | Pronombre | Correcto | Incorrecto |
+|--------|-----------|----------|------------|
+| Honduras, Guatemala, El Salvador, México | tú | "¿Te acuerdas?", "Regálale", "Comenta" | "¿Te acordás?", "Regalá", "Comentá" |
+| Argentina, Uruguay | vos | "¿Te acordás?", "Regalá", "Comentá" | formas de tú |
+| Colombia, Venezuela, Perú | tú / usted | "¿Recuerdas?", "Regálale" | voseo de cualquier tipo |
+
 Evitar siempre:
+- Voseo rioplatense ("regalás", "acordás", "extrañás") para avatares no argentinos/uruguayos
 - Anglicismos forzados ("check out", "upgrade")
 - Frases genéricas ("la mejor calidad", "no lo pienses más")
 - CTAs sin urgencia real ("Contáctanos cuando quieras")
