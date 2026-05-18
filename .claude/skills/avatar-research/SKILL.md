@@ -18,6 +18,44 @@ allowed-tools: WebSearch, Bash, Read, mcp__supabase__execute_sql, mcp__supabase_
 
 ---
 
+## Tono de Referencia Obligatorio
+
+**Este bloque es una restricción de ejecución, no una sugerencia.**
+Todo texto generado por este skill — síntesis de investigación, motivadores, barreras,
+ganchos, prompts, y reportes — debe respetar este tono sin excepción.
+
+### Definición del tono
+
+| Dimensión | Regla |
+|-----------|-------|
+| Idioma | Español latinoamericano coloquial. Adaptar la variante al avatar (hondureño, mexicano, guatemalteco…) |
+| Registro | Conversacional y cálido — como habla una tía de confianza, no un anuncio corporativo |
+| Emocionalidad | Alta. Nombrar el dolor y el deseo con palabras concretas, no abstractas |
+| Estructura | Frases cortas. Preguntas retóricas. Verbos de acción en segunda persona |
+| Prohibido | Anglicismos forzados ("check out", "upgrade", "amazing"), frases genéricas ("la mejor calidad"), CTAs sin urgencia real |
+
+### Ejemplos de tono correcto vs incorrecto
+
+| ❌ Incorrecto | ✅ Correcto |
+|--------------|------------|
+| "Los migrantes valoran los lazos familiares" | "¿Te acordás cuando bailábamos punta en la sala de la abuela?" |
+| "Alto nivel de nostalgia como motivador de compra" | "Quieren que su familia en Honduras sepa que no se olvidan de ellos" |
+| "Barrera: desconfianza en medios de pago digitales" | "Les da miedo pagar por internet — prefieren Zelle o CashApp porque es como darle el dinero en mano" |
+| "Gancho recomendado: regalo emocional personalizado" | "Regálale a tu mamá la canción que nunca olvidará — desde aquí, cerca de su corazón" |
+| "CTA: contactar para más información" | "Comentá abajo tu canción favorita de Honduras. ¡Vamos a recordar juntos!" |
+
+### Cómo aplicarlo en cada fase
+
+- **Fase 3 (síntesis IA):** Los `top_motivators`, `top_barriers` y `recommended_hook` deben
+  estar redactados en primera/segunda persona coloquial, no como descripciones académicas.
+- **Fase 4 (reporte):** Las secciones "Motivadores emocionales", "Barreras" y
+  "Oportunidades de mensaje" deben leerse como frases que el avatar diría o escucharía,
+  no como categorías de análisis.
+- **Fase 6 (bridge → proactive_insights):** Los `prompt_template` heredan este tono.
+  El copywriter que los use no necesita reescribir el registro — ya viene calibrado.
+
+---
+
 ## Fase 0: Consultar divergencia previa (si hay biblioteca existente)
 
 Antes de investigar, detectar qué ya se sabe y qué contradice la biblioteca actual.
@@ -219,15 +257,31 @@ Leer el template en: `.claude/skills/ai/references/single-call.md`
 **Prompt base:**
 ```
 Eres un analista de mercado especialista en migrantes latinos en EE.UU.
-Analiza estos resultados de investigación web sobre [perfil] y responde SOLO con JSON válido:
+Analiza estos resultados de investigación web sobre [perfil] y responde SOLO con JSON válido.
+
+TONO OBLIGATORIO para todos los campos de texto:
+- Español latinoamericano coloquial, variante [origen del avatar]
+- Conversacional y cálido — como habla una persona de confianza del avatar, no un reporte corporativo
+- Motivadores y barreras en primera/segunda persona: cómo los diría o los sentiría el avatar
+- recommended_hook: frase de 10-15 palabras que el avatar querría escuchar, no una descripción del producto
+- Prohibido: anglicismos forzados, frases genéricas, registro académico o formal
+
+Ejemplos del tono esperado:
+- top_motivators: "Quieren que su familia en Honduras sepa que no se olvidan de ellos"
+  (NO: "Alta motivación por mantener vínculos familiares transnacionales")
+- top_barriers: "Les da miedo pagar por internet — prefieren Zelle porque es como dar dinero en mano"
+  (NO: "Desconfianza en medios de pago digitales")
+- recommended_hook: "Regálale a tu mamá la canción que nunca olvidará — desde aquí, cerca de su corazón"
+  (NO: "Regalo emocional personalizado para madres")
+
 {
   "avg_spend_usd_min": number,
   "avg_spend_usd_max": number,
-  "top_motivators": string[],     // máximo 3, los más fuertes emocionalmente
-  "top_barriers": string[],       // máximo 2
+  "top_motivators": string[],     // máximo 3, redactados en tono coloquial del avatar
+  "top_barriers": string[],       // máximo 2, redactados como lo diría el avatar
   "preferred_channels": string[], // WhatsApp, Facebook, Instagram, referidos...
   "best_contact_time": string,    // ej: "viernes 7-9pm hora local"
-  "recommended_hook": string,     // frase corta que resuena con el avatar
+  "recommended_hook": string,     // frase coloquial que resuena emocionalmente con el avatar
   "confidence": "high" | "medium" | "low"  // qué tan sólida es la evidencia encontrada
 }
 
@@ -268,13 +322,15 @@ Generar el reporte en este formato exacto:
 - **Ocasión → Estilo más pedido:** Día de Madres = [estilo], Cumpleaños = [estilo]
 
 ## Motivadores emocionales (los más fuertes)
-1. [Motivador 1]: [descripción]
-2. [Motivador 2]: [descripción]
-3. [Motivador 3]: [descripción]
+> Redactar en tono coloquial — cómo lo diría o lo sentiría el avatar, no una categoría de análisis.
+1. [Motivador 1 en voz del avatar: "Quieren que su familia sepa que no se olvidan de ellos"]
+2. [Motivador 2 en voz del avatar]
+3. [Motivador 3 en voz del avatar]
 
 ## Barreras de compra
-1. [Barrera 1]: [cómo superarla]
-2. [Barrera 2]: [cómo superarla]
+> Redactar la barrera como la verbalizaría el avatar y la solución como la escucharía.
+1. [Barrera 1 coloquial]: [cómo superarla en lenguaje directo]
+2. [Barrera 2 coloquial]: [cómo superarla en lenguaje directo]
 
 ## Datos de tus leads reales
 - **Total leads de este perfil:** [N]
@@ -284,9 +340,10 @@ Generar el reporte en este formato exacto:
 > *Estos datos son de tu Supabase — no proyecciones.*
 
 ## Oportunidades de mensaje
-- **Gancho emocional recomendado:** "[frase que resuena]"
-- **Objeción principal a manejar:** "[objeción]"
-- **Momento ideal de contacto:** [día/hora según hábitos]
+> Todo este bloque debe estar en tono coloquial — como si le hablaras directamente al avatar.
+- **Gancho emocional recomendado:** "[frase de 10-15 palabras que el avatar querría escuchar, no una descripción del producto]"
+- **Objeción principal a manejar:** "[la objeción como la diría el avatar, ej: 'Le da miedo pagar por internet']"
+- **Momento ideal de contacto:** [día/hora según hábitos, ej: "viernes noche cuando ya descansaron del trabajo"]
 
 ## Fuentes consultadas
 - [URL o descripción de fuente 1]
