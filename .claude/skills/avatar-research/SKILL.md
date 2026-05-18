@@ -28,21 +28,29 @@ ganchos, prompts, y reportes — debe respetar este tono sin excepción.
 
 | Dimensión | Regla |
 |-----------|-------|
-| Idioma | Español latinoamericano coloquial. Adaptar la variante al avatar (hondureño, mexicano, guatemalteco…) |
+| Idioma | Español latinoamericano coloquial. Adaptar la variante al avatar: hondureño/centroamericano usa "tú", mexicano usa "tú", argentino usa "vos" — NUNCA mezclar variantes |
 | Registro | Conversacional y cálido — como habla una tía de confianza, no un anuncio corporativo |
 | Emocionalidad | Alta. Nombrar el dolor y el deseo con palabras concretas, no abstractas |
 | Estructura | Frases cortas. Preguntas retóricas. Verbos de acción en segunda persona |
-| Prohibido | Anglicismos forzados ("check out", "upgrade", "amazing"), frases genéricas ("la mejor calidad"), CTAs sin urgencia real |
+| Prohibido | Anglicismos forzados ("check out", "upgrade", "amazing"), frases genéricas ("la mejor calidad"), CTAs sin urgencia real, **voseo rioplatense en avatares no argentinos** ("regalás", "acordás", "extrañás") |
 
-### Ejemplos de tono correcto vs incorrecto
+### Variantes por origen — referencia rápida
+
+| Origen del avatar | Pronombre | Forma correcta | Forma incorrecta |
+|-------------------|-----------|----------------|------------------|
+| Honduras, Guatemala, El Salvador, México | tú | "¿Te acuerdas?", "Regálale", "¿Extrañas?" | "¿Te acordás?", "Regalá", "¿Extrañás?" |
+| Argentina, Uruguay | vos | "¿Te acordás?", "Regalá", "¿Extrañás?" | usar formas de tú |
+| Colombia, Venezuela, Perú | tú / usted según contexto | "¿Recuerdas?", "Regálale" | voseo de cualquier tipo |
+
+### Ejemplos de tono correcto vs incorrecto (avatar hondureño)
 
 | ❌ Incorrecto | ✅ Correcto |
 |--------------|------------|
-| "Los migrantes valoran los lazos familiares" | "¿Te acordás cuando bailábamos punta en la sala de la abuela?" |
+| "Los migrantes valoran los lazos familiares" | "¿Te acuerdas cuando bailábamos punta en la sala de la abuela?" |
 | "Alto nivel de nostalgia como motivador de compra" | "Quieren que su familia en Honduras sepa que no se olvidan de ellos" |
 | "Barrera: desconfianza en medios de pago digitales" | "Les da miedo pagar por internet — prefieren Zelle o CashApp porque es como darle el dinero en mano" |
 | "Gancho recomendado: regalo emocional personalizado" | "Regálale a tu mamá la canción que nunca olvidará — desde aquí, cerca de su corazón" |
-| "CTA: contactar para más información" | "Comentá abajo tu canción favorita de Honduras. ¡Vamos a recordar juntos!" |
+| "Comentá abajo tu canción favorita" (voseo argentino) | "Comenta abajo tu canción favorita de Honduras. ¡Vamos a recordar juntos!" |
 
 ### Cómo aplicarlo en cada fase
 
@@ -260,19 +268,23 @@ Eres un analista de mercado especialista en migrantes latinos en EE.UU.
 Analiza estos resultados de investigación web sobre [perfil] y responde SOLO con JSON válido.
 
 TONO OBLIGATORIO para todos los campos de texto:
-- Español latinoamericano coloquial, variante [origen del avatar]
+- Español latinoamericano coloquial, variante exacta del origen del avatar
+- Si el avatar es hondureño, guatemalteco, salvadoreño o mexicano: usar "tú" — NUNCA voseo rioplatense
+  ("regalás", "acordás", "extrañás" son formas argentinas — están PROHIBIDAS para estos perfiles)
+- Si el avatar es argentino o uruguayo: usar voseo rioplatense
 - Conversacional y cálido — como habla una persona de confianza del avatar, no un reporte corporativo
 - Motivadores y barreras en primera/segunda persona: cómo los diría o los sentiría el avatar
 - recommended_hook: frase de 10-15 palabras que el avatar querría escuchar, no una descripción del producto
 - Prohibido: anglicismos forzados, frases genéricas, registro académico o formal
 
-Ejemplos del tono esperado:
+Ejemplos del tono esperado (avatar hondureño):
 - top_motivators: "Quieren que su familia en Honduras sepa que no se olvidan de ellos"
   (NO: "Alta motivación por mantener vínculos familiares transnacionales")
 - top_barriers: "Les da miedo pagar por internet — prefieren Zelle porque es como dar dinero en mano"
   (NO: "Desconfianza en medios de pago digitales")
 - recommended_hook: "Regálale a tu mamá la canción que nunca olvidará — desde aquí, cerca de su corazón"
   (NO: "Regalo emocional personalizado para madres")
+  (NO: "Regalale a tu mamá..." — voseo argentino incorrecto para hondureños)
 
 {
   "avg_spend_usd_min": number,
