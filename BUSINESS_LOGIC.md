@@ -131,6 +131,13 @@ Un asistente automatizado de WhatsApp con personalidad cercana ("primo", "cuate"
 | `nurturing_list` | Leads no calificados para seguimiento manual |
 | `rebuys` | Historial de recompras y campañas enviadas |
 | `business_domain` | Skill reutilizable: fórmulas, benchmarks, lógica de negocio |
+| `push_subscriptions` | Suscripciones push por dispositivo/usuario (PWA) |
+| `notifications` | Log de notificaciones enviadas al usuario |
+| `proactive_insights` | Insights de strategy-bridge clasificados con matriz 4D |
+| `content_outcomes` | Resultados reales de posts: likes, shares, DMs, saves |
+| `avatar_insights` | Dolores/miedos/deseos del avatar para cruces con tendencias |
+| `judge_rankings` | Ranking de proactive_insights con score_judge y reasoning |
+| `judge_overrides` | Elecciones manuales de la usuaria como señal de feedback al Judge |
 
 ---
 
@@ -197,23 +204,28 @@ Fórmulas exactas — sin alucinaciones. Usables en otras aplicaciones.
 
 ```
 src/features/
-├── auth/                    # Login Email/Password — 3 roles (Creativo, Admin Pagos, Admin)
+├── auth/                    # Login Email/Password — 4 roles
+├── app-launcher/            # App Launcher dinámico tipo Microsoft 365
 ├── whatsapp-bot/            # Asistente WhatsApp con personalidad "primo/cuate"
 │   ├── qualifier/           # Agente calificador (sentimiento + intención de pago)
-│   ├── conversation/        # Manejo de mensajes texto y audio
-│   └── nurturing/           # Lista de leads no calificados
+│   ├── conversation/        # Mensajes texto/audio + story-guide-agent
+│   └── constants/           # Todos los mensajes del bot
 ├── orders/                  # Gestión de pedidos con semáforo de estado
 ├── video-generation/        # Slideshow ffmpeg + YouTube upload + fotos del cliente
-├── payments/                # Verificación de comprobantes + confirmación manual
 ├── catalogs/                # Promociones, preferencias, presupuesto, dominio
 ├── agents/                  # Agentes automáticos
 │   ├── investigator/        # Monitoreo de competencia + CAC/LTV con datos reales
 │   ├── financial/           # Métricas contables con fórmulas exactas
 │   └── promotions/          # Campañas segmentadas de recompra
-├── dashboard/               # Panel admin: métricas, semáforo, presupuesto, costos IA
-│   ├── budget-control/      # Barra progreso presupuesto + control de tokens
-│   └── ai-cost-tracker/     # Costo por pedido + routing de modelos
-└── facebook-ads/            # Tracking de campañas, ROAS, atribución de leads
+├── dashboard/               # Panel multi-rol (4 vistas: creativo, admin_pagos, investigador, administrador)
+├── facebook-ads/            # Tracking de campañas, ROAS, atribución de leads
+├── leads/                   # Campañas manuales + importador + historial
+├── storage-management/      # Monitoreo buckets + limpieza cron
+├── notifications/           # PWA Push Notifications (web-push + VAPID)
+├── event-tracker/           # Tracking de señales de comportamiento (clicks, DMs, saves)
+├── avatar-research/         # Investigación de avatar + Judge system (ranking automático de insights)
+├── feed/                    # Kanban board + Trend Radar log de contenido semanal
+└── content-guardian/        # Monitoreo de engagement + stop-publishing + alertas WhatsApp
 ```
 
 ---
@@ -260,8 +272,15 @@ async function guardedAICall(task: "basic" | "advanced", pedidoId: string) {
 11. [x] Feature: `facebook-ads` (tracking ROAS + atribución de leads)
 12. [x] Feature: `leads` (campañas manuales + importador + historial)
 13. [x] Feature: `storage-management` (monitoreo buckets + limpieza cron)
-14. [ ] Testing E2E con Playwright
-15. [ ] Validar YouTube upload + WhatsApp delivery end-to-end en producción
+14. [x] Feature: `notifications` — PWA + Push Notifications (web-push + VAPID keys)
+15. [x] Feature: `event-tracker` — Tracking de señales (clicks, DMs, saves)
+16. [x] Feature: `avatar-research` con Judge system (ranking automático de insights)
+17. [x] Skills de contenido: trend-radar, feed-generator, content-prompt-gen, monitor
+18. [x] Feature: `app-launcher` — App Launcher dinámico tipo Microsoft 365
+19. [x] Feature: `feed` — Kanban board + Trend Radar log de contenido
+20. [x] Feature: `content-guardian` — Monitoreo engagement + stop-publishing + alertas WhatsApp
+21. [ ] Testing E2E con Playwright
+22. [ ] Validar YouTube upload + WhatsApp delivery end-to-end en producción
 
 ---
 

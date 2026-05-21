@@ -155,6 +155,10 @@ Usuario dice algo
     |                        video_pago_enviado → entregado (sin parada en video_pago_confirmado)
     |       → Fallback graceful si ffmpeg falla (entrega solo audio)
     |
+    ├── "Alerta de contenido / comentarios negativos / stop publishing / guardian"
+    |       → src/features/content-guardian/ → GuardianPanel
+    |       → /api/guardian/alerts, /api/guardian/check-comment, /api/guardian/resume
+    |
     └── No encaja en nada
             → Usar tu juicio. Si es frontend → agent FRONTEND.
               Si es backend → agent BACKEND.
@@ -358,6 +362,11 @@ src/
 │   ├── leads/               # Leads y campanas manuales
 │   ├── notifications/       # Notificaciones push (PWA)
 │   ├── orders/              # Pedidos + flujo conversacional (PRP-001, 002, 003)
+│   ├── app-launcher/        # App Launcher dinámico tipo Microsoft 365
+│   ├── avatar-research/     # Investigacion de avatar + Judge system
+│   ├── content-guardian/    # Monitoreo de engagement + stop-publishing + alertas WA
+│   ├── event-tracker/       # Tracking de señales (clicks, DMs, saves)
+│   ├── feed/                # Kanban board + Trend Radar log de contenido
 │   ├── storage-management/  # Monitoreo de Storage (PRP-010b)
 │   ├── video-generation/    # Pipeline de video (PRP-006)
 │   └── whatsapp-bot/        # Bot, calificador, mensajes
@@ -396,6 +405,10 @@ src/
 | `campaign_spend` | facebook-ads | PRP-009 |
 | `storage_config` | storage-management | PRP-010b |
 | `storage_cleanup_log` | storage-management | PRP-010b |
+| `push_subscriptions` | notifications | — |
+| `notifications` | notifications | — |
+| `judge_rankings` | avatar-research | prp-judge-strategy-bridge |
+| `judge_overrides` | avatar-research | prp-judge-strategy-bridge |
 
 ---
 
@@ -494,7 +507,10 @@ npm run lint         # ESLint
 │   ├── prp-payment-flow.md                  # Flujo de pagos y entrega de cancion
 │   ├── prp-rebuy-campaign.md                # Campana de recompra por WhatsApp
 │   ├── prp-storage-management.md            # Monitoreo y limpieza de Storage
-│   └── prp-video-generation.md              # Video personalizado con fotos + YouTube
+│   ├── prp-video-generation.md              # Video personalizado con fotos + YouTube
+│   ├── prp-app-launcher.md                  # App Launcher dinámico tipo Microsoft 365
+│   ├── prp-event-tracker.md                 # Tracker de eventos (clicks, DMs, saves)
+│   └── prp-judge-strategy-bridge.md         # Judge que rankea proactive_insights por probabilidad de éxito
 │
 │   │   └── references/       # AI Templates (11 bloques)
 │
