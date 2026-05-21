@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { Competitor } from '@/types/database'
 import { upsertCompetitor } from '../services/upsert-competitor'
 import { deleteCompetitor } from '../services/delete-competitor'
+import { TiCard, TiButton } from '@/shared/components/ti'
 
 const EMPTY_FORM = { name: '', price: '', proposal: '', advantages: '', disadvantages: '' }
 
@@ -61,40 +62,39 @@ export function InvestigadorView({ initial }: { initial: Competitor[] }) {
     if (result.success) setRows(prev => prev.filter(r => r.id !== id))
   }
 
+  const inputClass = 'w-full rounded border border-[#3A3F4E] bg-[#171920] px-2 py-1 text-sm text-[#F0F2F7] focus:outline-none focus:border-[#4A7FBD]'
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">Tabla de Competencia</h2>
-        <button
-          onClick={() => { setAdding(true); setForm(EMPTY_FORM) }}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
-        >
+        <h2 className="text-xl font-semibold text-[#F0F2F7]">Tabla de Competencia</h2>
+        <TiButton onClick={() => { setAdding(true); setForm(EMPTY_FORM) }}>
           + Agregar competidor
-        </button>
+        </TiButton>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
-            <tr>
+      <TiCard className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-[#3A3F4E] text-sm">
+          <thead>
+            <tr style={{ background: 'linear-gradient(135deg, #1F2229 0%, #1C1E24 100%)' }}>
               {['Competidor', 'Precio', 'Propuesta', 'Ventajas', 'Desventajas', ''].map(h => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-[#8C93A8]">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[#3A3F4E]">
             {rows.length === 0 && !adding && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-[#555B6E]">
                   Sin competidores registrados. Agrega el primero.
                 </td>
               </tr>
             )}
 
             {rows.map(row => (
-              <tr key={row.id} className="hover:bg-gray-50">
+              <tr key={row.id} className="hover:bg-[#2C303C]/40 transition-colors">
                 {editing === row.id ? (
                   <>
                     {(['name', 'price', 'proposal', 'advantages', 'disadvantages'] as const).map(field => (
@@ -102,27 +102,27 @@ export function InvestigadorView({ initial }: { initial: Competitor[] }) {
                         <input
                           value={form[field]}
                           onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-                          className="w-full rounded border border-indigo-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                          className={inputClass}
                         />
                       </td>
                     ))}
                     <td className="whitespace-nowrap px-3 py-2">
-                      <button onClick={() => saveEdit(row.id)} disabled={saving} className="mr-2 text-indigo-600 hover:underline disabled:opacity-50">
+                      <button onClick={() => saveEdit(row.id)} disabled={saving} className="mr-2 text-[#4A7FBD] hover:text-[#22D3EE] transition-colors disabled:opacity-50 text-xs font-medium">
                         {saving ? 'Guardando...' : 'Guardar'}
                       </button>
-                      <button onClick={() => setEditing(null)} className="text-gray-400 hover:underline">Cancelar</button>
+                      <button onClick={() => setEditing(null)} className="text-[#555B6E] hover:text-[#8C93A8] transition-colors text-xs">Cancelar</button>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="px-4 py-3 font-medium text-gray-900">{row.name}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.price ?? '—'}</td>
-                    <td className="max-w-xs px-4 py-3 text-gray-600">{row.proposal ?? '—'}</td>
-                    <td className="max-w-xs px-4 py-3 text-green-700">{row.advantages ?? '—'}</td>
-                    <td className="max-w-xs px-4 py-3 text-red-600">{row.disadvantages ?? '—'}</td>
+                    <td className="px-4 py-3 font-medium text-[#F0F2F7]">{row.name}</td>
+                    <td className="px-4 py-3 text-[#8C93A8]">{row.price ?? '—'}</td>
+                    <td className="max-w-xs px-4 py-3 text-[#8C93A8]">{row.proposal ?? '—'}</td>
+                    <td className="max-w-xs px-4 py-3 text-[#4ADE80]">{row.advantages ?? '—'}</td>
+                    <td className="max-w-xs px-4 py-3 text-[#FB923C]">{row.disadvantages ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-2">
-                      <button onClick={() => startEdit(row)} className="mr-3 text-indigo-600 hover:underline">Editar</button>
-                      <button onClick={() => handleDelete(row.id)} className="text-red-400 hover:underline">Eliminar</button>
+                      <button onClick={() => startEdit(row)} className="mr-3 text-[#4A7FBD] hover:text-[#22D3EE] transition-colors text-xs font-medium">Editar</button>
+                      <button onClick={() => handleDelete(row.id)} className="text-[#FB923C]/70 hover:text-[#FB923C] transition-colors text-xs">Eliminar</button>
                     </td>
                   </>
                 )}
@@ -130,28 +130,28 @@ export function InvestigadorView({ initial }: { initial: Competitor[] }) {
             ))}
 
             {adding && (
-              <tr className="bg-indigo-50">
+              <tr className="bg-[#4A7FBD]/5">
                 {(['name', 'price', 'proposal', 'advantages', 'disadvantages'] as const).map(field => (
                   <td key={field} className="px-3 py-2">
                     <input
                       placeholder={field === 'name' ? 'Nombre *' : field}
                       value={form[field]}
                       onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-                      className="w-full rounded border border-indigo-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                      className={inputClass}
                     />
                   </td>
                 ))}
                 <td className="whitespace-nowrap px-3 py-2">
-                  <button onClick={handleAdd} disabled={saving || !form.name.trim()} className="mr-2 text-indigo-600 hover:underline disabled:opacity-50">
+                  <button onClick={handleAdd} disabled={saving || !form.name.trim()} className="mr-2 text-[#4A7FBD] hover:text-[#22D3EE] transition-colors disabled:opacity-50 text-xs font-medium">
                     {saving ? 'Guardando...' : 'Guardar'}
                   </button>
-                  <button onClick={() => setAdding(false)} className="text-gray-400 hover:underline">Cancelar</button>
+                  <button onClick={() => setAdding(false)} className="text-[#555B6E] hover:text-[#8C93A8] transition-colors text-xs">Cancelar</button>
                 </td>
               </tr>
             )}
           </tbody>
         </table>
-      </div>
+      </TiCard>
     </div>
   )
 }

@@ -9,7 +9,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('guardian_config')
-    .select('engagement_threshold_pct, min_posts_for_trigger, monitoring_window_days, prohibited_words, alert_phone, publishing_paused, publishing_paused_reason, publishing_paused_at, is_active')
+    .select('engagement_threshold_pct, min_posts_for_trigger, monitoring_window_days, prohibited_words, alert_phone, publishing_paused, publishing_paused_reason, publishing_paused_at, is_active, autonomous_mode')
     .eq('is_active', true)
     .single()
 
@@ -29,6 +29,7 @@ export async function PATCH(request: NextRequest) {
     monitoring_window_days?: number
     prohibited_words?: string[]
     alert_phone?: string
+    autonomous_mode?: boolean
   }
 
   const { error } = await supabase.from('guardian_config').update({

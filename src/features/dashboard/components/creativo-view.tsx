@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { approveLyrics } from '../services/approve-lyrics'
 import { saveLyrics } from '../services/save-lyrics'
 import { VideoStatusBadge } from '@/features/video-generation/components/video-status-badge'
+import { TiCard, TiButton } from '@/shared/components/ti'
 import type { VideoStatus } from '@/types/database'
 
 interface LyricsOrder {
@@ -23,7 +24,6 @@ export function CreativoView({ orders }: { orders: LyricsOrder[] }) {
   const [editing, setEditing] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState<string | null>(null)
-  // Letra local actualizada tras guardar (sin recargar página)
   const [savedLyrics, setSavedLyrics] = useState<Record<string, string>>({})
 
   const pending = orders.filter(o => !approved.has(o.id))
@@ -64,28 +64,28 @@ export function CreativoView({ orders }: { orders: LyricsOrder[] }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">Letras Pendientes de Revisión</h2>
+        <h2 className="text-xl font-semibold text-[#F0F2F7]">Letras Pendientes de Revisión</h2>
         {pending.length > 0 && (
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+          <span className="rounded-full bg-[#4A7FBD]/20 px-3 py-1 text-sm font-medium text-[#4A7FBD]">
             {pending.length} pendiente{pending.length !== 1 ? 's' : ''}
           </span>
         )}
       </div>
 
       {pending.length === 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+        <TiCard className="p-8 text-center">
           <p className="text-2xl">🎶</p>
-          <p className="mt-2 font-medium text-gray-700">Todo al día</p>
-          <p className="text-sm text-gray-400">No hay letras pendientes de revisión.</p>
-        </div>
+          <p className="mt-2 font-medium text-[#F0F2F7]">Todo al día</p>
+          <p className="text-sm text-[#555B6E]">No hay letras pendientes de revisión.</p>
+        </TiCard>
       )}
 
       {pending.map(order => (
-        <div key={order.id} className="rounded-xl border border-gray-200 bg-white p-6">
+        <TiCard key={order.id} className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-medium text-gray-900">📱 {order.lead_phone}</p>
-              <p className="text-xs text-gray-400">
+              <p className="font-medium text-[#F0F2F7]">📱 {order.lead_phone}</p>
+              <p className="text-xs text-[#555B6E]">
                 {order.musical_style && <span className="mr-2">🎸 {order.musical_style}</span>}
                 {new Date(order.created_at).toLocaleDateString('es-MX', {
                   day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
@@ -99,21 +99,24 @@ export function CreativoView({ orders }: { orders: LyricsOrder[] }) {
 
           {order.story_text && (
             <div className="mt-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Historia</p>
-              <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700 whitespace-pre-wrap">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-[#8C93A8]">Historia</p>
+              <div
+                className="rounded-lg p-3 text-sm text-[#8C93A8] whitespace-pre-wrap shadow-ti-inset"
+                style={{ background: '#171920' }}
+              >
                 {order.story_text}
-              </p>
+              </div>
             </div>
           )}
 
           {(savedLyrics[order.id] ?? order.lyrics_text) && (
             <div className="mt-4">
               <div className="mb-1 flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Letra generada</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C93A8]">Letra generada</p>
                 {editing !== order.id && (
                   <button
                     onClick={() => handleStartEdit(order.id, savedLyrics[order.id] ?? order.lyrics_text ?? '')}
-                    className="text-xs text-indigo-500 hover:text-indigo-700 font-medium"
+                    className="text-xs text-[#4A7FBD] hover:text-[#22D3EE] font-medium transition-colors"
                   >
                     ✏️ Editar
                   </button>
@@ -125,10 +128,13 @@ export function CreativoView({ orders }: { orders: LyricsOrder[] }) {
                   value={editDraft[order.id] ?? ''}
                   onChange={e => setEditDraft(prev => ({ ...prev, [order.id]: e.target.value }))}
                   rows={16}
-                  className="w-full rounded-lg border border-indigo-300 bg-indigo-50 p-3 text-sm text-gray-800 font-sans whitespace-pre-wrap focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-y"
+                  className="w-full rounded-lg border border-[#4A7FBD]/40 bg-[#171920] p-3 text-sm text-[#F0F2F7] font-sans whitespace-pre-wrap focus:outline-none focus:border-[#4A7FBD] resize-y"
                 />
               ) : (
-                <pre className="max-h-64 overflow-y-auto rounded-lg bg-indigo-50 p-3 text-sm text-gray-800 whitespace-pre-wrap font-sans">
+                <pre
+                  className="max-h-64 overflow-y-auto rounded-lg p-3 text-sm text-[#8C93A8] whitespace-pre-wrap font-sans shadow-ti-inset"
+                  style={{ background: '#171920' }}
+                >
                   {savedLyrics[order.id] ?? order.lyrics_text}
                 </pre>
               )}
@@ -138,35 +144,33 @@ export function CreativoView({ orders }: { orders: LyricsOrder[] }) {
           <div className="mt-4 flex items-center gap-3 flex-wrap">
             {editing === order.id ? (
               <>
-                <button
+                <TiButton
                   onClick={() => handleSaveEdit(order.id)}
                   disabled={saving === order.id}
-                  className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
                 >
                   {saving === order.id ? 'Guardando...' : '💾 Guardar cambios'}
-                </button>
-                <button
+                </TiButton>
+                <TiButton
+                  variant="ghost"
                   onClick={() => handleCancelEdit(order.id)}
                   disabled={saving === order.id}
-                  className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
                 >
                   Cancelar
-                </button>
+                </TiButton>
               </>
             ) : (
-              <button
+              <TiButton
                 onClick={() => handleApprove(order.id)}
                 disabled={approving === order.id}
-                className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
               >
                 {approving === order.id ? 'Aprobando...' : '✅ Aprobar letra'}
-              </button>
+              </TiButton>
             )}
             {errors[order.id] && (
-              <p className="text-xs text-red-500">{errors[order.id]}</p>
+              <p className="text-xs text-[#FB923C]">{errors[order.id]}</p>
             )}
           </div>
-        </div>
+        </TiCard>
       ))}
     </div>
   )

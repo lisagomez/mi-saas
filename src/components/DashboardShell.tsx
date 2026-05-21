@@ -29,10 +29,16 @@ export function DashboardShell({ email, role, children }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: '#1C1E24' }}>
 
       {/* ── Top header ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+      <header
+        className="sticky top-0 z-10 border-b border-[#3A3F4E] px-4 sm:px-6 py-3 flex items-center justify-between gap-4"
+        style={{
+          background: 'linear-gradient(135deg, #23262F 0%, #1C1E24 100%)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
+        }}
+      >
         <AppLauncherPopover />
 
         {/* Right: role + email + logout */}
@@ -42,11 +48,11 @@ export function DashboardShell({ email, role, children }: Props) {
               {roleInfo.label}
             </span>
           )}
-          <span className="hidden md:block text-sm text-gray-400 truncate max-w-[180px]">{email}</span>
+          <span className="hidden md:block text-sm text-[#555B6E] truncate max-w-[180px]">{email}</span>
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-red-200"
+            className="flex items-center gap-1.5 text-sm text-[#8C93A8] hover:text-[#FB923C] transition-colors disabled:opacity-50 border border-[#3A3F4E] rounded-lg px-3 py-1.5 hover:border-[#FB923C]/40"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

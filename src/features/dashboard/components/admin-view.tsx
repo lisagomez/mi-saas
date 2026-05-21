@@ -24,6 +24,7 @@ import type { InvestigatorReport } from '@/features/agents/investigator/services
 import type { BucketStats } from '@/features/storage-management/services/get-storage-stats'
 import type { ConvertedLead } from '@/features/leads/services/get-converted-leads'
 import type { CampaignHistory } from '@/features/leads/types/leads'
+import { TiCard, TiTabBar } from '@/shared/components/ti'
 
 interface LyricsOrder {
   id: string; lead_phone: string; story_text: string | null
@@ -109,46 +110,34 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900">Panel Administrador</h2>
+      <h2 className="text-xl font-semibold text-[#F0F2F7]">Panel Administrador</h2>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-gray-100 p-1 overflow-x-auto">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex-shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-all whitespace-nowrap ${
-              tab === t.key
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {t.label}
-            {t.key === 'letras' && lyricsOrders.length > 0 && (
-              <span className="ml-1.5 rounded-full bg-indigo-100 px-1.5 text-xs text-indigo-700">
-                {lyricsOrders.length}
-              </span>
-            )}
-            {t.key === 'pagos' && pendingPayments.length > 0 && (
-              <span className="ml-1.5 rounded-full bg-yellow-100 px-1.5 text-xs text-yellow-700">
-                {pendingPayments.length}
-              </span>
-            )}
-            {t.key === 'videos' && pendingVideoPayments.length > 0 && (
-              <span className="ml-1.5 rounded-full bg-purple-100 px-1.5 text-xs text-purple-700">
-                {pendingVideoPayments.length}
-              </span>
-            )}
-            {t.key === 'avatar' && avatars.reduce((s, a) => s + a.pending_insights, 0) > 0 && (
-              <span className="ml-1.5 rounded-full bg-violet-100 px-1.5 text-xs text-violet-700">
-                {avatars.reduce((s, a) => s + a.pending_insights, 0)}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="flex items-start gap-2">
+        <TiTabBar
+          className="flex-1"
+          activeTab={tab}
+          onTabChange={(key) => setTab(key as TabKey)}
+          tabs={TABS.map(t => ({
+            key: t.key,
+            label: t.label,
+            badge:
+              t.key === 'letras' ? (lyricsOrders.length > 0 ? lyricsOrders.length : undefined) :
+              t.key === 'pagos' ? (pendingPayments.length > 0 ? pendingPayments.length : undefined) :
+              t.key === 'videos' ? (pendingVideoPayments.length > 0 ? pendingVideoPayments.length : undefined) :
+              t.key === 'avatar' ? (avatars.reduce((s, a) => s + a.pending_insights, 0) > 0 ? avatars.reduce((s, a) => s + a.pending_insights, 0) : undefined) :
+              undefined,
+            badgeVariant: (
+              t.key === 'pagos' ? 'amber' :
+              t.key === 'videos' || t.key === 'avatar' ? 'violet' :
+              'blue'
+            ) as 'blue' | 'amber' | 'violet' | 'cyan',
+          }))}
+        />
         <Link
           href="/dashboard/catalogs"
-          className="flex-shrink-0 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-gray-500 hover:text-gray-700"
+          className="flex-shrink-0 rounded-lg border border-[#3A3F4E] px-3 py-2 text-sm font-medium whitespace-nowrap text-[#8C93A8] hover:text-[#F0F2F7] hover:border-[#5A6278] transition-all"
+          style={{ background: 'linear-gradient(135deg, #1F2229 0%, #1C1E24 100%)' }}
         >
           📋 Catálogos
         </Link>
@@ -190,7 +179,7 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
       )}
       {tab === 'agentes' && (
         <div className="space-y-2">
-          <p className="text-sm text-gray-500">Los agentes también están integrados en sus tabs correspondientes (Competencia y Financiero). Aquí tienes acceso directo al Agente de Promociones.</p>
+          <p className="text-sm text-[#555B6E]">Los agentes también están integrados en sus tabs correspondientes (Competencia y Financiero). Aquí tienes acceso directo al Agente de Promociones.</p>
           <PromotionsAgentPanel activePromotions={activePromotions ?? []} />
         </div>
       )}
@@ -198,39 +187,39 @@ export function AdminView({ lyricsOrders, competitors, metrics, pendingPayments,
       {tab === 'avatar' && (
         <div className="space-y-4">
           {/* Pipeline visual */}
-          <div className="rounded-xl border border-gray-200 bg-white px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Pipeline</p>
-            <div className="flex items-center gap-2 text-xs text-gray-600 flex-wrap">
+          <TiCard className="px-5 py-4">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C93A8] mb-3">Pipeline</p>
+            <div className="flex items-center gap-2 text-xs text-[#8C93A8] flex-wrap">
               {[
                 { step: '/avatar-research', desc: 'investigación web + leads' },
                 { step: 'strategy-bridge',  desc: 'genera insights proactivos' },
                 { step: '/content-prompt-gen', desc: 'copy AIDA/PAS listo' },
               ].map((s, i, arr) => (
                 <span key={s.step} className="flex items-center gap-2">
-                  <span className="rounded-lg bg-gray-100 px-2.5 py-1 font-mono text-gray-700">{s.step}</span>
-                  <span className="text-gray-400 hidden sm:inline">{s.desc}</span>
-                  {i < arr.length - 1 && <span className="text-gray-300">→</span>}
+                  <span className="rounded-lg bg-[#171920] border border-[#3A3F4E] px-2.5 py-1 font-mono text-[#4A7FBD]">{s.step}</span>
+                  <span className="text-[#555B6E] hidden sm:inline">{s.desc}</span>
+                  {i < arr.length - 1 && <span className="text-[#3A3F4E]">→</span>}
                 </span>
               ))}
             </div>
-          </div>
+          </TiCard>
 
           {/* Lista de avatares */}
           {avatars.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-8 py-12 text-center">
+            <TiCard variant="inset" className="px-8 py-12 text-center border-dashed">
               <div className="text-4xl mb-4">🧑‍🤝‍🧑</div>
-              <h2 className="text-base font-semibold text-gray-700 mb-2">Sin avatares investigados aún</h2>
-              <p className="text-sm text-gray-400 max-w-sm mx-auto mb-4">
-                Ejecuta el skill <code className="bg-gray-100 rounded px-1.5 py-0.5 text-gray-600">/avatar-research</code> para
+              <h2 className="text-base font-semibold text-[#F0F2F7] mb-2">Sin avatares investigados aún</h2>
+              <p className="text-sm text-[#555B6E] max-w-sm mx-auto mb-4">
+                Ejecuta el skill <code className="bg-[#23262F] border border-[#3A3F4E] rounded px-1.5 py-0.5 text-[#4A7FBD]">/avatar-research</code> para
                 investigar el perfil de tu cliente ideal y generar insights proactivos automáticamente.
               </p>
-              <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-left text-xs text-gray-500 max-w-sm mx-auto font-mono">
-                <span className="text-violet-600">→</span> Investiga mi avatar — migrantes mexicanos en California
+              <div className="rounded-lg bg-[#23262F] border border-[#3A3F4E] px-4 py-3 text-left text-xs text-[#8C93A8] max-w-sm mx-auto font-mono">
+                <span className="text-[#A78BFA]">→</span> Investiga mi avatar — migrantes mexicanos en California
               </div>
-            </div>
+            </TiCard>
           ) : (
             <div className="space-y-3">
-              <p className="text-xs text-gray-400">{avatars.length} avatar{avatars.length !== 1 ? 'es' : ''} en la biblioteca</p>
+              <p className="text-xs text-[#555B6E]">{avatars.length} avatar{avatars.length !== 1 ? 'es' : ''} en la biblioteca</p>
               {avatars.map(avatar => (
                 <AvatarCard key={avatar.id} avatar={avatar} />
               ))}

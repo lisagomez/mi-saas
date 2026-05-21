@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useTransition } from 'react'
+import { useState, useRef, useTransition, useEffect } from 'react'
 import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
 import type { Post, PostStatus } from '../types'
 import { updatePostStatus } from '../services/update-post-status'
@@ -23,8 +23,21 @@ const FORMAT_ICONS: Record<string, string> = {
 
 // ─── Post detail panel ────────────────────────────────────────────────────────
 
-function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void }) {
+function PostDetailPanel({
+  post,
+  onClose,
+  onGenerated,
+  autonomousMode,
+}: {
+  post: Post
+  onClose: () => void
+  onGenerated?: (updated: Post) => void
+  autonomousMode: boolean
+}) {
   const [copied, setCopied] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [genError, setGenError] = useState<string | null>(null)
+  const [genInfo, setGenInfo] = useState<string | null>(null)
   const meta = STATUS_META[post.status]
   const icon = FORMAT_ICONS[post.format] ?? '📄'
   const content = post.body ?? post.prompt_template ?? ''
@@ -34,6 +47,47 @@ function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void })
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
+  }
+
+  async function handleGenerate() {
+    setGenerating(true)
+    setGenError(null)
+    setGenInfo(null)
+    try {
+      const res = await fetch('/api/content/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: post.id }),
+      })
+      const data = await res.json() as {
+        body?: string
+        status?: string
+        error?: string
+        autonomous?: boolean
+        attempts?: number
+        audit_passed?: boolean
+        publishing_paused?: boolean
+        failed_criteria?: string[]
+      }
+
+      if (res.status === 422) {
+        // Autonomous mode — 3 failed attempts
+        setGenError(data.error ?? 'Copy no pasó la auditoría')
+        onGenerated?.({ ...post, body: data.body ?? post.body ?? '', status: 'Ideado', notes: data.error ?? null })
+        return
+      }
+      if (!res.ok) throw new Error(data.error ?? 'Error generando copy')
+
+      const newStatus = (data.status ?? 'Generado') as PostStatus
+      if (data.autonomous && data.publishing_paused) {
+        setGenInfo('El Guardian tiene pausada la publicación. Copy guardado en Generado para revisión.')
+      }
+      onGenerated?.({ ...post, body: data.body ?? '', status: newStatus, notes: null })
+    } catch (err) {
+      setGenError(err instanceof Error ? err.message : 'Error inesperado')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   return (
@@ -144,7 +198,49 @@ function PostDetailPanel({ post, onClose }: { post: Post; onClose: () => void })
             <div className="text-center py-10 text-gray-400">
               <p className="text-4xl mb-3">📭</p>
               <p className="text-sm">Este post aún no tiene contenido generado.</p>
-              <p className="text-xs mt-1">Usa <code className="bg-gray-100 rounded px-1">/content-prompt-gen</code> para generarlo.</p>
+            </div>
+          )}
+
+          {/* Generate button — only for Ideado posts */}
+          {post.status === 'Ideado' && (
+            <div className="pt-2 space-y-2">
+              {genError && (
+                <p className="text-xs text-red-600 rounded-lg bg-red-50 border border-red-100 px-3 py-2">
+                  {genError}
+                </p>
+              )}
+              {genInfo && (
+                <p className="text-xs text-amber-700 rounded-lg bg-amber-50 border border-amber-100 px-3 py-2">
+                  {genInfo}
+                </p>
+              )}
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 transition-colors"
+              >
+                {generating ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                    {autonomousMode ? 'Generando y auditando…' : 'Generando…'}
+                  </>
+                ) : (
+                  <>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.347.347a3.5 3.5 0 00-1.023 2.47V18a1 1 0 01-1 1h-2a1 1 0 01-1-1v-.184a3.5 3.5 0 00-1.023-2.47L7.657 12.9z" />
+                    </svg>
+                    {autonomousMode ? 'Generar y aprobar (autónomo)' : 'Generar copy con IA'}
+                  </>
+                )}
+              </button>
+              {autonomousMode && (
+                <p className="text-[10px] text-center text-indigo-400">
+                  Modo autónomo activo — el copy pasa por auditoría antes de aprobarse
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -268,7 +364,34 @@ export function KanbanBoard({ initialPosts }: { initialPosts: Post[] }) {
   const [posts, setPosts] = useState(initialPosts)
   const [activePost, setActivePost] = useState<Post | null>(null)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [autonomousMode, setAutonomousMode] = useState(false)
+  const [togglingMode, setTogglingMode] = useState(false)
   const [, startTransition] = useTransition()
+
+  // Load autonomous_mode from guardian_config on mount
+  useEffect(() => {
+    fetch('/api/guardian/config')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data: { autonomous_mode?: boolean } | null) => {
+        if (data?.autonomous_mode !== undefined) setAutonomousMode(data.autonomous_mode)
+      })
+      .catch(() => {})
+  }, [])
+
+  async function handleToggleMode() {
+    const next = !autonomousMode
+    setTogglingMode(true)
+    try {
+      await fetch('/api/guardian/config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autonomous_mode: next }),
+      })
+      setAutonomousMode(next)
+    } finally {
+      setTogglingMode(false)
+    }
+  }
 
   const byStatus = (status: PostStatus) => posts.filter((p) => p.status === status)
 
@@ -300,6 +423,32 @@ export function KanbanBoard({ initialPosts }: { initialPosts: Post[] }) {
 
   return (
     <>
+      {/* Autonomous mode toggle */}
+      <div className="flex items-center justify-end gap-3 mb-4">
+        <span className="text-xs text-gray-500 font-medium">
+          {autonomousMode ? 'Modo autónomo' : 'Revisión manual'}
+        </span>
+        <button
+          onClick={handleToggleMode}
+          disabled={togglingMode}
+          aria-label="Toggle modo autónomo"
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+            autonomousMode ? 'bg-indigo-600' : 'bg-gray-200'
+          }`}
+        >
+          <span
+            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ${
+              autonomousMode ? 'translate-x-5' : 'translate-x-0'
+            }`}
+          />
+        </button>
+        <span className="text-[10px] text-gray-400 max-w-[160px] leading-tight">
+          {autonomousMode
+            ? 'El agente genera, audita y aprueba automáticamente'
+            : 'El agente genera; tú apruebas manualmente'}
+        </span>
+      </div>
+
       <DndContext id="kanban" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {STATUSES.map((status) => (
@@ -312,7 +461,15 @@ export function KanbanBoard({ initialPosts }: { initialPosts: Post[] }) {
       </DndContext>
 
       {selectedPost && (
-        <PostDetailPanel post={selectedPost} onClose={() => setSelectedPost(null)} />
+        <PostDetailPanel
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+          autonomousMode={autonomousMode}
+          onGenerated={(updated) => {
+            setSelectedPost(updated)
+            setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
+          }}
+        />
       )}
     </>
   )
