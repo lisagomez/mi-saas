@@ -53,13 +53,21 @@ interface AuditResult {
 
 function dialectRule(origin: string): string {
   const o = origin.toLowerCase()
-  if (o.includes('honduras') || o.includes('guatemala') || o.includes('el salvador') || o.includes('méx') || o.includes('mex')) {
-    return 'Usar "tú". PROHIBIDO voseo rioplatense.'
+  if (o.includes('honduras') || o.includes('guatemala') || o.includes('el salvador') || o.includes('méx') || o.includes('mex') || o.includes('cuba') || o.includes('puerto rico') || o.includes('colombia') || o.includes('perú') || o.includes('venezuela')) {
+    return `TUTEO OBLIGATORIO — origen: ${origin}
+❌ PROHIBIDO ABSOLUTAMENTE: imaginá, regalá, hacé, sentís, extrañás, acordate, mirá, decile, podés, tenés, sos, querés, vas, sabés, venís, chequeá (cualquier forma de "vos")
+✅ CORRECTO: imagina, regala, haz, sientes, extrañas, recuerda, mira, dile, puedes, tienes, eres, quieres, vas, sabes, vienes, chequea
+Ejemplos correctos: "¿Te acuerdas de Honduras?", "Regálale una canción", "¿Puedes imaginar su sonrisa?", "Hazlo especial"
+VERIFICA CADA VERBO ANTES DE ESCRIBIRLO: si termina en -ás, -és, -ís → es voseo → REEMPLÁZALO con la forma de tú.`
   }
   if (o.includes('argentin') || o.includes('uruguay')) {
-    return 'Usar voseo rioplatense. PROHIBIDO formas de tú.'
+    return `VOSEO RIOPLATENSE OBLIGATORIO — origen: ${origin}
+Usar siempre: imaginá, regalá, hacé, sentís, extrañás, acordate, mirá, podés, tenés, sos
+PROHIBIDO: imagina, regala, haz, sientes, extrañas (formas de tú)`
   }
-  return 'Usar "tú" o "usted" según contexto. PROHIBIDO voseo rioplatense.'
+  return `TUTEO OBLIGATORIO (forma por defecto)
+❌ PROHIBIDO: imaginá, regalá, hacé, sentís, extrañás, acordate (voseo rioplatense)
+✅ CORRECTO: imagina, regala, haz, sientes, extrañas, recuerda`
 }
 
 function parseJsonSafe(text: string): Record<string, unknown> | null {
@@ -185,10 +193,11 @@ Gancho recomendado: ${String(profile.recommended_hook ?? '')}`
     // ── LLAMADA 1: Orgánico PAS (3 formatos) ──────────────────────────────────
     const { text: organicText, usage: organicUsage } = await generateText({
       model: openrouter(MODEL),
-      system: `Eres copywriter para migrantes latinos en EE.UU. Tono cálido, coloquial.
-VARIANTE DIALECTAL: ${dialect}
-Responde SOLO con JSON válido. Sin markdown.`,
-      prompt: `AVATAR:\n${fullProfile}\n\nINSIGHT:\n${insightToWork}
+      system: `Eres copywriter para migrantes latinos en EE.UU. Tono cálido, coloquial. Responde SOLO con JSON válido. Sin markdown.`,
+      prompt: `⚠️ REGLA DIALECTAL — APLICAR EN CADA PALABRA DEL OUTPUT:
+${dialect}
+
+AVATAR:\n${fullProfile}\n\nINSIGHT:\n${insightToWork}
 
 FRAMEWORK: PAS (Problem → Agitation → Solution). Contenido ORGÁNICO para engagement.
 Genera los 3 formatos en un solo JSON:
@@ -223,10 +232,11 @@ Genera los 3 formatos en un solo JSON:
     // ── LLAMADA 2: Pauta AIDA ─────────────────────────────────────────────────
     const { text: paidText, usage: paidUsage } = await generateText({
       model: openrouter(MODEL),
-      system: `Eres copywriter de performance marketing para migrantes latinos en EE.UU.
-VARIANTE DIALECTAL: ${dialect}
-Responde SOLO con JSON válido. Sin markdown.`,
-      prompt: `AVATAR:\n${fullProfile}\n\nINSIGHT:\n${insightToWork}
+      system: `Eres copywriter de performance marketing para migrantes latinos en EE.UU. Responde SOLO con JSON válido. Sin markdown.`,
+      prompt: `⚠️ REGLA DIALECTAL — APLICAR EN CADA PALABRA DEL OUTPUT:
+${dialect}
+
+AVATAR:\n${fullProfile}\n\nINSIGHT:\n${insightToWork}
 
 FRAMEWORK: AIDA (Attention → Interest → Desire → Action). Contenido PAGADO orientado a CONVERSIÓN.
 Genera ambos formatos en un solo JSON:

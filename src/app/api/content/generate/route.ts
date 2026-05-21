@@ -44,13 +44,20 @@ interface AuditResult {
 
 function dialectRule(origin: string): string {
   const o = origin.toLowerCase()
-  if (o.includes('honduras') || o.includes('guatemala') || o.includes('el salvador') || o.includes('méx') || o.includes('mex')) {
-    return 'Usar "tú": "¿Te acuerdas?", "Regálale", "Comenta". PROHIBIDO voseo rioplatense ("regalás", "acordás").'
+  if (o.includes('honduras') || o.includes('guatemala') || o.includes('el salvador') || o.includes('méx') || o.includes('mex') || o.includes('cuba') || o.includes('puerto rico') || o.includes('colombia') || o.includes('perú') || o.includes('venezuela')) {
+    return `TUTEO OBLIGATORIO — origen: ${origin}
+❌ PROHIBIDO ABSOLUTAMENTE: imaginá, regalá, hacé, sentís, extrañás, acordate, mirá, decile, podés, tenés, sos, querés, sabés, venís, chequeá (cualquier forma de "vos")
+✅ CORRECTO: imagina, regala, haz, sientes, extrañas, recuerda, mira, dile, puedes, tienes, eres, quieres, sabes, vienes, chequea
+VERIFICA CADA VERBO: si termina en -ás, -és, -ís → es voseo → REEMPLÁZALO con la forma de tú.`
   }
   if (o.includes('argentin') || o.includes('uruguay')) {
-    return 'Usar voseo rioplatense: "¿Te acordás?", "Regalá", "Comentá". PROHIBIDO formas de tú.'
+    return `VOSEO RIOPLATENSE OBLIGATORIO — origen: ${origin}
+Usar siempre: imaginá, regalá, hacé, sentís, extrañás, acordate, mirá, podés, tenés, sos
+PROHIBIDO: imagina, regala, haz, sientes, extrañas (formas de tú)`
   }
-  return 'Usar "tú" o "usted" según contexto. PROHIBIDO voseo rioplatense.'
+  return `TUTEO OBLIGATORIO (forma por defecto)
+❌ PROHIBIDO: imaginá, regalá, hacé, sentís, extrañás, acordate (voseo rioplatense)
+✅ CORRECTO: imagina, regala, haz, sientes, extrañas, recuerda`
 }
 
 function formatCopy(format: string, parsed: Record<string, unknown>): string {
@@ -104,9 +111,11 @@ async function generateCopy(
     model: openrouter(MODEL_GEN),
     system: `Eres un copywriter especialista en marketing para migrantes latinos en EE.UU.
 Tu tono: cálido, directo, en español latinoamericano coloquial. Sin anglicismos forzados.
-VARIANTE DIALECTAL OBLIGATORIA: ${dialect}
 Responde SOLO con JSON válido. Sin markdown, sin explicaciones adicionales.`,
-    prompt: `AVATAR:
+    prompt: `⚠️ REGLA DIALECTAL — APLICAR EN CADA VERBO DEL OUTPUT:
+${dialect}
+
+AVATAR:
 ${fullProfile}
 ${correctionBlock}
 INSIGHT A TRABAJAR:
