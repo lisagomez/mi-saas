@@ -19,8 +19,9 @@ export const APP_GROUPS: AppGroup[] = [
   {
     label: 'Estrategia',
     apps: [
-      { key: 'avatar-research', label: 'Avatares',   icon: '🧑‍🤝‍🧑', href: '/avatar-research' },
-      { key: 'feed',            label: 'Feed',        icon: '📅',       href: '/feed' },
+      { key: 'avatar-research',    label: 'Avatares',   icon: '🧑‍🤝‍🧑', href: '/avatar-research' },
+      { key: 'feed',               label: 'Feed',        icon: '📅',       href: '/feed' },
+      { key: 'content-generator',  label: 'Contenido',   icon: '✨',       href: '/content-generator' },
     ],
   },
   {

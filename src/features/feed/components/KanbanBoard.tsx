@@ -251,7 +251,7 @@ function PostDetailPanel({
 
 // ─── Post card ────────────────────────────────────────────────────────────────
 
-function PostCard({ post, isDragging = false }: { post: Post; isDragging?: boolean }) {
+function PostCard({ post, isDragging = false, generatingPieces }: { post: Post; isDragging?: boolean; generatingPieces?: Set<string> }) {
   const icon = FORMAT_ICONS[post.format] ?? '📄'
 
   return (
@@ -296,9 +296,11 @@ function PostCard({ post, isDragging = false }: { post: Post; isDragging?: boole
         <p className="text-[10px] text-gray-300">
           {new Date(post.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
         </p>
-        {(post.body ?? post.prompt_template) && (
+        {generatingPieces?.has(post.id) ? (
+          <span className="text-[10px] text-indigo-400 animate-pulse">⚙️ generando…</span>
+        ) : (post.body ?? post.prompt_template) ? (
           <span className="text-[10px] text-gray-300">Ver →</span>
-        )}
+        ) : null}
       </div>
     </div>
   )
@@ -306,7 +308,7 @@ function PostCard({ post, isDragging = false }: { post: Post; isDragging?: boole
 
 // ─── Draggable card (clic vs drag) ───────────────────────────────────────────
 
-function DraggableCard({ post, onSelect }: { post: Post; onSelect: (p: Post) => void }) {
+function DraggableCard({ post, onSelect, generatingPieces }: { post: Post; onSelect: (p: Post) => void; generatingPieces?: Set<string> }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: post.id })
   const dragMoved = useRef(false)
 
@@ -319,14 +321,14 @@ function DraggableCard({ post, onSelect }: { post: Post; onSelect: (p: Post) => 
       onPointerMove={() => { dragMoved.current = true }}
       onClick={() => { if (!dragMoved.current) onSelect(post) }}
     >
-      <PostCard post={post} isDragging={isDragging} />
+      <PostCard post={post} isDragging={isDragging} generatingPieces={generatingPieces} />
     </div>
   )
 }
 
 // ─── Kanban column ────────────────────────────────────────────────────────────
 
-function KanbanColumn({ status, posts, onSelect }: { status: PostStatus; posts: Post[]; onSelect: (p: Post) => void }) {
+function KanbanColumn({ status, posts, onSelect, generatingPieces }: { status: PostStatus; posts: Post[]; onSelect: (p: Post) => void; generatingPieces?: Set<string> }) {
   const meta = STATUS_META[status]
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
@@ -346,7 +348,7 @@ function KanbanColumn({ status, posts, onSelect }: { status: PostStatus; posts: 
         }`}
       >
         {posts.map((post) => (
-          <DraggableCard key={post.id} post={post} onSelect={onSelect} />
+          <DraggableCard key={post.id} post={post} onSelect={onSelect} generatingPieces={generatingPieces} />
         ))}
         {posts.length === 0 && (
           <p className="text-xs text-gray-300 text-center pt-8 select-none">
@@ -366,14 +368,17 @@ export function KanbanBoard({ initialPosts }: { initialPosts: Post[] }) {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [autonomousMode, setAutonomousMode] = useState(false)
   const [togglingMode, setTogglingMode] = useState(false)
+  const [piecesAutonomousMode, setPiecesAutonomousMode] = useState(false)
+  const [generatingPieces, setGeneratingPieces] = useState<Set<string>>(new Set())
   const [, startTransition] = useTransition()
 
-  // Load autonomous_mode from guardian_config on mount
+  // Load autonomous_mode and pieces_autonomous_mode from guardian_config on mount
   useEffect(() => {
     fetch('/api/guardian/config')
       .then((r) => r.ok ? r.json() : null)
-      .then((data: { autonomous_mode?: boolean } | null) => {
+      .then((data: { autonomous_mode?: boolean; pieces_autonomous_mode?: boolean } | null) => {
         if (data?.autonomous_mode !== undefined) setAutonomousMode(data.autonomous_mode)
+        if (data?.pieces_autonomous_mode !== undefined) setPiecesAutonomousMode(data.pieces_autonomous_mode)
       })
       .catch(() => {})
   }, [])
@@ -419,6 +424,19 @@ export function KanbanBoard({ initialPosts }: { initialPosts: Post[] }) {
     startTransition(async () => {
       await updatePostStatus(postId, newStatus)
     })
+
+    // Trigger autónomo del Content Generator cuando un post llega a Aprobado
+    if (newStatus === 'Aprobado' && piecesAutonomousMode) {
+      setGeneratingPieces((prev) => new Set([...prev, postId]))
+      fetch('/api/content/generate-pieces', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: postId }),
+      })
+        .finally(() => {
+          setGeneratingPieces((prev) => { const next = new Set(prev); next.delete(postId); return next })
+        })
+    }
   }
 
   return (
@@ -452,7 +470,7 @@ export function KanbanBoard({ initialPosts }: { initialPosts: Post[] }) {
       <DndContext id="kanban" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {STATUSES.map((status) => (
-            <KanbanColumn key={status} status={status} posts={byStatus(status)} onSelect={setSelectedPost} />
+            <KanbanColumn key={status} status={status} posts={byStatus(status)} onSelect={setSelectedPost} generatingPieces={generatingPieces} />
           ))}
         </div>
         <DragOverlay>
