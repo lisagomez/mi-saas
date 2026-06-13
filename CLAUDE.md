@@ -405,10 +405,22 @@ src/
 | `campaign_spend` | facebook-ads | PRP-009 |
 | `storage_config` | storage-management | PRP-010b |
 | `storage_cleanup_log` | storage-management | PRP-010b |
-| `push_subscriptions` | notifications | — |
-| `notifications` | notifications | — |
+| `push_subscriptions` | notifications | PRP-016 |
+| `notifications` | notifications | PRP-016 |
 | `judge_rankings` | avatar-research | prp-judge-strategy-bridge |
 | `judge_overrides` | avatar-research | prp-judge-strategy-bridge |
+| `avatars` | avatar-research | prp-judge-strategy-bridge |
+| `avatar_insights` | avatar-research | prp-judge-strategy-bridge |
+| `proactive_insights` | avatar-research | prp-judge-strategy-bridge |
+| `content_outcomes` | avatar-research / monitor | prp-judge-strategy-bridge |
+| `app_launcher_registry` | app-launcher | PRP-011 |
+| `pricing_campaigns` | catalogs / dashboard | PRP-007 |
+| `events` | event-tracker | prp-event-tracker |
+| `posts` | feed / content-generator | PRP-015 / PRP-013 |
+| `weekly_trends` | feed | PRP-015 |
+| `content_pieces` | content-generator | PRP-013 |
+| `guardian_config` | content-guardian | PRP-014 |
+| `guardian_alerts` | content-guardian | PRP-014 |
 
 ---
 
@@ -510,7 +522,13 @@ npm run lint         # ESLint
 │   ├── prp-video-generation.md              # Video personalizado con fotos + YouTube
 │   ├── prp-app-launcher.md                  # App Launcher dinámico tipo Microsoft 365
 │   ├── prp-event-tracker.md                 # Tracker de eventos (clicks, DMs, saves)
-│   └── prp-judge-strategy-bridge.md         # Judge que rankea proactive_insights por probabilidad de éxito
+│   ├── prp-judge-strategy-bridge.md         # Judge que rankea proactive_insights por probabilidad de éxito
+│   ├── prp-titaniumorphism-design-system.md # PRP-012: Design system Titaniumorphism (Ti* primitives)
+│   ├── prp-content-generator.md             # PRP-013: Copy orgánico + pauta desde insights
+│   ├── prp-content-guardian.md              # PRP-014: Monitoreo engagement + stop-publishing
+│   ├── prp-feed.md                          # PRP-015: Kanban de contenido + log Trend Radar
+│   ├── prp-notifications.md                 # PRP-016: Web Push (PWA)
+│   └── INDEX.md                             # Índice maestro: feature ↔ PRP ↔ estado ↔ tablas
 │
 │   │   └── references/       # AI Templates (11 bloques)
 │

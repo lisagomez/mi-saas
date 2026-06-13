@@ -1,6 +1,6 @@
 # PRP-003: Integración de Generación Musical
 
-> **Estado**: PENDIENTE
+> **Estado**: COMPLETADO ✓ (verificado 2026-06-13 — pipeline Suno + /api/music/poll implementado; validar cron en prod)
 > **Fecha**: 2026-03-17
 > **Proyecto**: mi-saas (canciones personalizadas por WhatsApp)
 

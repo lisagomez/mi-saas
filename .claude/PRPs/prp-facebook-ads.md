@@ -1,6 +1,6 @@
 # PRP-009: Facebook Ads — Tracking de Campañas, ROAS y Atribución de Leads
 
-> **Estado**: PENDIENTE
+> **Estado**: COMPLETADO ✓ (verificado 2026-06-13)
 > **Fecha**: 2026-03-19
 > **Proyecto**: CancioBot
 

@@ -1,6 +1,6 @@
 # PRP-006: Generación de Video Personalizado con IA
 
-> **Estado**: PENDIENTE
+> **Estado**: EN PROGRESO (verificado 2026-06-13 — pipeline ffmpeg + upload-to-youtube.ts implementado; falta validar upload a YouTube en prod)
 > **Fecha**: 2026-03-18
 > **Proyecto**: mi-saas (canciones personalizadas)
 
