@@ -1,0 +1,55 @@
+<!-- @dsCard group="Slides" viewport="1280x720" subtitle="Lineage — the graph chain hero with vigente badge" name="Lineage slide" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0}
+  .slide{position:relative;width:1280px;height:720px;background:var(--surface-page);overflow:hidden;font-family:var(--font-body)}
+  .brushed{position:absolute;inset:0;opacity:.05;background:var(--brushed)}
+  .vig{position:absolute;inset:0;background:var(--vignette);pointer-events:none}
+  .chrome-l{position:absolute;left:42px;top:36px;display:flex;align-items:center;gap:10px;opacity:.6}
+  .dia{width:11px;height:11px;transform:rotate(45deg);background:var(--metal);border-radius:2px}
+  .wm{font-family:var(--font-mono);font-size:12px;letter-spacing:.34em;color:var(--text-steel);text-transform:uppercase}
+  .chrome-r{position:absolute;right:42px;top:38px;font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;color:var(--text-dim);text-transform:uppercase}
+  .bar{position:absolute;left:0;bottom:0;height:2px;width:56%;background:linear-gradient(90deg,var(--accent),var(--accent-hi));box-shadow:var(--glow-accent)}
+  .kick{position:absolute;left:50%;top:92px;transform:translateX(-50%);font-family:var(--font-mono);font-size:16px;letter-spacing:var(--track-kicker);text-transform:uppercase;color:var(--text-steel)}
+  .h1{position:absolute;left:50%;top:120px;transform:translateX(-50%);font-family:var(--font-display);font-weight:700;font-size:74px;letter-spacing:var(--track-tight);
+    background-image:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 10px 30px rgba(0,0,0,.5))}
+  .node{position:absolute;top:400px;border-radius:50%;background:var(--metal);padding:3px;box-sizing:border-box;box-shadow:var(--shadow-metal);transform:translate(-50%,-50%)}
+  .node>i{display:flex;width:100%;height:100%;border-radius:50%;background:var(--metal-face);border:1px solid var(--hairline);align-items:center;justify-content:center}
+  .node>i>s{border-radius:50%;background:var(--accent);box-shadow:var(--glow-accent-strong)}
+  .lab{position:absolute;transform:translateX(-50%);text-align:center;width:280px}
+  .lab b{display:block;font-family:var(--font-display);font-weight:600;font-size:22px;color:var(--text-hi)}
+  .lab span{font-size:14px;color:var(--text-steel)}
+  .vigente{position:absolute;top:312px;left:640px;transform:translateX(-50%);font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-hi);
+    padding:6px 14px;border-radius:var(--r-pill);background:var(--accent-soft);border:1px solid var(--accent-line);box-shadow:var(--glow-accent)}
+  .src{position:absolute;left:50%;top:556px;transform:translateX(-50%);font-family:var(--font-mono);font-size:15px;color:var(--text-steel);
+    padding:9px 18px;border-radius:var(--r-sm);background:var(--glass-fill);border:1px solid var(--hairline)}
+  .src b{color:var(--accent-hi);font-weight:500}
+  .foot{position:absolute;left:50%;top:628px;transform:translateX(-50%);font-family:var(--font-display);font-weight:500;font-size:30px;color:var(--text-hi)}
+  .met{background-image:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+</style></head>
+<body>
+  <div class="slide">
+    <div class="brushed"></div>
+    <div class="chrome-l"><div class="dia"></div><div class="wm">Grafo</div></div>
+    <div class="chrome-r">Inteligencia fiscal · grafo</div>
+    <div class="kick">El diferenciador</div>
+    <div class="h1">Trazabilidad total</div>
+
+    <svg width="1280" height="720" style="position:absolute;inset:0">
+      <line x1="380" y1="400" x2="640" y2="400" stroke="var(--accent)" stroke-width="4" style="filter:drop-shadow(0 0 7px var(--accent))"/>
+      <line x1="640" y1="400" x2="900" y2="400" stroke="var(--accent)" stroke-width="4" style="filter:drop-shadow(0 0 7px var(--accent))"/>
+      <circle cx="528" cy="400" r="6" fill="#fff" style="filter:drop-shadow(0 0 9px var(--accent))"/>
+    </svg>
+    <div class="node" style="left:380px;width:120px;height:120px"><i><s style="width:48px;height:48px"></s></i></div>
+    <div class="node" style="left:640px;width:150px;height:150px"><i><s style="width:60px;height:60px"></s></i></div>
+    <div class="node" style="left:900px;width:120px;height:120px"><i><s style="width:48px;height:48px"></s></i></div>
+    <div class="vigente">vigente</div>
+    <div class="lab" style="left:380px;top:478px"><b>Gasto</b><span>concepto + monto + fecha</span></div>
+    <div class="lab" style="left:640px;top:496px"><b>Art. 28 LISR</b><span>norma vigente a la fecha</span></div>
+    <div class="lab" style="left:900px;top:478px"><b>Criterio SAT 2026</b><span>sustento aplicable</span></div>
+    <div class="src">source_version: <b>LISR-2026.1</b> · vigente al 12·06·2026</div>
+    <div class="foot">No es una opinión. Es <span class="met">prueba de debida diligencia</span>.</div>
+    <div class="vig"></div>
+    <div class="bar"></div>
+  </div>
+</body></html>

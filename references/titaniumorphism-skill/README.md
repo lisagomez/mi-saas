@@ -58,13 +58,35 @@ Si solo quieres usar el deck HTML (sin imagenes Nano Banana):
 titaniumorphism-skill/
 ├── README.md (este archivo)
 ├── SKILL.md (orquestador principal — leelo primero)
-└── references/
-    ├── style-titaniumorphism.md (umbrella spec — paleta, filosofia, prompt V5)
-    ├── style-sketchnote-dark.md (sub-spec narrativa hand-drawn)
-    ├── deck-style-saas-factory.md (sub-spec HTML deck completo)
-    ├── style-liquid-metal.md (LEGACY — solo si pides explicitamente)
-    └── voice-daniel.md (voz de Daniel para teleprompters/scripts)
+├── references/
+│   ├── style-titaniumorphism.md (umbrella spec — paleta, filosofia, prompt V5)
+│   ├── style-sketchnote-dark.md (sub-spec narrativa hand-drawn)
+│   ├── deck-style-saas-factory.md (sub-spec HTML deck completo)
+│   ├── style-liquid-metal.md (LEGACY — solo si pides explicitamente)
+│   └── voice-daniel.md (voz de Daniel para teleprompters/scripts)
+└── design-system/ (implementacion en codigo — variante cool graphite + acento azul)
+    ├── DESIGN-SYSTEM.md (spec completa de la variante Grafo)
+    ├── styles.css (entry point — @import de los tokens)
+    ├── tokens/ (colors.css, typography.css, effects.css)
+    ├── components/presentation/ (React: MetalHeading, Kicker, GlassChip, KPIStat, MetalNode + .d.ts + .prompt.md)
+    ├── guidelines/ (specimen cards HTML — paleta, metal, glass, tipografia)
+    └── slides/ (templates 16:9 — Title, Stat, Lineage, Closing)
 ```
+
+### Sobre `design-system/` (nuevo)
+
+Es la **capa de implementacion en codigo** del estilo titaniumorphism, extraida del video
+*Grafo*. A diferencia de las specs en prose de `references/`, aqui hay tokens CSS y componentes
+React listos para usar en el proyecto (Next.js 16 + React 19).
+
+> **Nota de variante:** esta capa usa la paleta **cool graphite + un solo acento azul**
+> (`--accent: #5fa8e6`, amber `--risk` solo para "el problema"), con tipografias
+> **Sora / Manrope / JetBrains Mono**. Es una variante distinta a la "hardware mostaza
+> `#ff9101` + Cormorant" de `style-titaniumorphism.md`. Usa una u otra segun el tono que pidas;
+> no las mezcles (regla de un solo acento).
+
+No se incluyo el video Grafo en si (`Grafo*.html`, `Grafo.scenes.jsx`, scaffolding del visor),
+solo el sistema de diseño reutilizable.
 
 ---
 

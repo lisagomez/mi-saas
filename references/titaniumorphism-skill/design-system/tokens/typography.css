@@ -1,0 +1,36 @@
+/* Titaniumorphism — typography tokens
+   Display: Sora (geometric, premium presence)
+   Body:    Manrope (neutral, legible)
+   Mono:    JetBrains Mono (kickers, source tags, numerals — the "evidence" voice)
+   Fonts are Google-hosted; swap to local @font-face binaries for offline/brand lock. */
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body:    "Manrope", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* Display scale (1920×1080 stage / big-screen first) */
+  --fs-mega:   184px;  /* wordmark                       */
+  --fs-h1:      96px;  /* scene title (metal)            */
+  --fs-h2:      62px;  /* primary statement             */
+  --fs-h3:      46px;  /* secondary statement           */
+  --fs-stat:   138px;  /* KPI numeral (mono)            */
+  --fs-body:    24px;
+  --fs-label:   20px;  /* node labels                    */
+  --fs-kicker:  19px;  /* mono section kicker            */
+
+  --weight-display: 700;
+  --weight-display-black: 800;
+  --weight-strong: 600;
+  --weight-body: 500;
+
+  /* Signature tracking */
+  --track-tight: -0.03em;   /* big display                */
+  --track-mega:  -0.04em;   /* wordmark                   */
+  --track-kicker: 0.46em;   /* uppercase mono kicker      */
+  --track-mono:   0.22em;   /* mono meta line             */
+
+  --leading-tight: 1.12;
+  --leading-body: 1.4;
+}

@@ -1,0 +1,14 @@
+<!-- @dsCard group="Effects" viewport="700x190" subtitle="Frosted titanium plate — fill + blur + top inset highlight" name="Glass plate" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>body{margin:0;height:190px;background:var(--surface-page);display:flex;align-items:center;justify-content:center;gap:26px;font-family:var(--font-body)}
+.plate{width:300px;padding:26px;border-radius:var(--r-lg);background:var(--glass-fill);
+  -webkit-backdrop-filter:var(--blur-glass);backdrop-filter:var(--blur-glass);
+  border:1px solid var(--glass-border);box-shadow:var(--shadow-glass)}
+.big{font-family:var(--font-mono);font-weight:600;font-size:48px;background:var(--metal);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.cap{margin-top:8px;color:var(--text);font-size:15px}
+.meta{font-family:var(--font-mono);color:var(--text-steel);font-size:11px;letter-spacing:.05em;max-width:200px;line-height:1.5}</style></head>
+<body>
+  <div class="plate"><div class="big">20–100<span style="font-size:20px;color:var(--text-steel)"> %</span></div><div class="cap">multa sobre el impuesto omitido</div></div>
+  <div class="meta">--glass-fill + --blur-glass + --glass-border + --shadow-glass.<br><br>The 1px top inset highlight is mandatory.</div>
+</body></html>

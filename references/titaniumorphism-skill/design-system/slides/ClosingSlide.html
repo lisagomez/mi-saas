@@ -1,0 +1,37 @@
+<!-- @dsCard group="Slides" viewport="1280x720" subtitle="Closing — from→to line, wordmark, CTA" name="Closing slide" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0}
+  .slide{position:relative;width:1280px;height:720px;background:var(--surface-page);overflow:hidden;font-family:var(--font-body)}
+  .brushed{position:absolute;inset:0;opacity:.05;background:var(--brushed)}
+  .vig{position:absolute;inset:0;background:var(--vignette);pointer-events:none}
+  .chrome-l{position:absolute;left:42px;top:36px;display:flex;align-items:center;gap:10px;opacity:.6}
+  .dia{width:11px;height:11px;transform:rotate(45deg);background:var(--metal);border-radius:2px}
+  .wm{font-family:var(--font-mono);font-size:12px;letter-spacing:.34em;color:var(--text-steel);text-transform:uppercase}
+  .chrome-r{position:absolute;right:42px;top:38px;font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;color:var(--text-dim);text-transform:uppercase}
+  .bar{position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,var(--accent),var(--accent-hi));box-shadow:var(--glow-accent)}
+  .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:1080px}
+  .fromto{font-family:var(--font-display);font-weight:500;font-size:32px;color:var(--text-dim);letter-spacing:-.01em}
+  .fromto .steel{color:var(--text-steel)}
+  .fromto .arrow{color:var(--accent);margin:0 16px}
+  .fromto .acc{color:var(--accent)}
+  .mega{margin:24px 0 0;font-family:var(--font-display);font-weight:800;font-size:140px;line-height:.95;letter-spacing:var(--track-mega);
+    background-image:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 14px 40px rgba(0,0,0,.5))}
+  .q{margin-top:30px;font-family:var(--font-display);font-weight:600;font-size:30px;color:var(--text-hi)}
+  .cta{margin-top:16px;font-family:var(--font-mono);font-size:18px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent)}
+</style></head>
+<body>
+  <div class="slide">
+    <div class="brushed"></div>
+    <div class="chrome-l"><div class="dia"></div><div class="wm">Grafo</div></div>
+    <div class="chrome-r">Inteligencia fiscal · grafo</div>
+    <div class="center">
+      <div class="fromto">De <span class="steel">horas de incertidumbre</span><span class="arrow">→</span><span class="acc">45 segundos con evidencia.</span></div>
+      <div class="mega">Grafo</div>
+      <div class="q">¿Construimos el piloto con su despacho?</div>
+      <div class="cta">Hablemos</div>
+    </div>
+    <div class="vig"></div>
+    <div class="bar"></div>
+  </div>
+</body></html>

@@ -1,0 +1,37 @@
+<!-- @dsCard group="Components" viewport="700x320" subtitle="MetalHeading · Kicker · GlassChip · KPIStat · MetalNode" name="Presentation primitives" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;background:var(--surface-page);font-family:var(--font-body);color:var(--text-hi);
+    padding:28px 30px;display:flex;flex-direction:column;gap:22px}
+  .row{display:flex;align-items:center;gap:30px;flex-wrap:wrap}
+  .kicker{font-family:var(--font-mono);font-size:var(--fs-kicker);letter-spacing:var(--track-kicker);text-transform:uppercase;color:var(--text-steel)}
+  .metal-h{font-family:var(--font-display);font-weight:var(--weight-display);font-size:48px;letter-spacing:var(--track-tight);line-height:.98;
+    background-image:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 12px 30px rgba(0,0,0,.5))}
+  .chip{width:300px;box-sizing:border-box;padding:24px;border-radius:var(--r-lg);background:var(--glass-fill);
+    -webkit-backdrop-filter:var(--blur-glass);backdrop-filter:var(--blur-glass);border:1px solid var(--glass-border);box-shadow:var(--shadow-glass)}
+  .chip .v{font-family:var(--font-mono);font-weight:600;font-size:48px;background-image:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+  .chip .v small{font-size:20px;color:var(--text-steel);-webkit-text-fill-color:var(--text-steel)}
+  .chip .l{margin-top:10px;font-size:16px;color:var(--text)}
+  .kpi{width:240px;text-align:center}
+  .kpi .v{font-family:var(--font-mono);font-weight:600;font-size:96px;line-height:1;letter-spacing:-.03em;
+    background-image:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+  .kpi .u{height:3px;width:64%;margin:14px auto 0;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent-hi));box-shadow:var(--glow-accent-strong)}
+  .kpi .l{margin-top:16px;font-family:var(--font-display);font-weight:600;font-size:22px}
+  .kpi .n{margin-top:6px;font-size:15px;color:var(--text-steel)}
+  .node{width:120px;height:120px;border-radius:50%;background:var(--metal);padding:3px;box-sizing:border-box;box-shadow:var(--shadow-metal),0 0 30px rgba(124,180,255,.5)}
+  .node>i{display:flex;width:100%;height:100%;border-radius:50%;background:var(--metal-face);border:1px solid var(--hairline);align-items:center;justify-content:center}
+  .node>i>s{width:48px;height:48px;border-radius:50%;background:var(--accent);box-shadow:var(--glow-accent-strong)}
+  .tag{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);letter-spacing:.05em}
+</style></head>
+<body>
+  <div>
+    <div class="kicker">El diferenciador</div>
+    <div class="metal-h" style="margin-top:6px">Trazabilidad total</div>
+    <div class="tag">&lt;Kicker /&gt; + &lt;MetalHeading /&gt;</div>
+  </div>
+  <div class="row">
+    <div class="chip"><div class="v">20–100 <small>%</small></div><div class="l">multa por una deducción mal sustentada</div></div>
+    <div class="kpi"><div class="v">&lt;45 s</div><div class="u"></div><div class="l">Dictamen con ruta legal</div><div class="n">−90% vs. manual</div></div>
+    <div style="text-align:center"><div class="node"><i><s></s></i></div><div class="tag" style="margin-top:10px">&lt;MetalNode /&gt;</div></div>
+  </div>
+</body></html>

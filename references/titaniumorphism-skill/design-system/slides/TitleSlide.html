@@ -1,0 +1,43 @@
+<!-- @dsCard group="Slides" viewport="1280x720" subtitle="Title — wordmark, kicker, tagline" name="Title slide" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0}
+  .slide{position:relative;width:1280px;height:720px;background:var(--surface-page);overflow:hidden;font-family:var(--font-body)}
+  .brushed{position:absolute;inset:0;opacity:.05;background:var(--brushed)}
+  .vig{position:absolute;inset:0;background:var(--vignette);pointer-events:none}
+  .chrome-l{position:absolute;left:42px;top:36px;display:flex;align-items:center;gap:10px;opacity:.6}
+  .dia{width:11px;height:11px;transform:rotate(45deg);background:var(--metal);border-radius:2px}
+  .wm{font-family:var(--font-mono);font-size:12px;letter-spacing:.34em;color:var(--text-steel);text-transform:uppercase}
+  .chrome-r{position:absolute;right:42px;top:38px;font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;color:var(--text-dim);text-transform:uppercase}
+  .bar{position:absolute;left:0;bottom:0;height:2px;width:18%;background:linear-gradient(90deg,var(--accent),var(--accent-hi));box-shadow:var(--glow-accent)}
+  .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:1000px}
+  .mega{font-family:var(--font-display);font-weight:800;font-size:150px;line-height:.95;letter-spacing:var(--track-mega);
+    background-image:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 14px 40px rgba(0,0,0,.5))}
+  .sub{margin-top:14px;font-family:var(--font-mono);font-size:18px;letter-spacing:.34em;text-transform:uppercase;color:var(--text-steel)}
+  .rule{width:240px;height:1px;margin:30px auto;background:linear-gradient(90deg,transparent,var(--text-steel),transparent)}
+  .tag{font-family:var(--font-display);font-weight:500;font-size:34px;line-height:1.25;color:var(--text-hi)}
+  .acc{color:var(--accent)}.dim{color:var(--text-dim)}
+  .dots line{stroke:var(--text-steel)}.dots circle{fill:#cdd7df}
+</style></head>
+<body>
+  <div class="slide">
+    <div class="brushed"></div>
+    <svg class="dots" width="1280" height="720" style="position:absolute;inset:0;opacity:.13">
+      <line x1="180" y1="150" x2="360" y2="110"/><line x1="360" y1="110" x2="520" y2="220"/>
+      <line x1="1080" y1="160" x2="940" y2="250"/><line x1="940" y1="250" x2="1120" y2="360"/>
+      <line x1="220" y1="560" x2="420" y2="600"/><line x1="1040" y1="580" x2="880" y2="500"/>
+      <circle cx="180" cy="150" r="3"/><circle cx="360" cy="110" r="3"/><circle cx="520" cy="220" r="3"/>
+      <circle cx="1080" cy="160" r="3"/><circle cx="940" cy="250" r="3"/><circle cx="1120" cy="360" r="3"/>
+      <circle cx="220" cy="560" r="3"/><circle cx="420" cy="600" r="3"/><circle cx="1040" cy="580" r="3"/><circle cx="880" cy="500" r="3"/>
+    </svg>
+    <div class="chrome-l"><div class="dia"></div><div class="wm">Grafo</div></div>
+    <div class="chrome-r">Inteligencia fiscal · grafo</div>
+    <div class="center">
+      <div class="mega">Grafo</div>
+      <div class="sub">Motor de inteligencia fiscal</div>
+      <div class="rule"></div>
+      <div class="tag">El copiloto fiscal que <span class="acc">firma con evidencia</span>,<br><span class="dim">no con suposiciones.</span></div>
+    </div>
+    <div class="bar"></div>
+  </div>
+</body></html>

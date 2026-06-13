@@ -1,0 +1,39 @@
+/* Titaniumorphism — color tokens
+   Graphite base · cool steel · single blue accent · amber for risk.
+   All surfaces are near-black; metal is a gradient, not a flat color. */
+:root {
+  /* ── Graphite backgrounds (near-black, slightly cool) ── */
+  --bg-0: #0a0c0f;   /* deepest — page / canvas base            */
+  --bg-1: #14181e;   /* mid radial stop                          */
+  --bg-2: #1d232a;   /* lifted radial center                     */
+  --bg-black: #000;  /* letterbox / true black for recording     */
+
+  /* Signature page background (radial graphite) */
+  --surface-page: radial-gradient(120% 92% at 50% 26%, #1d232a 0%, #14181e 46%, #0a0c0f 100%);
+
+  /* ── Brushed-titanium gradient (the hero material) ── */
+  --metal: linear-gradient(143deg,#f2f5f8 0%,#c2cbd3 24%,#646d75 50%,#9ba5ad 70%,#e6ecf1 100%);
+  --metal-vert: linear-gradient(180deg,#eef3f7 0%,#aab4bd 40%,#5c656d 60%,#dde4ea 100%);
+
+  /* ── Text / steel scale ── */
+  --text-hi:   #eef2f6;  /* primary headline ink            */
+  --text:      #c4cdd5;  /* body                            */
+  --text-steel:#9fb4c9;  /* labels, captions, secondary     */
+  --text-dim:  #6f7c89;  /* de-emphasised / struck          */
+
+  /* ── Accent (energy) — one hue only ── */
+  --accent:    #5fa8e6;
+  --accent-hi: #9ed0ff;
+  --accent-soft: rgba(95,168,230,0.12);
+  --accent-line: rgba(95,168,230,0.50);
+
+  /* ── Risk / warning (used sparingly — the "problem" state) ── */
+  --risk:     #e0915a;
+  --risk-hot: #d96a52;
+
+  /* ── Glass (frosted titanium plate) ── */
+  --glass-fill:   rgba(255,255,255,0.045);
+  --glass-fill-2: rgba(255,255,255,0.07);
+  --glass-border: rgba(255,255,255,0.11);
+  --hairline:     rgba(255,255,255,0.10);
+}
