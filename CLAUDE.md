@@ -367,7 +367,7 @@ src/
 │   ├── content-guardian/    # Monitoreo de engagement + stop-publishing + alertas WA
 │   ├── event-tracker/       # Tracking de señales (clicks, DMs, saves)
 │   ├── feed/                # Kanban board + Trend Radar log de contenido
-│   ├── storage-management/  # Monitoreo de Storage (PRP-010b)
+│   ├── storage-management/  # Monitoreo de Storage (PRP-017)
 │   ├── video-generation/    # Pipeline de video (PRP-006)
 │   └── whatsapp-bot/        # Bot, calificador, mensajes
 │       ├── qualifier/       # runQualifier() — califica leads con IA
@@ -403,8 +403,8 @@ src/
 | `rebuys` | agents/promotions | PRP-010 |
 | `facebook_campaigns` | facebook-ads | PRP-009 |
 | `campaign_spend` | facebook-ads | PRP-009 |
-| `storage_config` | storage-management | PRP-010b |
-| `storage_cleanup_log` | storage-management | PRP-010b |
+| `storage_config` | storage-management | PRP-017 |
+| `storage_cleanup_log` | storage-management | PRP-017 |
 | `push_subscriptions` | notifications | PRP-016 |
 | `notifications` | notifications | PRP-016 |
 | `judge_rankings` | avatar-research | prp-judge-strategy-bridge |
@@ -509,7 +509,7 @@ npm run lint         # ESLint
 │
 ├── PRPs/                      # Product Requirements Proposals
 │   ├── prp-base.md                          # Template base
-│   ├── prp-001-whatsapp-leads-campaign.md   # Campana leads WhatsApp (ACTIVO)
+│   ├── prp-005-whatsapp-leads-campaign.md   # PRP-005: Campana leads WhatsApp
 │   ├── prp-agentes-automaticos.md           # Agentes: investigador, financiero, promociones
 │   ├── prp-catalogs.md                      # Catalogos: promos, preferencias, presupuesto
 │   ├── prp-dashboard-roles.md               # Dashboard multi-rol (4 roles)

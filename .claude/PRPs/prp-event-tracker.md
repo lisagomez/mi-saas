@@ -1,4 +1,4 @@
-# PRP: Event Tracker — Intención de Compra por Comportamiento
+# PRP-018: Event Tracker — Intención de Compra por Comportamiento
 
 > **Estado**: COMPLETADO
 > **Fecha**: 2026-05-13

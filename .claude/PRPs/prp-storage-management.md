@@ -1,4 +1,4 @@
-# PRP-010: Sistema de Storage Management
+# PRP-017: Sistema de Storage Management
 
 > **Estado**: COMPLETADO ✓ (verificado 2026-06-13)
 > **Fecha**: 2026-03-19

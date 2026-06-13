@@ -1,4 +1,4 @@
-# PRP-001: WhatsApp Leads + Campanas de Promocion Avanzadas
+# PRP-005: WhatsApp Leads + Campanas de Promocion Avanzadas
 
 > **Estado**: COMPLETADO ✓ (verificado 2026-06-13)
 > **Fecha**: 2026-03-25
