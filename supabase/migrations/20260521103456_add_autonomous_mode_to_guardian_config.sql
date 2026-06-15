@@ -1,0 +1,1 @@
+ALTER TABLE guardian_config ADD COLUMN IF NOT EXISTS autonomous_mode boolean DEFAULT false;
