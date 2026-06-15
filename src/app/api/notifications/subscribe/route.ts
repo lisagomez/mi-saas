@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy: no instanciar en module-scope o el build falla al "collect page data"
+// cuando NEXT_PUBLIC_SUPABASE_URL no está en el entorno de build (Vercel).
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function POST(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { subscription, userId, deviceInfo, oldEndpoint } = await request.json();
 
@@ -61,6 +66,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { endpoint } = await request.json();
 
