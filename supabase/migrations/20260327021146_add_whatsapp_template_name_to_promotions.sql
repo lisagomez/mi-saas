@@ -1,0 +1,1 @@
+ALTER TABLE public.promotions_catalog ADD COLUMN whatsapp_template_name text NULL;
